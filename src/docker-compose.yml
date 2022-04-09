@@ -1,0 +1,37 @@
+version: "3"
+
+volumes:
+  db:
+      driver: local
+
+services:
+  database:
+    image: postgres:14-alpine
+    hostname: florgon-auth-api
+    restart: always
+    volumes:
+      - ../db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST=database
+      - POSTGRES_NAME=auth-api
+      - POSTGRES_USER=auth-api
+      - POSTGRES_PASSWORD=postgres
+  server:
+    hostname: florgon-auth-api
+    restart: always
+    volumes:
+      - ./auth-api:/srv/www/florgon/auth-api
+    ports:
+      - "80:80"
+    environment:
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - POSTGRES_NAME=auth-api
+      - POSTGRES_USER=auth-api
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - database
+    links:
+      - database
+    build: .
+    command: sh -c "uvicorn main:app --proxy-headers --host 0.0.0.0 --port 80"
