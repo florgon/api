@@ -43,3 +43,8 @@ def signup(username: str, email: str, password: str, db: Session = Depends(get_d
     """ API endpoint to signup and create new user. """
     user = crud.user.create(db=db, email=email, username=username, password=password)
     return api_success(serializers.user.serialize(user))
+
+@app.get("/user")
+def user(db: Session = Depends(get_db)):
+    user = crud.user.get_by_id(db=db, user_id=0)
+    return api_success(serializers.user.serialize(user))
