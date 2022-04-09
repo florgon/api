@@ -1,5 +1,5 @@
 # Florgon auth API.
-Authentication API server. SSO authentication via JWT for Florgon services.
+Authentication API server. SSO authentication for Florgon services.
 # See in action.
 API deployed and used in production [here](api.florgon.space/auth).
 # How to run.
