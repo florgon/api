@@ -3,12 +3,17 @@
 """
 
 # ORM.
+from sqlalchemy.sql import func
 from sqlalchemy import (
-    Integer, String, Column
+    Integer, String, Column, Boolean, DateTime
 )
 
 # Core model base.
 from ..core import Base
+
+# Role utils.
+from .role import Role
+
 
 class User(Base):
     """ Auth service user model"""
@@ -16,7 +21,17 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True, nullable=False)
 
+    role = Column(Integer, nullable=False, default=Role.GUEST)
+
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
 
     password = Column(String, nullable=False)
+
+    is_active = Column(Boolean, nullable=False, default=True)
+    is_verified = Column(Boolean, nullable=False, default=False)
+
+    time_created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    time_updated = Column(DateTime(timezone=True), onupdate=func.now(), nullable=False)
+    time_verified = Column(DateTime(timezone=True), nullable=True)
+
