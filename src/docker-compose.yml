@@ -23,12 +23,6 @@ services:
       - ./auth-api:/srv/www/florgon/auth-api
     ports:
       - "80:80"
-    environment:
-      - POSTGRES_HOST=database
-      - POSTGRES_PORT=5432
-      - POSTGRES_NAME=auth-api
-      - POSTGRES_USER=auth-api
-      - POSTGRES_PASSWORD=postgres
     depends_on:
       - database
     links:

@@ -7,9 +7,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Engine.
-connection_url = "postgresql://auth-api:postgres@database/auth-api"
-engine = create_engine(connection_url)
+# Database engine.
+engine = create_engine("postgresql://auth-api:postgres@database/auth-api")
 
 # Base, session from core.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

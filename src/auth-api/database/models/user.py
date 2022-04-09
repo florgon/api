@@ -11,17 +11,12 @@ from sqlalchemy import (
 # Core model base.
 from ..core import Base
 
-# Role utils.
-from .role import Role
-
 
 class User(Base):
     """ Auth service user model"""
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, nullable=False)
-
-    role = Column(Integer, nullable=False, default=Role.GUEST)
 
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)

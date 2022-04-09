@@ -14,6 +14,8 @@ class ApiErrorCode(Enum):
 
     # Other auth related.
     AUTH_INVALID_CREDENTIALS = 10, 400
+    AUTH_INVALID_TOKEN = 11, 400
+    AUTH_EXPIRED_TOKEN = 12, 400
     AUTH_REQUIRED = 20, 401
 
     # API.
