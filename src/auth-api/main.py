@@ -5,9 +5,9 @@
 
 # Libraries.
 from functools import lru_cache
-from os import name
+from typing import Optional
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends, Request
 from fastapi.exceptions import RequestValidationError
 
 # Database.
@@ -46,7 +46,7 @@ async def validation_exception_handler(_, exception):
 
 
 @app.get("/auth/signup")
-def signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
+async def signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ API endpoint to signup and create new user. """
 
     # Validate email.
@@ -70,7 +70,7 @@ def signup(username: str, email: str, password: str, db: Session = Depends(get_d
 
 
 @app.get("/auth/signin")
-def signin(login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
+async def signin(login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ API endpoint to signin and get token. """
 
     # Query user.
@@ -93,8 +93,12 @@ def signin(login: str, password: str, db: Session = Depends(get_db), settings: S
 
 
 @app.get("/auth/user")
-def user(token: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
+async def user(req: Request, token: str | None = None, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ Returns user information by token. """
+    token = token or req.headers.get("Authorization")
+    if not token:
+        return api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!")
+
     try:
         token_payload = jwt.decode(token, settings.jwt_secret)
     except jwt.jwt.exceptions.InvalidSignatureError:
@@ -109,7 +113,7 @@ def user(token: str, db: Session = Depends(get_db), settings: Settings = Depends
     return api_success(serializers.user.serialize(user))
 
 @app.get("/auth")
-def root():
+async def root():
     """ API index page. """
     return api_success({
         "methods": [
