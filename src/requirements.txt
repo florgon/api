@@ -4,3 +4,4 @@ sqlalchemy==1.4.32
 psycopg2-binary==2.9.3
 pyjwt==2.3.0
 python-dotenv==0.20.0
+validate_email==1.3

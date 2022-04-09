@@ -5,10 +5,10 @@
 
 # Libraries.
 from functools import lru_cache
-from typing import Optional
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, Request
 from fastapi.exceptions import RequestValidationError
+from validate_email import validate_email
 
 # Database.
 import database
@@ -56,6 +56,22 @@ async def signup(username: str, email: str, password: str, db: Session = Depends
     # Validate username.
     if crud.user.username_is_taken(db=db, username=username):
         return api_error(ApiErrorCode.AUTH_USERNAME_TAKEN, "Given username is already taken!")
+
+    # Check email.
+    if not validate_email(email, verify=False): # TODO.
+        return api_error(ApiErrorCode.AUTH_EMAIL_INVALID, "Email invalid!")
+
+    # Check username.
+    if len(username) <= 4:
+        return api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be longer than 4!")
+    if len(username) > 16:
+        return api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 16!")
+
+    # Check password.
+    if len(password) <= 5:
+        return api_error(ApiErrorCode.AUTH_PASSWORD_INVALID, "Password should be longer than 5!")
+    if len(password) > 64:
+        return api_error(ApiErrorCode.AUTH_PASSWORD_INVALID, "Password should be shorten than 64!")
 
     # Create new user.
     password = passwords.get_hashed_password(password)
@@ -111,6 +127,7 @@ async def user(req: Request, token: str | None = None, db: Session = Depends(get
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
     return api_success(serializers.user.serialize(user))
+
 
 @app.get("/auth")
 async def root():

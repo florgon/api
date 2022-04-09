@@ -4,7 +4,7 @@ You may get all methods by opening `/` page.
 - /user
 - - Returns user information by JWT token.
 - - Params:
-- - `token` = JWT token.
+- - `token` = JWT token (Or from `Authorization` header).
 - /signup
 - - Creates new user and returns JWT token.
 - - `username` = Your username.
