@@ -45,7 +45,7 @@ async def validation_exception_handler(_, exception):
     })
 
 
-@app.get("/signup")
+@app.get("/auth/signup")
 def signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ API endpoint to signup and create new user. """
 
@@ -69,7 +69,7 @@ def signup(username: str, email: str, password: str, db: Session = Depends(get_d
     })
 
 
-@app.get("/signin")
+@app.get("/auth/signin")
 def signin(login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ API endpoint to signin and get token. """
 
@@ -92,7 +92,7 @@ def signin(login: str, password: str, db: Session = Depends(get_db), settings: S
     })
 
 
-@app.get("/user")
+@app.get("/auth/user")
 def user(token: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ Returns user information by token. """
     try:
@@ -108,7 +108,7 @@ def user(token: str, db: Session = Depends(get_db), settings: Settings = Depends
     user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
     return api_success(serializers.user.serialize(user))
 
-@app.get("/")
+@app.get("/auth")
 def root():
     """ API index page. """
     return api_success({
