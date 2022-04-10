@@ -29,7 +29,10 @@ async def changelog():
     return api_success({
         "versions": {
             "1.0": [
-                    "Initial release.",
+                "Initial release.",
+            ],
+            "1.0.1": [
+                "Allowed CORS requests."
             ]
         }
     })
