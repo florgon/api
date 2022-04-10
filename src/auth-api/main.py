@@ -30,5 +30,5 @@ async def validation_exception_handler(_, exception):
 
 
 # Routers.
-app.include_router(routers.root.router)
-app.include_router(routers.auth.router)
+app.include_router(routers.root.router, prefix="")
+app.include_router(routers.auth.router, prefix="")

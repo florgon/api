@@ -16,6 +16,21 @@ async def root():
     """ Root page. """
     return api_success({
         "methods": [
-            "/auth/"
+            "/auth/",
+            "/changelog"
         ]
+    })
+
+
+@router.get("/changelog")
+async def changelog():
+    """ API changelog page. """
+    return api_success({
+        "versions": {
+            "1.0": {
+                "1.0": [
+                    "Initial release.",
+                ]
+            }
+        }
     })

@@ -28,7 +28,7 @@ from config import Settings
 get_db = database.dependencies.get_db
 
 # Fast API router.
-router = APIRouter(prefix="/auth")
+router = APIRouter()
 
 @lru_cache()
 def get_settings():
