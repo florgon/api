@@ -15,6 +15,9 @@ import routers
 from services.api.errors import ApiErrorCode
 from services.api.response import api_error
 
+# Other.
+from config import Settings
+
 
 # Creating application.
 database.core.create_all()
@@ -30,5 +33,6 @@ async def validation_exception_handler(_, exception):
 
 
 # Routers.
-app.include_router(routers.root.router, prefix="")
-app.include_router(routers.auth.router, prefix="")
+proxy_url_prefix = Settings().proxy_url_prefix
+app.include_router(routers.root.router, prefix=proxy_url_prefix)
+app.include_router(routers.auth.router, prefix=proxy_url_prefix)
