@@ -15,6 +15,7 @@ where `v` is API version, and `success` is container for data.
 
 ## Error.
 When there is error(s), API returns JSON like that:
+```
 {
   "v": "*",
   "error": {
