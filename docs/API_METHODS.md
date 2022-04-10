@@ -1,17 +1,18 @@
 # API methods.
-You may get all methods by opening `/` page.
+You may get all methods by opening `/` page. Any method return response in API response format documented inside [/docs/API_RESPONSE.md](/docs/API_RESPONSE.md)
 
-- /user
+## Methods.
+- `/user`
 - - Returns user information by JWT token.
 - - Params:
 - - `token` = JWT token (Or from `Authorization` header).
-- /signup
+- `/signup`
 - - Creates new user and returns JWT token.
 - - `username` = Your username.
 - - `email` = Your email.
 - - `password` = Your password.
-- /signin
+- `/signin`
 - - Login user and returns JWT token.
 - - Params:
-- - `login` = Email or username.
+- - `login` = Your email or username.
 - - `password` = Your password.
