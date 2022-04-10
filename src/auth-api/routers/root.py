@@ -16,11 +16,12 @@ async def root():
     """ Root page. """
     return api_success({
         "methods": [
-            "/auth/",
+            "/user",
+            "/signin",
+            "/signup",
             "/changelog"
         ]
     })
-
 
 @router.get("/changelog")
 async def changelog():

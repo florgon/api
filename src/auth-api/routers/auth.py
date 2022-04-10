@@ -6,7 +6,6 @@
 from functools import lru_cache
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
-from fastapi.exceptions import RequestValidationError
 from validate_email import validate_email
 
 # Database.
@@ -117,15 +116,3 @@ async def user(req: Request, token: str | None = None, db: Session = Depends(get
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
     return api_success(serializers.user.serialize(user))
-
-
-@router.get("/")
-async def root():
-    """ Auth API index page. """
-    return api_success({
-        "methods": [
-            "/user",
-            "/signin",
-            "/signup"
-        ]
-    })
