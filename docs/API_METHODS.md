@@ -16,3 +16,5 @@ You may get all methods by opening `/` page. Any method return response in API r
 - - Params:
 - - `login` = Your email or username.
 - - `password` = Your password.
+- `/changelog`
+- - Returns changelog for the API.
