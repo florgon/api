@@ -11,22 +11,22 @@ from validate_email import validate_email
 from fastapi_mail import FastMail, MessageSchema
 
 # Database.
-import database
-from database import crud
+from app import database
+from app.database import crud
 
 # Mail.
-import mail
+from app import mail
 
 # Services.
-from services import serializers, jwt, passwords
-from services.api.errors import ApiErrorCode
-from services.api.response import (
+from app.services import serializers, jwt, passwords
+from app.services.api.errors import ApiErrorCode
+from app.services.api.response import (
     api_error,
     api_success
 )
 
 # Other.
-from config import Settings
+from app.config import Settings
 
 # Database dependency.
 get_db = database.dependencies.get_db

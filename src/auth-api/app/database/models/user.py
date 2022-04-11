@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 
 # Core model base.
-from ..core import Base
+from app.database.core import Base
 
 
 class User(Base):

@@ -2,7 +2,7 @@
 from fastapi_mail import ConnectionConfig
 
 # Settings for configuring mail connection.
-from config import Settings
+from app.config import Settings
 
 # Config for mail.
 settings = Settings()

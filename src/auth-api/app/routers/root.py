@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 # Services.
-from services.api.response import api_success
+from app.services.api.response import api_success
 
 # Fast API router.
 router = APIRouter(prefix="")

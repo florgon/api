@@ -28,4 +28,4 @@ services:
     links:
       - database
     build: .
-    command: sh -c "uvicorn main:app --proxy-headers --host 0.0.0.0 --port 80"
+    command: python3 main.py

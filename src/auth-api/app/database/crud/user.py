@@ -4,7 +4,7 @@
 
 from sqlalchemy.orm import Session
 
-from database.models.user import User
+from app.database.models.user import User
 
 
 def get_by_id(db: Session, user_id: int) -> User:

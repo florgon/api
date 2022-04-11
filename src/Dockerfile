@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /srv/www/florgon/auth-api
 
 # Install requirements.
-COPY requirements.txt /srv/www/florgon/auth-api/
+COPY auth-api/requirements.txt /srv/www/florgon/auth-api/
 RUN pip install --upgrade pip
 RUN pip install --upgrade --no-cache-dir -r requirements.txt
 
