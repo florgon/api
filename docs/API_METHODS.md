@@ -6,6 +6,10 @@ You may get all methods by opening `/` page. Any method return response in API r
 - - Returns user information by JWT token.
 - - Params:
 - - `token` = JWT token (Or from `Authorization` header).
+- `/verify``
+- - Returns is given JWT token valid or not (not expired and have valid signature). Also returns decoded information about token in JSON.
+- - Params:
+- - `token` = JWT token (Or from `Authorization` header).
 - `/signup`
 - - Creates new user and returns JWT token.
 - - `username` = Your username.

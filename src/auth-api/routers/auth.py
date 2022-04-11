@@ -6,6 +6,7 @@
 from functools import lru_cache
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
 from validate_email import validate_email
 
 # Database.
@@ -34,8 +35,29 @@ def get_settings():
     return Settings()
 
 
+def try_decode_token_from_request(req: Request, jwt_secret: str) -> tuple[bool, JSONResponse, str]:
+    """ Tries to get and decode auth JWT token from request """
+    # Get token from request.
+    token = req.query_params.get("token") or req.headers.get("Authorization")
+    if not token:
+        return False, api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!"), token
+
+    # Decode token.
+    try:
+        token_payload = jwt.decode(token, jwt_secret)
+    except jwt.jwt.exceptions.InvalidSignatureError:
+        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid signature!"), token
+    except jwt.jwt.exceptions.ExpiredSignatureError:
+        return False, api_error(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Token has been expired!"), token
+    except jwt.jwt.exceptions.PyJWTError:
+        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!"), token
+
+    # All ok, return JWT payload.
+    return True, token_payload, token
+
+
 @router.get("/signup")
-async def signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
+async def signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ API endpoint to signup and create new user. """
 
     # Validate email.
@@ -75,7 +97,7 @@ async def signup(username: str, email: str, password: str, db: Session = Depends
 
 
 @router.get("/signin")
-async def signin(login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
+async def signin(login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ API endpoint to signin and get token. """
 
     # Query user.
@@ -96,23 +118,33 @@ async def signin(login: str, password: str, db: Session = Depends(get_db), setti
         "token": token
     })
 
-
 @router.get("/user")
-async def user(req: Request, token: str | None = None, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
+async def user(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ Returns user information by token. """
-    token = token or req.headers.get("Authorization")
-    if not token:
-        return api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!")
-
-    try:
-        token_payload = jwt.decode(token, settings.jwt_secret)
-    except jwt.jwt.exceptions.InvalidSignatureError:
-        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid signature!")
-    except jwt.jwt.exceptions.ExpiredSignatureError:
-        return api_error(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Token has been expired!")
-    except jwt.jwt.exceptions.PyJWTError:
-        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!")
+    is_authenticated, token_payload_or_error, _ = try_decode_token_from_request(req, settings.jwt_secret)
+    if not is_authenticated:
+        return token_payload_or_error
+    token_payload = token_payload_or_error
 
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
     return api_success(serializers.user.serialize(user))
+
+
+@router.get("/verify")
+async def verify(req: Request, settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ Returns is given token valid (not expired, have valid signature) or not and information about it. """
+    is_authenticated, token_payload_or_error, _ = try_decode_token_from_request(req, settings.jwt_secret)
+    if not is_authenticated:
+        return token_payload_or_error
+    token_payload = token_payload_or_error
+
+    # All ok.
+    return api_success({
+        "token": {
+            "subject": token_payload["sub"],
+            "issuer": token_payload["iss"],
+            "issued_at": token_payload["iat"],
+            "expires_at": token_payload["exp"]
+        }
+    })

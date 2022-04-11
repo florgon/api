@@ -4,6 +4,7 @@
 
 # Libraries.
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 # Services.
 from services.api.response import api_success
@@ -12,11 +13,12 @@ from services.api.response import api_success
 router = APIRouter(prefix="")
 
 @router.get("/")
-async def root():
+async def root() -> JSONResponse:
     """ Root page. """
     return api_success({
         "methods": [
             "/user",
+            "/verify",
             "/signin",
             "/signup",
             "/changelog"
@@ -24,7 +26,7 @@ async def root():
     })
 
 @router.get("/changelog")
-async def changelog():
+async def changelog() -> JSONResponse:
     """ API changelog page. """
     return api_success({
         "versions": {
@@ -33,6 +35,9 @@ async def changelog():
             ],
             "1.0.1": [
                 "Allowed CORS requests."
+            ],
+            "1.0.2": [
+                "New `/verify` method that returns is given token valid or not and decoded information about token."
             ]
         }
     })
