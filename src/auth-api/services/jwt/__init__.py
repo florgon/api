@@ -21,6 +21,9 @@ def encode(user, issuer: str, ttl: int, secret: str) -> str:
         "iat": token_issued_at,
         "iss": issuer,
         "exp": token_issued_at + ttl,
+        "_user": {
+            "username": user.username
+        }
     }
 
     # Generate token.

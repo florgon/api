@@ -160,6 +160,9 @@ async def verify(req: Request, settings: Settings = Depends(get_settings)) -> JS
             "subject": token_payload["sub"],
             "issuer": token_payload["iss"],
             "issued_at": token_payload["iat"],
-            "expires_at": token_payload["exp"]
+            "expires_at": token_payload["exp"],
+            "user": {
+                "username": token_payload["_user"]["username"],
+            }
         }
     })
