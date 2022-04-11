@@ -37,7 +37,8 @@ async def changelog() -> JSONResponse:
                 "Allowed CORS requests."
             ],
             "1.0.2": [
-                "New `/verify` method that returns is given token valid or not and decoded information about token."
+                "New `/verify` method that returns is given token valid or not and decoded information about token.",
+                "Email notification when new user sign up (Email notification events may be changed without notice here)"
             ]
         }
     })
