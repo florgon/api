@@ -10,7 +10,7 @@ class ApiErrorCode(Enum):
 
     # Auth field is taken.
     AUTH_USERNAME_TAKEN = 0, 400
-    AUTH_EMAIL_TAKEN = 1, 400,
+    AUTH_EMAIL_TAKEN = 1, 400
 
     # Auth token.
     AUTH_INVALID_TOKEN = 10, 400

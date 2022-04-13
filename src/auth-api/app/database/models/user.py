@@ -29,4 +29,3 @@ class User(Base):
     time_created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     time_updated = Column(DateTime(timezone=True), onupdate=func.now())
     time_verified = Column(DateTime(timezone=True), nullable=True)
-
