@@ -3,8 +3,8 @@
 """
 
 # JWT libraries.
-import jwt
 import time
+import jwt
 
 # Base JWT algorithm, not required to be changed by you,
 # may be changed to RS256 later....

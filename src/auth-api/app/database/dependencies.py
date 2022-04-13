@@ -4,7 +4,7 @@
 
 # Importing session.
 from .core import (
-    SessionLocal, 
+    SessionLocal,
     sessionmaker
 )
 
