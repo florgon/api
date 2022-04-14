@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from validate_email import validate_email
-from fastapi_mail import FastMail, MessageSchema
 
 # Database.
 from app import database
@@ -18,7 +17,8 @@ from app.database import crud
 from app import mail
 
 # Services.
-from app.services import serializers, jwt, passwords
+from app.services import serializers
+from app.services import jwt, passwords
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import (
     api_error,
@@ -93,16 +93,8 @@ async def signup(username: str, email: str, password: str, db: Session = Depends
     user = crud.user.create(db=db, email=email, username=username, password=password)
     token = jwt.encode(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
 
-
     # Send email.
-    # TODO: Refactoring.
-    fastmail = FastMail(mail.config)
-    await fastmail.send_message(MessageSchema(
-        subject="Sign-up on Florgon",
-        recipients=[email],
-        body="Hello, {username}! You are registered new Florgon account and used this email! Welcome to Florgon!",
-        subtype="plain"
-    ))
+    await mail.send(email, "Sign-up on Florgon", "Hello, {username}! You are registered new Florgon account and used this email! Welcome to Florgon!")
 
     # Return user with token.
     return api_success({
@@ -132,6 +124,7 @@ async def signin(login: str, password: str, db: Session = Depends(get_db), setti
         **serializers.user.serialize(user),
         "token": token
     })
+
 
 @router.get("/user")
 async def user(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
