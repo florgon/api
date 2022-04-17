@@ -3,6 +3,7 @@
 """
 
 # Libraries.
+import urllib.parse
 from functools import lru_cache
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
@@ -18,7 +19,7 @@ from app import mail
 
 # Services.
 from app.services import serializers
-from app.services import jwt, passwords
+from app.services import jwt, passwords, cftokens
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import (
     api_error,
@@ -60,6 +61,21 @@ def try_decode_token_from_request(req: Request, jwt_secret: str) -> tuple[bool, 
     return True, token_payload, token
 
 
+async def send_confirmation_email(user, settings: Settings):
+    """ Send confirmation email to user. """
+
+    # TODO: Move away.
+
+    # Send email.
+    confirmation_token = cftokens.generate(user.email, settings.cft_secret, settings.cft_salt)
+    confirmation_link = urllib.parse.urljoin(settings.proxy_url_host, settings.proxy_url_prefix, "/email/confirm")
+    confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
+    await mail.send(user.email, 
+        "Sign-up on Florgon", 
+        f"Hello, {user.username}! Please confirm your email address by clicking link below! Welcome to Florgon! Link: {confirmation_link}"
+    )
+
+
 @router.get("/signup")
 async def signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ API endpoint to signup and create new user. """
@@ -94,13 +110,14 @@ async def signup(username: str, email: str, password: str, db: Session = Depends
     token = jwt.encode(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
 
     # Send email.
-    await mail.send(email, "Sign-up on Florgon", "Hello, {username}! You are registered new Florgon account and used this email! Welcome to Florgon!")
+    await send_confirmation_email(user, settings)
 
     # Return user with token.
     return api_success({
         **serializers.user.serialize(user),
         "token": token
     })
+
 
 
 @router.get("/signin")
@@ -158,4 +175,41 @@ async def verify(req: Request, settings: Settings = Depends(get_settings)) -> JS
                 "username": token_payload["_user"]["username"],
             }
         }
+    })
+
+
+@router.get("/email/confirm")
+async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ API endpoint to confirm email. """
+    is_valid, token_payload = cftokens.confirm(cft, 3600, settings.cft_secret, settings.cft_salt)
+    if not is_valid:
+        return api_error(ApiErrorCode.CFT_INVALID_TOKEN, "Invalid confirmation token.")
+    email = token_payload
+
+    user = crud.user.get_by_email(db=db, email=email)
+    if not user:
+        return api_error(ApiErrorCode.CFT_INVALID_TOKEN, "Invalid confirmation token (User, linked to this token not found). ")
+
+    user.is_verified = True
+
+    return api_success({
+        "email": email,
+        "message": "Email confirmed!"
+    })
+
+@router.get("/email/resend_confirmation")
+async def email_resend_confirmation(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ API endpoint to resend confirmation email. """
+    is_authenticated, token_payload_or_error, _ = try_decode_token_from_request(req, settings.jwt_secret)
+    if not is_authenticated:
+        return token_payload_or_error
+    token_payload = token_payload_or_error
+
+    # Query user.
+    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+
+    # Send email.
+    await send_confirmation_email(user, settings)
+    return api_success({
+        "message": "Email confirmation resended!"
     })

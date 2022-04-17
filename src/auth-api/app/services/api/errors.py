@@ -25,3 +25,6 @@ class ApiErrorCode(Enum):
 
     # API.
     API_INVALID_REQUEST = 40, 400
+
+    # Email confirmation.
+    CFT_INVALID_TOKEN = 50, 400
