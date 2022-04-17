@@ -68,7 +68,8 @@ async def send_confirmation_email(user, settings: Settings):
 
     # Send email.
     confirmation_token = cftokens.generate(user.email, settings.cft_secret, settings.cft_salt)
-    confirmation_link = urllib.parse.urljoin(settings.proxy_url_host, settings.proxy_url_prefix, "/email/confirm")
+    confirmation_link = urllib.parse.urljoin(settings.proxy_url_host, settings.proxy_url_prefix)
+    confirmation_link = urllib.parse.urljoin(confirmation_link, "/email/confirm")
     confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
     await mail.send(user.email, 
         "Sign-up on Florgon", 
