@@ -30,6 +30,17 @@ get_db = database.dependencies.get_db
 router = APIRouter()
 
 
+@router.get("/")
+async def email_root() -> JSONResponse:
+    """ Email root page. """
+    return api_success({
+        "methods": [
+            "/email/confirm",
+            "/email/resend_confirmation",
+        ]
+    })
+
+
 @router.get("/email/confirm")
 async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ API endpoint to confirm email. """
@@ -56,6 +67,7 @@ async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Setti
         "email": email,
         "message": "Email confirmed!"
     })
+
 
 @router.get("/email/resend_confirmation")
 async def email_resend_confirmation(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:

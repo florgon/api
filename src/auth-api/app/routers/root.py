@@ -23,7 +23,8 @@ async def root() -> JSONResponse:
             "/verify",
             "/signin",
             "/signup",
-            "/changelog"
+            "/changelog",
+            "/email/"
         ]
     })
 
