@@ -45,6 +45,10 @@ async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Setti
     if not user:
         return api_error(ApiErrorCode.CFT_EMAIL_NOT_FOUND, "Invalid confirmation token, user with this email was not found. ")
 
+    # Do not confirm if already confirmed.
+    if user.is_verified:
+        return api_error(ApiErrorCode.CFT_EMAIL_ALREADY_CONFIRMED, "You already confirmed your email!")
+        
     # Confirm.
     crud.user.email_confirm(user)
 
@@ -66,9 +70,9 @@ async def email_resend_confirmation(req: Request, db: Session = Depends(get_db),
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
 
-    # Do not send if already verified.
+    # Do not send if already confirmed.
     if user.is_verified:
-        return api_error(ApiErrorCode.USER_ALREADY_CONFIRMED, "You already confirmed your email!")
+        return api_error(ApiErrorCode.CFT_EMAIL_ALREADY_CONFIRMED, "You already confirmed your email!")
         
     # Send email.
     confirmation_link = services.cftokens.generate_confirmation_token(user.email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
