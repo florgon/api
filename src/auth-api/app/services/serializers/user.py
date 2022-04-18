@@ -14,7 +14,7 @@ def serialize(user):
             "time_created": time.mktime(user.time_created.timetuple()),
             "states": {
                 "is_active": user.is_active,
-                "is_verified": user.is_verified,
+                "is_confirmed": user.is_verified,
             }
         }
     }
