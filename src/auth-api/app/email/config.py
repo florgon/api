@@ -1,10 +1,9 @@
 # Libraries.
-from fastapi_mail import (
-    FastMail, ConnectionConfig, MessageSchema
-)
+from fastapi_mail import ConnectionConfig
 
 # Settings for configuring mail connection.
 from app.config import Settings
+
 
 # Config for mail.
 settings = Settings()
@@ -20,14 +19,3 @@ config = ConnectionConfig(
     USE_CREDENTIALS = True,
     VALIDATE_CERTS = True
 )
-
-
-async def send(email: str, subject: str, body: str):
-    """ Sends message to single recepient email. """
-    fastmail = FastMail(config)
-    await fastmail.send_message(MessageSchema(
-        subject=subject,
-        recipients=[email],
-        body=body,
-        subtype="plain"
-    ))

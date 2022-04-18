@@ -2,8 +2,10 @@
     User CRUD utils for the database.
 """
 
+# Libraries.
 from sqlalchemy.orm import Session
 
+# Services.
 from app.database.models.user import User
 
 
@@ -21,6 +23,18 @@ def get_by_username(db: Session, username: str) -> User:
     """ Returns user by it`s username. """
     return db.query(User).filter(User.username == username).first()
 
+
+def get_by_login(db: Session, login: str) -> User:
+    """ Returns user by it`s login. """
+    user = get_by_username(db=db, username=login)
+    if not user:
+        return get_by_email(db=db, email=login)
+    return user
+
+def email_confirm(db: Session, user: User):
+    """ Confirms user email. """
+    user.is_verified = True
+    db.commit()
 
 def email_is_taken(db: Session, email: str) -> bool:
     """ Returns is given email is taken or not. """

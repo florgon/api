@@ -28,3 +28,7 @@ class ApiErrorCode(Enum):
 
     # Email confirmation.
     CFT_INVALID_TOKEN = 50, 400
+    CFT_EMAIL_NOT_FOUND = 51, 400
+      
+    # User.
+    USER_ALREADY_CONFIRMED = 100, 400

@@ -2,6 +2,7 @@
     Config environment variables reader.
 """
 
+from functools import lru_cache
 from pydantic import BaseSettings
 
 
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
 
     cft_secret: str = "CFT_ANOTHER_SECRET"
     cft_salt: str = "CFT_ANOTHER_SALT"
+    cft_max_age: int = 3600
 
     proxy_url_prefix: str = ""
     proxy_url_host: str = "http://localhost"
@@ -22,3 +24,7 @@ class Settings(BaseSettings):
     mail_host_password: str = ""
     mail_host_username: str = ""
 
+
+@lru_cache()
+def get_settings():
+    return Settings()
