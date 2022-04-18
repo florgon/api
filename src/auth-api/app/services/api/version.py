@@ -24,7 +24,8 @@ API_CHANGELOG = {
                 ],
                 "1.1.3": [
                     "New email confirmation system.",
-                    "New methods `/email/verify`, `email/verify_resend`."
+                    "New methods `/email/confirm`, `email/resend_confirmation`.",
+                    "Renamed user state `is_verified` to `is_confirmed`."
                 ]
             }
         }
