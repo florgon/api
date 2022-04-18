@@ -61,7 +61,7 @@ async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Setti
         return api_error(ApiErrorCode.CFT_EMAIL_ALREADY_CONFIRMED, "You already confirmed your email!")
         
     # Confirm.
-    crud.user.email_confirm(user)
+    crud.user.email_confirm(db, user)
 
     return api_success({
         "email": email,
