@@ -29,3 +29,11 @@
 # API.
 - 40 [API_INVALID_REQUEST]
 - - One or more of your params has been not found inside request, please read more about requested method and it params.
+
+# Email confirmation.
+- 50 [CFT_INVALID_TOKEN]
+- - Your confirmation token is invalid, maybe it expired?
+- 51 [CFT_EMAIL_NOT_FOUND]
+- - Confirmation token holds email, that was not found, do you update your email?
+- 52 [CFT_EMAIL_ALREADY_CONFIRMED]
+- - Your email is already confirmed and not required to be confirmed.
