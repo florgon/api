@@ -33,7 +33,9 @@ def validate_signup_fields(db, username, email, password):
         return False, api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be longer than 4!")
     if len(username) > 16:
         return False, api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 16!")
-
+    if not username.isalpha() or not username.islower():
+        return False, api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should only contain lowercase alphabet characters!")
+    
     # Check password.
     if len(password) <= 5:
         return False, api_error(ApiErrorCode.AUTH_PASSWORD_INVALID, "Password should be longer than 5!")

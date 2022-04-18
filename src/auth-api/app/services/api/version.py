@@ -25,7 +25,8 @@ API_CHANGELOG = {
                 "1.1.3": [
                     "New email confirmation system.",
                     "New methods `/email/confirm`, `email/resend_confirmation`.",
-                    "Renamed user state `is_verified` to `is_confirmed`."
+                    "Renamed user state `is_verified` to `is_confirmed`.",
+                    "Username from now should contain only lowercase alphabet characters."
                 ]
             }
         }
