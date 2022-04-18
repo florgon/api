@@ -30,7 +30,7 @@ get_db = database.dependencies.get_db
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/email")
 async def email_root() -> JSONResponse:
     """ Email root page. """
     return api_success({
