@@ -88,7 +88,7 @@ async def email_resend_confirmation(req: Request, db: Session = Depends(get_db),
         
     # Send email.
     confirmation_link = services.cftokens.generate_confirmation_token(user.email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
-    await messages.send_verification_email(user.email, user.email, confirmation_link)
+    await messages.send_verification_email(user.email, user.username, confirmation_link)
 
     # Return OK.
     return api_success({

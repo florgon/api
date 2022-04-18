@@ -47,7 +47,7 @@ async def signup(username: str, email: str, password: str, db: Session = Depends
 
     # Send email.
     confirmation_link = services.cftokens.generate_confirmation_token(user.email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
-    await messages.send_verification_email(user.email, user.email, confirmation_link)
+    await messages.send_verification_email(user.email, user.username, confirmation_link)
 
     # Return user with token.
     return api_success({
