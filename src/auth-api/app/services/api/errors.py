@@ -25,8 +25,13 @@ class ApiErrorCode(Enum):
 
     # API.
     API_INVALID_REQUEST = 40, 400
-
+    API_NOT_IMPLEMENTED = 41, 400
+    
     # Email confirmation.
     CFT_INVALID_TOKEN = 50, 400
     CFT_EMAIL_NOT_FOUND = 51, 400
     CFT_EMAIL_ALREADY_CONFIRMED = 52, 400
+
+    # OAUTH.
+    OAUTH_CLIENT_NOT_FOUND = 60, 400,
+    OAUTH_CLIENT_FORBIDDEN = 61, 403

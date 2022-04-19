@@ -6,5 +6,6 @@ from . import (
     auth,
     root,
     token,
-    email
+    email,
+    oauth
 )

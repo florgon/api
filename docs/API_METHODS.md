@@ -32,6 +32,16 @@ You may get all methods by opening `/` page. Any method return response in API r
 - - Resends you confirmation link to the email.
 - - Params:
 - - `token` = JWT token (Or from `Authorization` header).
+### OAuth.
+- `/oauth/direct`
+- - Direct client authorization via login:password pair.
+- `/oauth/external`
+- - Not implemented yet.
+- `/oauth/client/new`
+- - Creates new OAuth client.
+- `/oauth/client/expire`
+- - Regenerates client secret.
+
 ### Other.
 - `/changelog`
 - - Returns changelog for the API.

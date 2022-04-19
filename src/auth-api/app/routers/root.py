@@ -24,7 +24,8 @@ async def root() -> JSONResponse:
             "/signin",
             "/signup",
             "/changelog",
-            "/email/"
+            "/email/",
+            "/oauth/"
         ]
     })
 

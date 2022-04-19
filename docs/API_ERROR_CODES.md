@@ -29,6 +29,8 @@
 # API.
 - 40 [API_INVALID_REQUEST]
 - - One or more of your params has been not found inside request, please read more about requested method and it params.
+- 41 [API_NOT_IMPLEMENTED]
+- - Method that you requested is not implemented yet.
 
 # Email confirmation.
 - 50 [CFT_INVALID_TOKEN]
@@ -37,3 +39,8 @@
 - - Confirmation token holds email, that was not found, do you update your email?
 - 52 [CFT_EMAIL_ALREADY_CONFIRMED]
 - - Your email is already confirmed and not required to be confirmed.
+# OAUTH other.
+- 60 [OAUTH_CLIENT_NOT_FOUND]
+- - You are trying to get client that does not exists.
+- 61 [OAUTH_CLIENT_FORBIDDEN]
+- - You are not owner of requested client.
