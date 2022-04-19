@@ -5,7 +5,7 @@
 # Libraries.
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 # Services.
 from app import services
@@ -82,8 +82,8 @@ async def oauth_direct(client_id: int, client_secret: str, login: str, password:
         "token": token
     })
 
-@router.get("/oauth/external")
-async def oauth_external(client_id: int, db: Session = Depends(get_db)) -> JSONResponse:
+@router.get("/oauth/authorize")
+async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: str, response_type: str, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for external OAuth authorization (Not implemented yet). """
 
     # Query OAuth client.
@@ -93,8 +93,20 @@ async def oauth_external(client_id: int, db: Session = Depends(get_db)) -> JSONR
     if not oauth_client:
         return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found!")
 
+    if response_type == "code" or response_type == "token":
+        # Redirect to auth provider.
+        return RedirectResponse(url=f"https://auth.florgon.space?client_id={client_id}&state={state}&redirect_uri={redirect_uri}&scope={scope}&response_type={response_type}")
+
+    # Invalid response type.
+    return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `response_type` field! Should be one of those: `code`, `token`")
+
+
+@router.get("/oauth/token")
+async def oauth_resolve_code(code: str, db: Session = Depends(get_db)) -> JSONResponse:
+    """ OAUTH API endpoint for external OAuth authorization (Not implemented yet). """
+
     # Not implemented
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "External OAuth is not implemented yet!")
+    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "External OAuth with code flow is not implemented yet!")
 
 
 @router.get("/oauth/client/new")
