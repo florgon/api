@@ -98,6 +98,8 @@ async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: s
 
     if response_type == "code" or response_type == "token":
         # Redirect to auth provider.
+        if response_type == "code":
+            return api_error(ApiErrorCode.API_INVALID_REQUEST, "OAuth code authorization flow is not implemented yet!")
         return RedirectResponse(url=f"https://auth.florgon.space?client_id={client_id}&state={state}&redirect_uri={redirect_uri}&scope={scope}&response_type={response_type}")
 
     # Invalid response type.
