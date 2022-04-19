@@ -36,10 +36,12 @@ async def oauth_root() -> JSONResponse:
     return api_success({
         "methods": [
             "/oauth/direct",
-            "/oauth/external",
+            "/oauth/authorize",
+            "/oauth/token",
             "/oauth/client/",
         ]
     })
+
 
 @router.get("/oauth/client")
 async def oauth_client_root() -> JSONResponse:
@@ -50,6 +52,7 @@ async def oauth_client_root() -> JSONResponse:
             "/oauth/client/expire",
         ]
     })
+
 
 @router.get("/oauth/direct")
 async def oauth_direct(client_id: int, client_secret: str, login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:

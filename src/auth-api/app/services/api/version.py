@@ -32,7 +32,7 @@ API_CHANGELOG = {
                     "New route `/oauth/direct`, which is the same as `/signin` but requires `client_id` and `client_secret` field which is may be acquired by route below.",
                     "New route `/oauth/client/new` which is creates new OAuth client.",
                     "New route `/oauth/client/expire` which is regenerates OAuth client secret.",
-                    "New route `/oauth/authorize` which is redirects to auth screen.",
+                    "New route `/oauth/authorize` which is redirects to auth screen and after that will redirect back to redirect_uri.",
                     "New route `/oauth/token` which is not implemented yet.",
                 ]
             }
