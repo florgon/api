@@ -50,6 +50,7 @@ async def oauth_client_root() -> JSONResponse:
         "methods": [
             "/oauth/client/new",
             "/oauth/client/expire",
+            "/oauth/client/get"
         ]
     })
 
@@ -114,25 +115,20 @@ async def oauth_resolve_code(code: str, db: Session = Depends(get_db)) -> JSONRe
     return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "External OAuth with code flow is not implemented yet!")
 
 
-@router.get("/oauth/client/new")
-async def oauth_client_new(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
-    """ OAUTH API endpoint for creating new oauth authorization client. """
+@router.get("/oauth/client/get")
+async def oauth_client_get(client_id: int, db: Session = Depends(get_db)) -> JSONResponse:
+    """ OAUTH API endpoint for getting oauth authorization client data. """
 
-    # Try authenticate.
-    is_authenticated, token_payload_or_error, _ = services.request.try_decode_token_from_request(req, settings.jwt_secret)
-    if not is_authenticated:
-        return token_payload_or_error
-    token_payload = token_payload_or_error
-    
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+    # Query client.
+    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id.id)
 
-    # Create new client.
-    oauth_client = crud.oauth_client.create(db=db, owner_id=user.id)
-
+    # Verification.
+    if not oauth_client or not oauth_client.is_active:
+        return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found or deactivated!")
+        
     # Return client.
     return api_success({
-        **serializers.oauth_client.serialize(oauth_client),
+        **serializers.oauth_client.serialize(oauth_client, display_secret=False),
     })
 
 
@@ -163,5 +159,5 @@ async def oauth_client_expire(client_id: int, req: Request, db: Session = Depend
 
     # Return user with token.
     return api_success({
-        **serializers.oauth_client.serialize(oauth_client),
+        **serializers.oauth_client.serialize(oauth_client, display_secret=True),
     })
