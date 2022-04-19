@@ -9,7 +9,7 @@ def serialize(oauth_client, display_secret: bool):
             },
             "display": {
                 "name": oauth_client.display_name,
-                "avatar": oauth_client.display_avatar if oauth_client.display_avatar else "https://florgon.space/logo192.png",
+                "avatar": oauth_client.display_avatar if oauth_client.display_avatar else "https://auth.florgon.space/logo192.png",
             }
         }
     }
