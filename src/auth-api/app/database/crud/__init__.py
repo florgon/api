@@ -3,5 +3,6 @@
 """
 
 from . import (
-    user
+    user,
+    oauth_client
 )
