@@ -86,6 +86,7 @@ async def oauth_direct(client_id: int, client_secret: str, login: str, password:
         "token": token
     })
 
+
 @router.get("/oauth/authorize")
 async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: str, response_type: str, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for external OAuth authorization (Not implemented yet). """
@@ -113,6 +114,28 @@ async def oauth_resolve_code(code: str, db: Session = Depends(get_db)) -> JSONRe
 
     # Not implemented
     return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "External OAuth with code flow is not implemented yet!")
+
+
+@router.get("/oauth/client/new")
+async def oauth_client_new(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ OAUTH API endpoint for creating new oauth authorization client. """
+
+    # Try authenticate.
+    is_authenticated, token_payload_or_error, _ = services.request.try_decode_token_from_request(req, settings.jwt_secret)
+    if not is_authenticated:
+        return token_payload_or_error
+    token_payload = token_payload_or_error
+    
+    # Query user.
+    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+
+    # Create new client.
+    oauth_client = crud.oauth_client.create(db=db, owner_id=user.id)
+
+    # Return client.
+    return api_success({
+        **serializers.oauth_client.serialize(oauth_client),
+    })
 
 
 @router.get("/oauth/client/get")
