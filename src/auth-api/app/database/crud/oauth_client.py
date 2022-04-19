@@ -25,12 +25,12 @@ def expire(db: Session, client: OAuthClient):
     client.secret = generate_secret()
     db.commit()
 
-def create(db: Session, owner_id: int) -> OAuthClient:
+def create(db: Session, owner_id: int, display_name: str) -> OAuthClient:
     """Creates OAuth client"""
 
     # Create new OAuth client.
     oauth_client_secret = generate_secret()
-    oauth_client = OAuthClient(secret=oauth_client_secret, owner_id=owner_id)
+    oauth_client = OAuthClient(secret=oauth_client_secret, owner_id=owner_id, display_name=display_name)
 
     # Apply OAuth client in database.
     db.add(oauth_client)

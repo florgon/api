@@ -117,7 +117,7 @@ async def oauth_resolve_code(code: str, db: Session = Depends(get_db)) -> JSONRe
 
 
 @router.get("/oauth/client/new")
-async def oauth_client_new(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def oauth_client_new(display_name: str, req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ OAUTH API endpoint for creating new oauth authorization client. """
 
     # Try authenticate.
@@ -130,11 +130,11 @@ async def oauth_client_new(req: Request, db: Session = Depends(get_db), settings
     user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
 
     # Create new client.
-    oauth_client = crud.oauth_client.create(db=db, owner_id=user.id)
+    oauth_client = crud.oauth_client.create(db=db, owner_id=user.id, display_name=display_name)
 
     # Return client.
     return api_success({
-        **serializers.oauth_client.serialize(oauth_client),
+        **serializers.oauth_client.serialize(oauth_client, display_secret=True),
     })
 
 
@@ -143,7 +143,7 @@ async def oauth_client_get(client_id: int, db: Session = Depends(get_db)) -> JSO
     """ OAUTH API endpoint for getting oauth authorization client data. """
 
     # Query client.
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id.id)
+    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
 
     # Verification.
     if not oauth_client or not oauth_client.is_active:

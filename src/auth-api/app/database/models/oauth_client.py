@@ -16,9 +16,15 @@ class OAuthClient(Base):
     """ Auth service OAuth2 client model"""
     __tablename__ = "oauth_clients"
 
+    # Access data.
     id = Column(Integer, primary_key=True, index=True, nullable=False)
-    secret = Column(String, unique=True, index=True, nullable=False)
+    secret = Column(String, nullable=False)
 
+    # Display data.
+    display_name = Column(String, nullable=False)
+    display_avatar = Column(String, nullable=True)
+
+    # User who owns this client.
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     # Means is client deactivated or not.
