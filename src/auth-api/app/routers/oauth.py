@@ -88,7 +88,7 @@ async def oauth_direct(client_id: int, client_secret: str, login: str, password:
 
 
 @router.get("/oauth/authorize")
-async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: str, response_type: str, db: Session = Depends(get_db)) -> JSONResponse:
+async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: str, response_type: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ OAUTH API endpoint for external OAuth authorization (Not implemented yet). """
 
     # Query OAuth client.
@@ -102,7 +102,7 @@ async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: s
         # Redirect to auth provider.
         if response_type == "code":
             return api_error(ApiErrorCode.API_INVALID_REQUEST, "OAuth code authorization flow is not implemented yet!")
-        return RedirectResponse(url=f"https://auth.florgon.space?client_id={client_id}&state={state}&redirect_uri={redirect_uri}&scope={scope}&response_type={response_type}")
+        return RedirectResponse(url=f"{settings.oauth_screen_provider_url}?client_id={client_id}&state={state}&redirect_uri={redirect_uri}&scope={scope}&response_type={response_type}")
 
     # Invalid response type.
     return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `response_type` field! Should be one of those: `code`, `token`")

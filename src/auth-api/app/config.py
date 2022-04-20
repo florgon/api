@@ -8,6 +8,10 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     """ Base settings. """
+    database_url: str = "postgresql://auth-api:postgres@database/auth-api"
+
+    oauth_screen_provider_url: str = "https://auth.florgon.space"
+
     jwt_secret: str = "JWT_ANOTHER_SECRET"
     jwt_issuer: str = "florgon.space"
     jwt_ttl: int = 259200
@@ -15,7 +19,7 @@ class Settings(BaseSettings):
     cft_secret: str = "CFT_ANOTHER_SECRET"
     cft_salt: str = "CFT_ANOTHER_SALT"
     cft_max_age: int = 3600
-
+    
     proxy_url_prefix: str = ""
     proxy_url_host: str = "http://localhost"
 

@@ -39,7 +39,8 @@
 - - Confirmation token holds email, that was not found, do you update your email?
 - 52 [CFT_EMAIL_ALREADY_CONFIRMED]
 - - Your email is already confirmed and not required to be confirmed.
-# OAUTH other.
+
+# OAUTH.
 - 60 [OAUTH_CLIENT_NOT_FOUND]
 - - You are trying to get client that does not exists.
 - 61 [OAUTH_CLIENT_FORBIDDEN]
