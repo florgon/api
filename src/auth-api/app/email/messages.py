@@ -12,6 +12,10 @@ from .config import config
 
 async def send(email: str, subject: str, body: str):
     """ Sends message to single recepient email. """
+    
+    if not config:
+        return  # Mail disabled.
+
     fastmail = FastMail(config)
     await fastmail.send_message(MessageSchema(
         subject=subject,

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://auth-api:postgres@database/auth-api"
 
     send_confirmation_email_on_signup: bool = True
-
+    
     oauth_direct_flow_only_verified: bool = True
     oauth_screen_provider_url: str = "https://auth.florgon.space"
     
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     proxy_url_prefix: str = ""
     proxy_url_host: str = "http://localhost"
 
+    mail_enabled: bool = False
     mail_from_name: str = ""
     mail_host_server: str = ""
     mail_host_password: str = ""
