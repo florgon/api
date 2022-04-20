@@ -10,10 +10,13 @@ class Settings(BaseSettings):
     """ Base settings. """
     database_url: str = "postgresql://auth-api:postgres@database/auth-api"
 
-    oauth_screen_provider_url: str = "https://auth.florgon.space"
+    send_confirmation_email_on_signup: bool = True
 
+    oauth_direct_flow_only_verified: bool = True
+    oauth_screen_provider_url: str = "https://auth.florgon.space"
+    
     jwt_secret: str = "JWT_ANOTHER_SECRET"
-    jwt_issuer: str = "florgon.space"
+    jwt_issuer: str = "localhost"
     jwt_ttl: int = 259200
 
     cft_secret: str = "CFT_ANOTHER_SECRET"
@@ -23,7 +26,7 @@ class Settings(BaseSettings):
     proxy_url_prefix: str = ""
     proxy_url_host: str = "http://localhost"
 
-    mail_from_name: str = "Florgon Auth"
+    mail_from_name: str = ""
     mail_host_server: str = ""
     mail_host_password: str = ""
     mail_host_username: str = ""

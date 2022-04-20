@@ -67,7 +67,7 @@ async def oauth_direct(client_id: int, client_secret: str, login: str, password:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "OAuth client not found!")
     if oauth_client.secret != client_secret:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid OAuth client secret.")
-    if not oauth_client.is_verified:
+    if settings.oauth_direct_flow_only_verified and not oauth_client.is_verified:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Given OAuth client is not verified, and forbidden to use direct OAUTH!")
 
     # Query user.

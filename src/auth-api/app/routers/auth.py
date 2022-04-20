@@ -46,8 +46,9 @@ async def signup(username: str, email: str, password: str, db: Session = Depends
     token = services.jwt.encode(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
 
     # Send email.
-    confirmation_link = services.cftokens.generate_confirmation_token(user.email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
-    await messages.send_verification_email(user.email, user.username, confirmation_link)
+    if settings.send_confirmation_email_on_signup:
+        confirmation_link = services.cftokens.generate_confirmation_token(user.email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
+        await messages.send_verification_email(user.email, user.username, confirmation_link)
 
     # Return user with token.
     return api_success({
