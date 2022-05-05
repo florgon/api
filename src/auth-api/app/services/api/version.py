@@ -4,7 +4,7 @@
     I think developer should change this in CODE, as releated to code changes...
 """
 
-API_VERSION = "1.2.3"
+API_VERSION = "1.3.3"
 
 API_CHANGELOG = {
     "versions": {
@@ -28,13 +28,19 @@ API_CHANGELOG = {
                     "Renamed user state `is_verified` to `is_confirmed`.",
                     "Username from now should contain only lowercase alphabet characters."
                 ],
-                API_VERSION: [
+                "1.2.3": [
                     "New route `/oauth/direct`, which is the same as `/signin` but requires `client_id` and `client_secret` field which is may be acquired by route below.",
                     "New route `/oauth/client/new` which is creates new OAuth client.",
                     "New route `/oauth/client/expire` which is regenerates OAuth client secret.",
                     "New route `/oauth/client/get` which is returns OAuth client information.",
                     "New route `/oauth/authorize` which is redirects to auth screen and after that will redirect back to redirect_uri.",
                     "New route `/oauth/token` which is not implemented yet.",
+                ],
+                API_VERSION: [
+                    "New route `/oauth/client/list` for getting list of all OAuth clients.",
+                    "New route `/oauth/client/update` for updating OAuth client data.",
+                    "Direct OAuth flow now can be used for all clients (even not verified)"
+                    "Small rework of handling tokens for inconsistent users in database"
                 ]
             }
         }

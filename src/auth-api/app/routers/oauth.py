@@ -50,7 +50,9 @@ async def oauth_client_root() -> JSONResponse:
         "methods": [
             "/oauth/client/new",
             "/oauth/client/expire",
-            "/oauth/client/get"
+            "/oauth/client/get",
+            "/oauth/client/update",
+            "/oauth/client/list",
         ]
     })
 
@@ -63,13 +65,11 @@ async def oauth_direct(client_id: int, client_secret: str, login: str, password:
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
 
     # Verification for OAuth client.
-    if not oauth_client:
-        return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "OAuth client not found!")
+    if not oauth_client or not oauth_client.is_active:
+        return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "OAuth client not found or deactivated!")
     if oauth_client.secret != client_secret:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid OAuth client secret.")
-    if settings.oauth_direct_flow_only_verified and not oauth_client.is_verified:
-        return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Given OAuth client is not verified, and forbidden to use direct OAUTH!")
-
+    
     # Query user.
     user = crud.user.get_by_login(db=db, login=login)
 
@@ -95,8 +95,8 @@ async def oauth_external(client_id: int, state: str, redirect_uri: str, scope: s
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
 
     # Verification for OAuth client.
-    if not oauth_client:
-        return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found!")
+    if not oauth_client or not oauth_client.is_active:
+        return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found or deactivated!")
 
     if response_type == "code" or response_type == "token":
         # Redirect to auth provider.
@@ -121,13 +121,10 @@ async def oauth_client_new(display_name: str, req: Request, db: Session = Depend
     """ OAUTH API endpoint for creating new oauth authorization client. """
 
     # Try authenticate.
-    is_authenticated, token_payload_or_error, _ = services.request.try_decode_token_from_request(req, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
     if not is_authenticated:
-        return token_payload_or_error
-    token_payload = token_payload_or_error
-    
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+        return user_or_error
+    user = user_or_error
 
     # Create new client.
     oauth_client = crud.oauth_client.create(db=db, owner_id=user.id, display_name=display_name)
@@ -138,6 +135,27 @@ async def oauth_client_new(display_name: str, req: Request, db: Session = Depend
     })
 
 
+@router.get("/oauth/client/list")
+async def oauth_client_list(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ OAUTH API endpoint that returns list of user owned OAuth clients. """
+
+    # Try authenticate.
+    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
+    if not is_authenticated:
+        return user_or_error
+    user = user_or_error
+
+    # Query OAuth clients.
+    oauth_clients = crud.oauth_client.get_by_owner_id(db=db, owner_id=user.id)
+
+    # Return user with token.
+    return api_success({
+        "oauth_clients": [
+            serializers.oauth_client.serialize(oauth_client, display_secret=False, in_list=True) for oauth_client in oauth_clients
+        ],
+    })
+
+    
 @router.get("/oauth/client/get")
 async def oauth_client_get(client_id: int, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for getting oauth authorization client data. """
@@ -157,16 +175,13 @@ async def oauth_client_get(client_id: int, db: Session = Depends(get_db)) -> JSO
 
 @router.get("/oauth/client/expire")
 async def oauth_client_expire(client_id: int, req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
-    """ OAUTH API endpoint for direct oauth authorization (Should be dissalowed by external clients). """
+    """ OAUTH API endpoint for expring client secret. """
 
     # Try authenticate.
-    is_authenticated, token_payload_or_error, _ = services.request.try_decode_token_from_request(req, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
     if not is_authenticated:
-        return token_payload_or_error
-    token_payload = token_payload_or_error
-    
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+        return user_or_error
+    user = user_or_error
 
     # Query OAuth client.
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
@@ -183,4 +198,44 @@ async def oauth_client_expire(client_id: int, req: Request, db: Session = Depend
     # Return user with token.
     return api_success({
         **serializers.oauth_client.serialize(oauth_client, display_secret=True),
+    })
+
+
+@router.get("/oauth/client/update")
+async def oauth_client_update(client_id: int, req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ OAUTH API endpoint for updating client information. """
+
+    # Try authenticate.
+    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
+    if not is_authenticated:
+        return user_or_error
+    user = user_or_error
+
+    # Query OAuth client.
+    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+
+    # Verification.
+    if not oauth_client:
+        return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found!")
+    if oauth_client.owner_id != user.id:
+        return api_error(ApiErrorCode.OAUTH_CLIENT_FORBIDDEN, "You are not owner of this OAuth client!")
+    
+    # Updating.
+    is_updated = False
+    display_name = req.query_params.get("display_name")
+    display_avatar_url = req.query_params.get("display_avatar_url")
+    if display_name and display_name != oauth_client.display_name:
+        oauth_client.display_name = display_name
+        is_updated = True
+    if display_avatar_url and display_avatar_url != oauth_client.display_avatar:
+        oauth_client.display_avatar = display_avatar_url
+        is_updated = True
+
+    if is_updated:
+        db.commit()
+
+    # Return user with token.
+    return api_success({
+        **serializers.oauth_client.serialize(oauth_client, display_secret=False),
+        "updated": is_updated
     })

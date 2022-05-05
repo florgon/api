@@ -73,14 +73,11 @@ async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Setti
 async def email_resend_confirmation(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ API endpoint to resend confirmation email. """
 
-    # Try authetnicate.
-    is_authenticated, token_payload_or_error, _ = services.request.try_decode_token_from_request(req, settings.jwt_secret)
+    # Try authenticate.
+    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
     if not is_authenticated:
-        return token_payload_or_error
-    token_payload = token_payload_or_error
-
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+        return user_or_error
+    user = user_or_error
 
     # Do not send if already confirmed.
     if user.is_verified:

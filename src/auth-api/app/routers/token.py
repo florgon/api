@@ -14,7 +14,6 @@ from app.services.api.response import api_success
 
 # Other.
 from app import database
-from app.database import crud
 from app.config import (
     Settings, get_settings
 )
@@ -31,14 +30,10 @@ async def user(req: Request, db: Session = Depends(get_db), settings: Settings =
     """ Returns user information by token. """
 
     # Try authenticate.
-    is_authenticated, token_payload_or_error, _ = services.request.try_decode_token_from_request(req, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
     if not is_authenticated:
-        return token_payload_or_error
-    token_payload = token_payload_or_error
-
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
-    return api_success(serializers.user.serialize(user))
+        return user_or_error
+    return api_success(serializers.user.serialize(user_or_error))
 
 
 @router.get("/verify")

@@ -32,7 +32,7 @@ def encode(user, issuer: str, ttl: int, secret: str) -> str:
     return token
 
 
-def decode(token: str, secret: str) -> tuple[bool, bool, str]:
+def decode(token: str, secret: str) -> dict:
     """ Returns is given token valid and its payload. """
     token_payload = jwt.decode(token, secret, algorithms=JWT_ALGORITHM)
     return token_payload
