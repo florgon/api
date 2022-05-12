@@ -2,37 +2,36 @@
     Config environment variables reader.
 """
 
-from functools import lru_cache
-from pydantic import BaseSettings
+from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
     """ Base settings. """
-    database_url: str = "postgresql://auth-api:postgres@database/auth-api"
+    database_url: PostgresDsn
 
-    send_confirmation_email_on_signup: bool = True
+    send_confirmation_email_on_signup: bool
     
-    oauth_direct_flow_only_verified: bool = True
-    oauth_screen_provider_url: str = "https://auth.florgon.space"
+    oauth_direct_flow_only_verified: bool
+    oauth_screen_provider_url: str
     
-    jwt_secret: str = "JWT_ANOTHER_SECRET"
-    jwt_issuer: str = "localhost"
-    jwt_ttl: int = 259200
+    jwt_secret: str
+    jwt_issuer: str
+    jwt_ttl: int
 
-    cft_secret: str = "CFT_ANOTHER_SECRET"
-    cft_salt: str = "CFT_ANOTHER_SALT"
-    cft_max_age: int = 3600
+    cft_secret: str
+    cft_salt: str
+    cft_max_age: int
     
-    proxy_url_prefix: str = ""
-    proxy_url_host: str = "http://localhost"
+    proxy_url_prefix: str
+    proxy_url_host: str
 
-    mail_enabled: bool = False
-    mail_from_name: str = ""
-    mail_host_server: str = ""
-    mail_host_password: str = ""
-    mail_host_username: str = ""
+    mail_enabled: bool
+    mail_from_name: str
+    mail_host_server: str
+    mail_host_password: str
+    mail_host_username: str
 
+_settings = Settings()
 
-@lru_cache()
 def get_settings():
-    return Settings()
+    return _settings

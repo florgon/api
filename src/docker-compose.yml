@@ -11,14 +11,13 @@ services:
     restart: always
     volumes:
       - ../db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_HOST=database
-      - POSTGRES_NAME=auth-api
-      - POSTGRES_USER=auth-api
-      - POSTGRES_PASSWORD=postgres
+    env_file: 
+      - .database.env
   server:
     hostname: florgon-auth-api
     restart: always
+    env_file:
+      - .server.env
     volumes:
       - ./auth-api:/srv/www/florgon/auth-api
     ports:

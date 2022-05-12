@@ -1,0 +1,3 @@
+.local.env
+.local.server.env
+.local.database.env

@@ -39,7 +39,8 @@ API_CHANGELOG = {
                 API_VERSION: [
                     "New route `/oauth/client/list` for getting list of all OAuth clients.",
                     "New route `/oauth/client/update` for updating OAuth client data.",
-                    "Direct OAuth flow now can be used for all clients (even not verified)"
+                    "Direct OAuth flow now can be used for all clients (even not verified)",
+                    "OAuth clients ",
                     "Small rework of handling tokens for inconsistent users in database"
                 ]
             }
