@@ -4,7 +4,6 @@
 
 from . import (
     auth,
-    root,
     token,
     email,
     oauth
