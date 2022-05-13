@@ -30,33 +30,6 @@ get_db = database.dependencies.get_db
 router = APIRouter()
 
 
-@router.get("/oauth")
-async def oauth_root() -> JSONResponse:
-    """ OAuth root page. """
-    return api_success({
-        "methods": [
-            "/oauth/direct",
-            "/oauth/authorize",
-            "/oauth/token",
-            "/oauth/client/",
-        ]
-    })
-
-
-@router.get("/oauth/client")
-async def oauth_client_root() -> JSONResponse:
-    """ OAuth root page. """
-    return api_success({
-        "methods": [
-            "/oauth/client/new",
-            "/oauth/client/expire",
-            "/oauth/client/get",
-            "/oauth/client/update",
-            "/oauth/client/list",
-        ]
-    })
-
-
 @router.get("/oauth/direct")
 async def oauth_direct(client_id: int, client_secret: str, login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ OAUTH API endpoint for direct oauth authorization (Should be dissalowed by external clients). """

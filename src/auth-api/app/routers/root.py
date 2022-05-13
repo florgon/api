@@ -14,22 +14,6 @@ from app.services.api.version import API_CHANGELOG
 router = APIRouter(prefix="")
 
 
-@router.get("/")
-async def root() -> JSONResponse:
-    """ Root page. """
-    return api_success({
-        "methods": [
-            "/user",
-            "/verify",
-            "/signin",
-            "/signup",
-            "/changelog",
-            "/email/",
-            "/oauth/"
-        ]
-    })
-
-
 @router.get("/changelog")
 async def changelog() -> JSONResponse:
     """ API changelog page. """
