@@ -1,6 +1,8 @@
 # API methods.
 You may get all methods by opening `/` page. Any method return response in API response format documented inside [/docs/API_RESPONSE.md](/docs/API_RESPONSE.md)
 
+# TODO. Docs contains API version v1. But v2 is totally changed method naming.
+
 ## Methods.
 
 ### User.
@@ -50,7 +52,3 @@ You may get all methods by opening `/` page. Any method return response in API r
 - - Regenerates client secret.
 - `/oauth/client/get`
 - - Returns information about OAuth client.
-
-### Other.
-- `/changelog`
-- - Returns changelog for the API.

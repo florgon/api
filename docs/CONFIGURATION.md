@@ -1,5 +1,5 @@
 # Configuration.
-All settings changed under `/src/auth-api/app/Config.py` file.
+TODO.
 
 ## Configuration fields.
 ### JWT.

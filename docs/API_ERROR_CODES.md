@@ -31,13 +31,18 @@
 - - One or more of your params has been not found inside request, please read more about requested method and it params.
 - 41 [API_NOT_IMPLEMENTED]
 - - Method that you requested is not implemented yet.
+- 42 [API_INTERNAL_SERVER_ERROR]
+- - Some internal error at server side. Try wait some time, or contact support.
+- 43 [API_METHOD_NOT_FOUND]
+- - Method (URL) that you requested does not exists.
+
 
 # Email confirmation.
-- 50 [CFT_INVALID_TOKEN]
+- 50 [EMAIL_CONFIRMATION_TOKEN_INVALID]
 - - Your confirmation token is invalid, maybe it expired?
-- 51 [CFT_EMAIL_NOT_FOUND]
+- 51 [EMAIL_CONFIRMATION_USER_NOT_FOUND]
 - - Confirmation token holds email, that was not found, do you update your email?
-- 52 [CFT_EMAIL_ALREADY_CONFIRMED]
+- 52 [EMAIL_CONFIRMATION_ALREADY_CONFIRMED]
 - - Your email is already confirmed and not required to be confirmed.
 
 # OAUTH.
@@ -45,3 +50,13 @@
 - - You are trying to get client that does not exists.
 - 61 [OAUTH_CLIENT_FORBIDDEN]
 - - You are not owner of requested client.
+- 61 [OAUTH_CLIENT_REDIRECT_URI_MISMATCH]
+- - redirect_uri not same.
+- 62 [OAUTH_CLIENT_ID_MISMATCH]
+- - client_id not same.
+- 63 [OAUTH_CLIENT_SECRET_MISMATCH]
+- - Client secret not valid.
+
+# User.
+- 100 [USER_DEACTIVATED]
+- - You has been deactivated, and dissalowed to do this action. Please contact support (Mostly due to ban reason)
