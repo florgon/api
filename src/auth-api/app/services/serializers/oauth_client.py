@@ -8,7 +8,7 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
         },
         "display": {
             "name": oauth_client.display_name,
-            "avatar": oauth_client.display_avatar if oauth_client.display_avatar else "https://auth.florgon.space/logo192.png",
+            "avatar": oauth_client.display_avatar if oauth_client.display_avatar else "https://oauth.florgon.space/logo192.png",
         }
     }
     
