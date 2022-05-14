@@ -82,7 +82,7 @@ async def method_oauth_access_token(code: str, client_id: int, client_secret: st
     })
 
 
-@router.get("/oauth._allowClient")
+@router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(session_token: str, client_id: int, state: str, redirect_uri: str, scope: str, response_type: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     """ Allows access for specified client, by returning required information and formatted redirect_to URL. """
     # Validate session token.
