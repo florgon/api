@@ -9,9 +9,6 @@ class Settings(BaseSettings):
     """ Base settings. """
     database_url: PostgresDsn
 
-    send_confirmation_email_on_signup: bool
-    
-    oauth_direct_flow_only_verified: bool
     oauth_screen_provider_url: str
     
     jwt_secret: str

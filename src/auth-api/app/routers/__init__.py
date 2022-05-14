@@ -1,10 +1,12 @@
 """
-    FastAPI routers.
+    Authentication server API routers.
+    (FastAPI routers)
 """
 
 from . import (
-    auth,
-    token,
     email,
-    oauth
+    oauth_client,
+    oauth,
+    session,
+    user
 )

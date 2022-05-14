@@ -2,6 +2,9 @@
     FastAPI dependencies
 """
 
+# For importing Session from dependecies, not sqlalchemy.
+from sqlalchemy.orm import Session
+
 # Importing session.
 from .core import (
     SessionLocal,

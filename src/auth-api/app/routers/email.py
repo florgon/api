@@ -1,82 +1,66 @@
 """
-    Auth API auth routers.
+    Email confirmation API router.
+    Provides API methods (routes) for working with email confirmation.
 """
 
-# Libraries.
-from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-# Services.
-from app import services
+from app.services.request import try_query_user_from_request
+from app.services.cftokens import confirm_cft, generate_confirmation_link
 from app.services.api.errors import ApiErrorCode
-from app.services.api.response import (
-    api_error,
-    api_success
-)
+from app.services.api.response import api_error, api_success
 
-# Other.
-from app import database
+from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.email import messages
-from app.config import (
-    Settings, get_settings
-)
+from app.config import get_settings, Settings
 
-# Database dependency.
-get_db = database.dependencies.get_db
 
-# Fast API router.
 router = APIRouter()
 
 
-@router.get("/email/confirm")
-async def email_confirm(cft: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
-    """ API endpoint to confirm email. """
+# TODO: Allow specify URL for email confirmation.
 
-    # Confirm token.
-    is_valid, token_payload = services.cftokens.confirm(cft, settings.cft_max_age, settings.cft_secret, settings.cft_salt)
+
+@router.get("/_emailConfirmation.confirm")
+async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ Confirms email from given CFT (Confirmation token). """
+
+    # Validating CFT, grabbing email from CFT payload.
+    is_valid, token_payload = confirm_cft(cft, settings.cft_max_age, settings.cft_secret, settings.cft_salt)
     if not is_valid:
-        return api_error(ApiErrorCode.CFT_INVALID_TOKEN, "Invalid confirmation token, try resend confirmation.")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.")
     email = token_payload
 
-    # Get user by email from token.
+    # Query user.
     user = crud.user.get_by_email(db=db, email=email)
     if not user:
-        return api_error(ApiErrorCode.CFT_EMAIL_NOT_FOUND, "Invalid confirmation token, user with this email was not found. ")
-
-    # Do not confirm if already confirmed.
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_USER_NOT_FOUND, "Confirmation token has been issued for email, that does not refers to any existing user! Did you updated your account email address?")
     if user.is_verified:
-        return api_error(ApiErrorCode.CFT_EMAIL_ALREADY_CONFIRMED, "You already confirmed your email!")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
         
-    # Confirm.
     crud.user.email_confirm(db, user)
-
     return api_success({
         "email": email,
-        "message": "Email confirmed!"
+        "confirmed": True
     })
 
 
-@router.get("/email/resend_confirmation")
-async def email_resend_confirmation(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
-    """ API endpoint to resend confirmation email. """
-
-    # Try authenticate.
-    is_authenticated, user_or_error, _ = services.request.try_query_user_from_request(req, db, settings.jwt_secret)
+@router.get("/_emailConfirmation.resend")
+async def method_email_confirmation_resend(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ Resends email confirmation to user email address. """
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
-
-    # Do not send if already confirmed.
     if user.is_verified:
-        return api_error(ApiErrorCode.CFT_EMAIL_ALREADY_CONFIRMED, "You already confirmed your email!")
-        
-    # Send email.
-    confirmation_link = services.cftokens.generate_confirmation_token(user.email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
-    await messages.send_verification_email(user.email, user.username, confirmation_link)
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
 
-    # Return OK.
+    email = user.email
+    email_confirmation_link = generate_confirmation_link(email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
+    await messages.send_verification_email(email, user.username, email_confirmation_link)
+
     return api_success({
-        "message": "Email confirmation resended!"
+        "email": email
     })

@@ -21,3 +21,5 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
     return {
         "oauth_client": serialized_oauth_client
     }
+
+serialize_oauth_client = serialize

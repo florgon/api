@@ -44,7 +44,8 @@ async def validation_exception_handler(_, exception):
 
 # Routers.
 proxy_url_prefix = Settings().proxy_url_prefix
-app.include_router(routers.token.router, prefix=proxy_url_prefix)
+app.include_router(routers.oauth_client.router, prefix=proxy_url_prefix)
 app.include_router(routers.email.router, prefix=proxy_url_prefix)
-app.include_router(routers.auth.router, prefix=proxy_url_prefix)
+app.include_router(routers.session.router, prefix=proxy_url_prefix)
 app.include_router(routers.oauth.router, prefix=proxy_url_prefix)
+app.include_router(routers.user.router, prefix=proxy_url_prefix)

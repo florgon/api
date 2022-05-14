@@ -18,3 +18,5 @@ def serialize(user):
             }
         }
     }
+
+serialize_user = serialize

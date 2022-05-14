@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 # Services.
 from app.database.models.user import User
-
+from app.services.passwords import get_hashed_password
 
 def get_by_id(db: Session, user_id: int) -> User:
     """ Returns user by it`s ID. """
@@ -50,7 +50,7 @@ def create(db: Session, username: str, email: str, password: str) -> User:
     """Creates user with given credentials."""
 
     # Create new user.
-    user = User(username=username, email=email, password=password)
+    user = User(username=username, email=email, password=get_hashed_password(password))
 
     # Apply user in database.
     db.add(user)

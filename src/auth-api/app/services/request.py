@@ -17,22 +17,10 @@ from app.services.api.response import api_error
 def try_decode_token_from_request(req: Request, jwt_secret: str) -> tuple[bool, JSONResponse, str]:
     """ Tries to get and decode auth JWT token from request """
     # Get token from request.
-    token = req.query_params.get("token") or req.headers.get("Authorization")
+    token = req.headers.get("Authorization") or req.query_params.get("token") or req.query_params.get("access_token")
     if not token:
         return False, api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!"), token
-
-    # Decode token.
-    try:
-        token_payload = jwt.decode(token, jwt_secret)
-    except jwt.jwt.exceptions.InvalidSignatureError:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid signature!"), token
-    except jwt.jwt.exceptions.ExpiredSignatureError:
-        return False, api_error(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Token has been expired!"), token
-    except jwt.jwt.exceptions.PyJWTError:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!"), token
-
-    # All ok, return JWT payload.
-    return True, token_payload, token
+    return jwt.try_decode(token, jwt_secret, _token_type="access")
 
 def try_query_user_from_request(req: Request, db: Session, jwt_secret: str) -> tuple[bool, JSONResponse, str]:
     """ Tries to get and decode user from JWT token from request """
