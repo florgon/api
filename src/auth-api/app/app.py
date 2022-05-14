@@ -41,6 +41,14 @@ async def validation_exception_handler(_, exception):
         "exc": str(exception)
     })
 
+@app.exception_handler(404)
+async def not_found_handler(_, __):
+    return api_error(ApiErrorCode.API_METHOD_NOT_FOUND, "Method not found!")
+
+@app.exception_handler(500)
+async def internal_server_error_handler(_, __):
+    return api_error(ApiErrorCode.API_INTERNAL_SERVER_ERROR, "Internal server error!")
+
 
 # Routers.
 proxy_url_prefix = Settings().proxy_url_prefix
