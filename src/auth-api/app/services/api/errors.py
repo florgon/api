@@ -43,3 +43,4 @@ class ApiErrorCode(Enum):
 
     # Other.
     USER_DEACTIVATED = 100, 403
+    USER_EMAIL_NOT_CONFIRMED = 101, 403

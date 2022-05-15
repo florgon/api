@@ -60,3 +60,5 @@
 # User.
 - 100 [USER_DEACTIVATED]
 - - You has been deactivated, and dissalowed to do this action. Please contact support (Mostly due to ban reason)
+- 101 [USER_EMAIL_NOT_CONFIRMED]
+- - Method requires user email be confirmed, please confirm your email.

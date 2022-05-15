@@ -34,6 +34,8 @@ async def method_oauth_client_new(display_name: str, req: Request, db: Session =
     if not is_authenticated:
         return user_or_error
     user = user_or_error
+    if not user.is_verified:
+        return api_error(ApiErrorCode.USER_EMAIL_NOT_CONFIRMED, "Please confirm your email, before accessing OAuth clients!")
 
     oauth_client = crud.oauth_client.create(db=db, owner_id=user.id, display_name=display_name)
     return api_success({
