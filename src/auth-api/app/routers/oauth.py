@@ -21,6 +21,7 @@ from app.services.tokens import (
 from app.services.oauth_code import (
     encode_oauth_jwt_code, try_decode_oauth_jwt_code
 )
+from app.services.permissions import normalize_scope
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import (
@@ -74,7 +75,7 @@ async def method_oauth_access_token(code: str, client_id: int, client_secret: st
     if not user:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
 
-    access_token = encode_access_jwt_token(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+    access_token = encode_access_jwt_token(user, normalize_scope(code_scope), settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
     return api_success({
         "access_token": access_token,
         "expires_in": settings.jwt_ttl,
@@ -115,7 +116,7 @@ async def method_oauth_allow_client(session_token: str, client_id: int, state: s
         if response_type == "token":
             # Implicit authorization flow.
             # Simply, gives access token inside hash-link.
-            access_token = encode_access_jwt_token(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+            access_token = encode_access_jwt_token(user, normalize_scope(scope), settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
             return api_success({
                 "redirect_to": f"{redirect_uri}#token={access_token}&user_id={user.id}&state={state}&expires_in={settings.jwt_ttl}",
                 "access_token": access_token

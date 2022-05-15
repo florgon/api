@@ -12,9 +12,10 @@ def encode_session_jwt_token(user, issuer: str, ttl: int, secret: str) -> str:
     return jwt.encode(user, payload, issuer, ttl, secret)
 
 
-def encode_access_jwt_token(user, issuer: str, ttl: int, secret: str) -> str:
+def encode_access_jwt_token(user, nscope: str, issuer: str, ttl: int, secret: str) -> str:
     payload = {
         "type": "access",
+        "scope": nscope,
         "_user": {
             "username": user.username
         }

@@ -25,6 +25,8 @@
 - - Password should be longer than 5 and shorten than 64.
 - 32 [AUTH_USERNAME_INVALID]
 - - Password should be longer than 4 and shorten than 16.
+- 33 [AUTH_INSUFFICIENT_PERMISSSIONS]
+- - You tried to access method, that don`t allow with your token scope (permissions)
 
 # API.
 - 40 [API_INVALID_REQUEST]
