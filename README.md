@@ -8,14 +8,16 @@ API deployed and used in production [here](https://api.florgon.space/auth).
 Docker (Docker-Compose), Python (FastAPI), PostgreSQL and JWT standart.
 
 # How to run.
-See [`/docs/HOW_TO_RUN.md`](/docs/HOW_TO_RUN.md)
+See [`/docs/deployment/HOW_TO_RUN.md`](/docs/deployment/HOW_TO_RUN.md)
 
 # API methods.
-See [`/docs/API_METHODS.md`](/docs/API_METHODS.md)
+See [`/docs/api/API_METHODS.md`](/docs/api/API_METHODS.md)
 
 # API response structure.
-See [`/docs/API_RESPONSE.md`](/docs/API_RESPONSE.md)
+See [`/docs/api/API_RESPONSE.md`](/docs/api/API_RESPONSE.md)
 
 # API error codes.
-See [`/docs/API_ERROR_CODES.md`](/docs/API_ERROR_CODES.md)
+See [`/docs/api/API_ERROR_CODES.md`](/docs/api/API_ERROR_CODES.md)
 
+# Integrating Florgon OAuth.
+See [`/docs/OAUTH.md`](/docs/OAUTH.md)
