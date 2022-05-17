@@ -9,17 +9,22 @@ def serialize(user, *, include_email: bool = False, include_optional_fields: boo
     serialized_user = {
         "id": user.id,
         "username": user.username,
+        "avatar": user.avatar,
+        "first_name": user.first_name,
+        "last_name": user.first_name
     }
 
     if include_email:
         serialized_user["email"] = user.email
 
     if include_optional_fields:
+        serialized_user["sex"] = 1 if user.sex else 0
         serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
         serialized_user["states"] = {
             "is_active": user.is_active,
             "is_confirmed": user.is_verified
         }
+
     
     return {
         "user": serialized_user
