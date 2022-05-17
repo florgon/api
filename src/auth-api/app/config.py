@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     oauth_screen_provider_url: str
     
     jwt_issuer: str
-    jwt_secert: str
+    jwt_secret: str
 
     access_token_jwt_ttl: int
     session_token_jwt_ttl: int
