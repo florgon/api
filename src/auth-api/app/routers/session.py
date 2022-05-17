@@ -31,7 +31,7 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
     """ Returns user account information. """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret, allow_session_token=True)
+    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db, settings.jwt_secret, allow_session_token=True)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -40,7 +40,9 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
 
     return api_success({
-        **serialize_user(user_or_error)
+        **serialize_user(user_or_error),
+        "siat": token_payload["iat"],
+        "sexp": token_payload["exp"]
     })
 
 

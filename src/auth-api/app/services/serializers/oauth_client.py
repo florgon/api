@@ -1,3 +1,5 @@
+import time
+
 def serialize(oauth_client, display_secret: bool, in_list: bool = False):
     """Returns dict object for API response with serialized OAuth client data."""
     serialized_oauth_client = {
@@ -9,7 +11,8 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
         "display": {
             "name": oauth_client.display_name,
             "avatar": oauth_client.display_avatar if oauth_client.display_avatar else "https://oauth.florgon.space/logo192.png",
-        }
+        },
+        "created_at": time.mktime(oauth_client.time_created.timetuple())
     }
     
     if display_secret:
