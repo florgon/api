@@ -12,7 +12,7 @@ def serialize(user, *, include_email: bool = False, include_optional_fields: boo
     }
 
     if include_email:
-        serialized_user["email"] = user.secret
+        serialized_user["email"] = user.email
 
     if include_optional_fields:
         serialized_user["states"] = time.mktime(user.time_created.timetuple())
