@@ -56,7 +56,7 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
 
     return api_success({
         **serializers.user.serialize(user),
-        "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+        "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
     })
 
 
@@ -71,5 +71,5 @@ async def method_session_signin(login: str, password: str, db: Session = Depends
 
     return api_success({
         **serializers.user.serialize(user),
-        "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+        "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
     })

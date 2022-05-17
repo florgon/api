@@ -75,10 +75,10 @@ async def method_oauth_access_token(code: str, client_id: int, client_secret: st
     if not user:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
 
-    access_token = encode_access_jwt_token(user, normalize_scope(code_scope), settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+    access_token = encode_access_jwt_token(user, normalize_scope(code_scope), settings.jwt_issuer, settings.access_token_jwt_ttl, settings.jwt_secret)
     return api_success({
         "access_token": access_token,
-        "expires_in": settings.jwt_ttl,
+        "expires_in": settings.access_token_jwt_ttl,
         "user_id": user.id
     })
 
@@ -108,7 +108,7 @@ async def method_oauth_allow_client(session_token: str, client_id: int, state: s
         if response_type == "code":
             # Authorization code flow.
             # Gives code, that requires to be decoded using method.
-            code = encode_oauth_jwt_code(user, client_id, redirect_uri, scope, settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+            code = encode_oauth_jwt_code(user, client_id, redirect_uri, scope, settings.jwt_issuer, settings.oauth_code_jwt_ttl, settings.jwt_secret)
             return api_success({
                 "redirect_to": f"{redirect_uri}?code={code}&state={state}",
                 "code": code
@@ -116,9 +116,9 @@ async def method_oauth_allow_client(session_token: str, client_id: int, state: s
         if response_type == "token":
             # Implicit authorization flow.
             # Simply, gives access token inside hash-link.
-            access_token = encode_access_jwt_token(user, normalize_scope(scope), settings.jwt_issuer, settings.jwt_ttl, settings.jwt_secret)
+            access_token = encode_access_jwt_token(user, normalize_scope(scope), settings.jwt_issuer, settings.access_token_jwt_ttl, settings.jwt_secret)
             return api_success({
-                "redirect_to": f"{redirect_uri}#token={access_token}&user_id={user.id}&state={state}&expires_in={settings.jwt_ttl}",
+                "redirect_to": f"{redirect_uri}#token={access_token}&user_id={user.id}&state={state}&expires_in={settings.access_token_jwt_ttl}",
                 "access_token": access_token
             })
 
