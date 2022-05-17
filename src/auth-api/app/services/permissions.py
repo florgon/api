@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class Permission(Enum):
-    oauth_clients = "oauth_clients",
+    oauth_clients = "oauth_clients"
     email = "email"
 
 
