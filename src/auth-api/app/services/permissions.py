@@ -13,10 +13,7 @@ def normalize_scope(scope: str) -> str:
 def parse_permissions_from_scope(scope: str) -> set[Permission]:
     return set([
         Permission[permission] for permission in 
-        map(
-            lambda p: "".join(p.split()), 
-            scope.split(SCOPE_PERMISSION_SEPARATOR)
-        )
+        scope.split(SCOPE_PERMISSION_SEPARATOR)
         if (permission and permission in SCOPE_ALLOWED_PERMISSIONS and permission)
     ])
 
