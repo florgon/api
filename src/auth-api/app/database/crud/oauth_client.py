@@ -25,6 +25,11 @@ def get_by_owner_id(db: Session, owner_id: int) -> list[OAuthClient]:
     return db.query(OAuthClient).filter(OAuthClient.owner_id == owner_id).all()
 
 
+def get_count_by_owner_id(db: Session, owner_id: int) -> list[OAuthClient]:
+    """ Returns count of clients by it`s owner ID. """
+    return db.query(OAuthClient).filter(OAuthClient.owner_id == owner_id).count()
+
+
 def expire(db: Session, client: OAuthClient):
     """ Regenerates client secret. """
     client.secret = generate_secret()

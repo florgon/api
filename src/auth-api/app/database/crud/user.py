@@ -31,10 +31,12 @@ def get_by_login(db: Session, login: str) -> User:
         return get_by_email(db=db, email=login)
     return user
 
+
 def email_confirm(db: Session, user: User):
     """ Confirms user email. """
     user.is_verified = True
     db.commit()
+
 
 def email_is_taken(db: Session, email: str) -> bool:
     """ Returns is given email is taken or not. """
