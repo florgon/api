@@ -15,8 +15,8 @@ def serialize(user, *, include_email: bool = False, include_optional_fields: boo
         serialized_user["email"] = user.email
 
     if include_optional_fields:
-        serialized_user["states"] = time.mktime(user.time_created.timetuple())
-        serialized_user["time_created"] = {
+        serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
+        serialized_user["states"] = {
             "is_active": user.is_active,
             "is_confirmed": user.is_verified
         }
