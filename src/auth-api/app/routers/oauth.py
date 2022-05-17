@@ -21,7 +21,7 @@ from app.services.tokens import (
 from app.services.oauth_code import (
     encode_oauth_jwt_code, try_decode_oauth_jwt_code
 )
-from app.services.permissions import normalize_scope
+from app.services.permissions import normalize_scope, parse_permissions_from_scope, Permission
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import (
@@ -53,7 +53,6 @@ async def method_oauth_access_token(code: str, client_id: int, client_secret: st
         return code_payload_or_error
     code_payload = code_payload_or_error
     code_scope = code_payload["scope"]
-
     if redirect_uri != code_payload["redirect_uri"]:
         return api_error(ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH, "redirect_uri should be same!")
 
@@ -76,11 +75,18 @@ async def method_oauth_access_token(code: str, client_id: int, client_secret: st
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
 
     access_token = encode_access_jwt_token(user, normalize_scope(code_scope), settings.jwt_issuer, settings.access_token_jwt_ttl, settings.jwt_secret)
-    return api_success({
+    access_token_permissions = parse_permissions_from_scope(code_scope)
+
+    response_payload = {
         "access_token": access_token,
         "expires_in": settings.access_token_jwt_ttl,
-        "user_id": user.id
-    })
+        "user_id": user.id,
+    }
+
+    if Permission.email in access_token_permissions:
+        response_payload["email"] = user.email
+
+    return api_success(response_payload)
 
 
 @router.get("/_oauth._allowClient")
@@ -117,8 +123,13 @@ async def method_oauth_allow_client(session_token: str, client_id: int, state: s
             # Implicit authorization flow.
             # Simply, gives access token inside hash-link.
             access_token = encode_access_jwt_token(user, normalize_scope(scope), settings.jwt_issuer, settings.access_token_jwt_ttl, settings.jwt_secret)
+            access_token_permissions = parse_permissions_from_scope(scope)
+
+            redirect_to_email_param = f"&email={user.email}" if Permission.email in access_token_permissions else ""
+            redirect_to = f"{redirect_uri}#token={access_token}&user_id={user.id}&state={state}&expires_in={settings.access_token_jwt_ttl}{redirect_to_email_param}"
+
             return api_success({
-                "redirect_to": f"{redirect_uri}#token={access_token}&user_id={user.id}&state={state}&expires_in={settings.access_token_jwt_ttl}",
+                "redirect_to": redirect_to,
                 "access_token": access_token
             })
 
