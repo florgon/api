@@ -11,7 +11,6 @@ from app.services.request import try_query_user_from_request, Request
 from app.services.validators.user import validate_signup_fields
 from app.services.passwords import check_password
 from app.services.tokens import encode_session_jwt_token
-from app.services import serializers
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.serializers.user import serialize_user
@@ -40,7 +39,9 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
 
-    return api_success(serialize_user(user_or_error))
+    return api_success({
+        **serialize_user(user_or_error)
+    })
 
 
 @router.get("/_session._signup")
@@ -55,7 +56,7 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
     return api_success({
-        **serializers.user.serialize(user),
+        **serialize_user(user),
         "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
     })
 
@@ -70,6 +71,6 @@ async def method_session_signin(login: str, password: str, db: Session = Depends
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid credentials for authentication (password or login).")
 
     return api_success({
-        **serializers.user.serialize(user),
+        **serialize_user(user),
         "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
     })

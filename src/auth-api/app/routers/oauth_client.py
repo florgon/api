@@ -9,8 +9,8 @@ from fastapi.responses import JSONResponse
 
 # Services.
 from app.services.request import try_query_user_from_request
-from app.services.permissions import parse_permissions_from_scope, Permission
-from app.services import serializers
+from app.services.permissions import Permission
+from app.services.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import (
     api_error,
@@ -39,9 +39,7 @@ async def method_oauth_client_new(display_name: str, req: Request, db: Session =
         return api_error(ApiErrorCode.USER_EMAIL_NOT_CONFIRMED, "Please confirm your email, before accessing OAuth clients!")
 
     oauth_client = crud.oauth_client.create(db=db, owner_id=user.id, display_name=display_name)
-    return api_success({
-        **serializers.oauth_client.serialize(oauth_client, display_secret=True),
-    })
+    return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
 @router.get("/oauthClient.list")
@@ -53,11 +51,7 @@ async def method_oauth_client_list(req: Request, db: Session = Depends(get_db), 
     user = user_or_error
 
     oauth_clients = crud.oauth_client.get_by_owner_id(db=db, owner_id=user.id)
-    return api_success({
-        "oauth_clients": [
-            serializers.oauth_client.serialize(oauth_client, display_secret=False, in_list=True) for oauth_client in oauth_clients if oauth_client.is_active
-        ],
-    })
+    return api_success(serialize_oauth_clients(oauth_clients, include_deactivated=False))
 
     
 @router.get("/oauthClient.get")
@@ -67,9 +61,7 @@ async def method_oauth_client_get(client_id: int, db: Session = Depends(get_db))
     if not oauth_client or not oauth_client.is_active:
         return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found or deactivated!")
 
-    return api_success({
-        **serializers.oauth_client.serialize(oauth_client, display_secret=False),
-    })
+    return api_success(serialize_oauth_client(oauth_client, display_secret=False))
 
 
 @router.get("/oauthClient.expireSecret")
@@ -87,9 +79,7 @@ async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Se
         return api_error(ApiErrorCode.OAUTH_CLIENT_FORBIDDEN, "You are not owner of this OAuth client!")
     
     crud.oauth_client.expire(db=db, client=oauth_client)
-    return api_success({
-        **serializers.oauth_client.serialize(oauth_client, display_secret=True),
-    })
+    return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
 @router.get("/oauthClient.edit")
@@ -122,6 +112,6 @@ async def method_oauth_client_update(client_id: int, req: Request, db: Session =
         db.commit()
 
     return api_success({
-        **serializers.oauth_client.serialize(oauth_client, display_secret=False),
+        **serialize_oauth_client(oauth_client, display_secret=False),
         "updated": is_updated
     })

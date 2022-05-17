@@ -37,7 +37,7 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db), sett
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
 
-    return api_success(serialize_user(user_or_error))
+    return api_success(serialize_user(user_or_error, include_email=True, include_optional_fields=True))
 
 
 @router.get("/user.setInfo")

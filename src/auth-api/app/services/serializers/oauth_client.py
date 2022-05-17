@@ -22,4 +22,14 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
         "oauth_client": serialized_oauth_client
     }
 
+
+def serialize_list(oauth_clients: list, *, include_deactivated: bool = False, display_secret: bool = False):
+    return {
+        "oauth_clients": [
+            serialize(oauth_client, display_secret=display_secret, in_list=True) for oauth_client in oauth_clients if (oauth_client.is_active or include_deactivated)
+        ]
+    }
+
+
+serialize_oauth_clients = serialize_list
 serialize_oauth_client = serialize
