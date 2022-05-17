@@ -6,6 +6,7 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
+from app.services.permissions import parse_permissions_from_scope, Permission
 from app.services.request import try_query_user_from_request
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
@@ -30,10 +31,11 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db), sett
     """ Returns user account information. """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db, settings.jwt_secret)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
+    permissions = parse_permissions_from_scope(token_payload["scope"])
 
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
