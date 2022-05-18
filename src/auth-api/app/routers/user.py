@@ -40,10 +40,37 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db), sett
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
 
-    include_email = Permission.email in permissions
-    include_optional_fields = True
-    return api_success(serialize_user(user, include_email=include_email, include_optional_fields=include_optional_fields))
+    return api_success(serialize_user(user, **{
+        "include_email": Permission.email in permissions, 
+        "include_optional_fields": True,
+        "include_private_fields": True
+    }))
 
+@router.get("/user.getProfileInfo")
+async def method_user_get_profile_info(user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db)) -> JSONResponse:
+    """ Returns user account profile information. """
+
+    if user_id is None and username is None:
+        return api_error(ApiErrorCode.API_INVALID_REQUEST, "user_id or username required!")
+    if user_id is not None and username is not None:
+        return api_error(ApiErrorCode.API_INVALID_REQUEST, "Please pass only user_id or username!")
+        
+    if user_id is not None:
+        user = crud.user.get_by_id(db, user_id)
+    else:
+        user = crud.user.get_by_username(db, username)
+
+    if not user:
+        return api_error(ApiErrorCode.USER_NOT_FOUND, f"User with requested {'username' if user_id is None else 'id'} was not found!")
+        
+    if not user.is_active:
+        return api_error(ApiErrorCode.USER_DEACTIVATED, "Unable to get user, due to user account deactivation!")
+
+    return api_success(serialize_user(user, **{
+        "include_email": False,
+        "include_optional_fields": True,
+        "include_private_fields": False
+    }))
 
 @router.get("/user.getCounters")
 async def method_user_get_counter(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
@@ -97,9 +124,11 @@ async def method_user_set_info(req: Request, \
     if is_updated:
         db.commit()
 
-    include_email = Permission.email in permissions
-    include_optional_fields = False
     return api_success({
-        **serialize_user(user, include_email=include_email, include_optional_fields=include_optional_fields),
+        **serialize_user(user, **{
+            "include_email": False, 
+            "include_optional_fields": False,
+            "include_private_fields": True
+        }),
         "updated": is_updated
     })
