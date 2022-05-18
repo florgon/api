@@ -19,7 +19,7 @@ from .services.api.errors import ApiErrorCode
 from .services.api.response import api_error
 
 # Other.
-from .config import Settings
+from .config import get_settings
 
 
 # Creating application.
@@ -51,9 +51,13 @@ async def internal_server_error_handler(_, __):
 
 
 # Routers.
-proxy_url_prefix = Settings().proxy_url_prefix
-app.include_router(routers.oauth_client.router, prefix=proxy_url_prefix)
-app.include_router(routers.email.router, prefix=proxy_url_prefix)
-app.include_router(routers.session.router, prefix=proxy_url_prefix)
-app.include_router(routers.oauth.router, prefix=proxy_url_prefix)
-app.include_router(routers.user.router, prefix=proxy_url_prefix)
+settings = get_settings()
+proxy_url_prefix = settings.proxy_url_prefix
+map(lambda router: app.include_router(router, prefix=proxy_url_prefix), [
+    routers.oauth_client.router,
+    routers.email.router,
+    routers.session.router,
+    routers.oauth.router,
+    routers.user.router,
+    routers.utils.router
+])
