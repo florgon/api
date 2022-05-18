@@ -46,13 +46,12 @@ async def internal_server_error_handler(_, __):
 
 
 # Routers.
-settings = get_settings()
-proxy_url_prefix = settings.proxy_url_prefix
-map(lambda router: app.include_router(router, prefix=proxy_url_prefix), [
+for router in [
     routers.oauth_client.router,
     routers.email.router,
     routers.session.router,
     routers.oauth.router,
     routers.user.router,
     routers.utils.router
-])
+]:
+     app.include_router(router, prefix=get_settings().proxy_url_prefix)
