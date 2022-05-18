@@ -11,14 +11,14 @@ def serialize(user, *, include_email: bool = False, include_optional_fields: boo
         "username": user.username,
         "avatar": user.avatar,
         "first_name": user.first_name,
-        "last_name": user.first_name
+        "last_name": user.last_name,
+        "sex": 0 if user.is_female() else 1
     }
 
     if include_email:
         serialized_user["email"] = user.email
 
     if include_optional_fields:
-        serialized_user["sex"] = 1 if user.sex else 0
         serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
         serialized_user["states"] = {
             "is_active": user.is_active,
