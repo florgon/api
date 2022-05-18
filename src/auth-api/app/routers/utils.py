@@ -16,7 +16,7 @@ router = APIRouter()
 
 @router.get("/utils.getServerTime")
 async def method_utils_get_server_time() -> JSONResponse:
-    """ Authenticates user and gives new session token for user. """
+    """ Returns time at server in unix timestamp. """
 
     return api_success({
         "server_time": time()

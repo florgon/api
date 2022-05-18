@@ -16,9 +16,6 @@ def encode_access_jwt_token(user, nscope: str, issuer: str, ttl: int, secret: st
     payload = {
         "type": "access",
         "scope": nscope,
-        "_user": {
-            "username": user.username
-        }
     }
     return jwt.encode(user, payload, issuer, ttl, secret)
 
