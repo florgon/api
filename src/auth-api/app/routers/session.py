@@ -39,10 +39,12 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
 
+    session_issued_at = token_payload["iat"]
+    session_expires_at = token_payload["exp"]
     return api_success({
         **serialize_user(user_or_error),
-        "siat": token_payload["iat"],
-        "sexp": token_payload["exp"]
+        "siat": session_issued_at,
+        "sexp": session_expires_at
     })
 
 
@@ -57,9 +59,10 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
 
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
+    session_token = encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
     return api_success({
         **serialize_user(user),
-        "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
+        "session_token": session_token
     })
 
 
@@ -72,7 +75,8 @@ async def method_session_signin(login: str, password: str, db: Session = Depends
     if not user or not check_password(password=password, hashed_password=user.password):
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid credentials for authentication (password or login).")
 
+    session_token = encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
     return api_success({
         **serialize_user(user),
-        "session_token": encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
+        "session_token": session_token
     })

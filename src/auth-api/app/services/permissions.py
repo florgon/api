@@ -4,6 +4,7 @@ from enum import Enum
 class Permission(Enum):
     oauth_clients = "oauth_clients"
     email = "email"
+    noexpire = "noexpire"
 
 
 def normalize_scope(scope: str) -> str:
@@ -21,5 +22,6 @@ def parse_permissions_from_scope(scope: str) -> set[Permission]:
 SCOPE_PERMISSION_SEPARATOR = ","
 SCOPE_ALLOWED_PERMISSIONS = [permission.value for permission in [
     Permission.oauth_clients,
-    Permission.email
+    Permission.email,
+    Permission.noexpire
 ]]

@@ -21,14 +21,21 @@ def encode(user, payload: dict, issuer: str, ttl: int, secret: str) -> str:
     # Serialize user for token.
     token_issued_at = time.time()
     token_payload = {
+        # Hostname of the token issuer.
         "iss": issuer,
+        # Token subject (user index)
         "sub": user.id,
-
+        # Timestamp when token is created.
         "iat": token_issued_at,
-        "exp": token_issued_at + ttl,
-        
+
         **payload
     }
+
+    if ttl > 0:
+        # If time-to-live (TTL) is not null,
+        # set token expiration date, which is constructed by 
+        # time when token was created (now) (timestamp, in seconds) and adding it TTL in seconds.
+        token_payload["exp"] = token_issued_at + ttl,
 
     token = jwt.encode(token_payload, secret, algorithm=JWT_ALGORITHM)
     return token
