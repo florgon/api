@@ -3,22 +3,17 @@
     FastAPI server.
 """
 
-# Libraries.
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-# Local libraries.
 from . import (
     database,
     routers
 )
 
-# Services.
 from .services.api.errors import ApiErrorCode
 from .services.api.response import api_error
-
-# Other.
 from .config import get_settings
 
 
