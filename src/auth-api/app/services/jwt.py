@@ -35,7 +35,7 @@ def encode(user, payload: dict, issuer: str, ttl: int, secret: str) -> str:
         # If time-to-live (TTL) is not null,
         # set token expiration date, which is constructed by 
         # time when token was created (now) (timestamp, in seconds) and adding it TTL in seconds.
-        token_payload["exp"] = token_issued_at + ttl,
+        token_payload["exp"] = token_issued_at + ttl
 
     token = jwt.encode(token_payload, secret, algorithm=JWT_ALGORITHM)
     return token
