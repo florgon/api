@@ -5,7 +5,7 @@
 # ORM.
 from sqlalchemy.sql import func
 from sqlalchemy import (
-    Integer, String, Column, Boolean, DateTime
+    Integer, String, Column, Boolean, DateTime, Text
 )
 
 # Core model base.
@@ -40,6 +40,17 @@ class User(Base):
     # States.
     is_active = Column(Boolean, nullable=False, default=True)
     is_verified = Column(Boolean, nullable=False, default=False)
+
+    # Privacy
+    privacy_profile_public = Column(Boolean, nullable=False, default=True)
+    privacy_profile_require_auth = Column(Boolean, nullable=False, default=False)
+
+    # Public profile.
+    profile_bio = Column(Text, nullable=False)
+    profile_website = Column(String, nullable=False)
+    profile_social_username_vk = Column(String, nullable=False)
+    profile_social_username_tg = Column(String, nullable=False)
+    profile_social_username_gh = Column(String, nullable=False)
 
     # Times.
     time_created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

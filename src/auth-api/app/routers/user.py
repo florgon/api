@@ -47,7 +47,8 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db), sett
     }))
 
 @router.get("/user.getProfileInfo")
-async def method_user_get_profile_info(user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db)) -> JSONResponse:
+async def method_user_get_profile_info(req: Request, \
+    user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Returns user account profile information. """
 
     if user_id is None and username is None:
@@ -60,16 +61,24 @@ async def method_user_get_profile_info(user_id: int | None = None, username: str
     else:
         user = crud.user.get_by_username(db, username)
 
+    # User.
     if not user:
         return api_error(ApiErrorCode.USER_NOT_FOUND, f"User with requested {'username' if user_id is None else 'id'} was not found!")
-        
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Unable to get user, due to user account deactivation!")
 
+    # Privacy.
+    if not user.privacy_profile_public:
+        return api_error(ApiErrorCode.USER_PROFILE_PRIVATE, "Requested user preferred to keep his profile private!")
+    if not user.privacy_profile_require_auth:
+        is_authenticated, _, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+        if not is_authenticated:
+            return api_error(ApiErrorCode.USER_PROFILE_AUTH_REQUIRED, "Requested user preferred to show his profile only for authorized users!")
     return api_success(serialize_user(user, **{
         "include_email": False,
         "include_optional_fields": True,
-        "include_private_fields": False
+        "include_private_fields": False,
+        "include_profile_fields": True
     }))
 
 @router.get("/user.getCounters")
@@ -88,6 +97,23 @@ async def method_user_get_counter(req: Request, db: Session = Depends(get_db), s
     return api_success({
         "oauth_clients": crud.oauth_client.get_count_by_owner_id()
     })
+
+
+@router.get("/user.setProfileInfo")
+async def method_user_set_profile_info(req: Request, \
+    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ Updates user public profile information. """
+
+    # Authentication, query user.
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+    if not is_authenticated:
+        return user_or_error
+    user = user_or_error
+
+    if not user.is_active:
+        return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot update user public profile information, due to user account deactivation!")
+
+    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Updating public profile information is not implemented yet!")
 
 
 @router.get("/user.setInfo")
