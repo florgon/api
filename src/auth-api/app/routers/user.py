@@ -70,7 +70,7 @@ async def method_user_get_profile_info(req: Request, \
     # Privacy.
     if not user.privacy_profile_public:
         return api_error(ApiErrorCode.USER_PROFILE_PRIVATE, "Requested user preferred to keep his profile private!")
-    if not user.privacy_profile_require_auth:
+    if user.privacy_profile_require_auth:
         is_authenticated, _, _ = try_query_user_from_request(req, db, settings.jwt_secret)
         if not is_authenticated:
             return api_error(ApiErrorCode.USER_PROFILE_AUTH_REQUIRED, "Requested user preferred to show his profile only for authorized users!")
