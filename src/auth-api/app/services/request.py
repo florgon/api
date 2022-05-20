@@ -63,7 +63,7 @@ def try_query_user_from_request(req: Request, db: Session, *, \
     # Try authenticate.
     is_authenticated, token_payload_or_error, token, session = _try_decode_token_from_request(db, req, allow_session_token=allow_session_token, required_permission=required_permission)
     if not is_authenticated:
-        return False, token_payload_or_error, token
+        return False, token_payload_or_error, token, session
     token_payload = token_payload_or_error
 
     # Query user.
@@ -71,9 +71,9 @@ def try_query_user_from_request(req: Request, db: Session, *, \
 
     # Check that user exists.
     if not user:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!"), token_payload
+        return False, api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!"), token, session
     if session.owner_id != user.id:
-        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
+        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!"), token, session
 
     # All.
-    return True, user, token_payload
+    return True, user, token, session
