@@ -7,14 +7,14 @@ volumes:
 services:
   database:
     image: postgres:14-alpine
-    hostname: florgon-auth-api
+    hostname: florgon-api
     restart: always
     volumes:
       - ../db:/var/lib/postgresql/data
     env_file: 
       - .database.env
   server:
-    hostname: florgon-auth-api
+    hostname: florgon-api
     restart: always
     env_file:
       - .server.env

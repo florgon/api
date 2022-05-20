@@ -50,7 +50,7 @@ async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_
 @router.get("/_emailConfirmation.resend")
 async def method_email_confirmation_resend(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Resends email confirmation to user email address. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db)
     if not is_authenticated:
         return user_or_error
     user = user_or_error

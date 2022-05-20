@@ -8,16 +8,17 @@ from . import jwt
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error
 
-def encode_oauth_jwt_code(user, client_id: int, redirect_uri: str, scope: str, issuer: str, ttl: int, secret: str) -> str:
+def encode_oauth_jwt_code(user, session, client_id: int, redirect_uri: str, scope: str, issuer: str, ttl: int) -> str:
     payload = {
-        "type": "code",
+        "typ": "code",
+        "sid": session.id,
         "scope": scope,
-        "redirect_uri": redirect_uri,
-        "client_id": client_id
+        "ruri": redirect_uri,
+        "cid": client_id
     }
-    return jwt.encode(user, payload, issuer, ttl, secret)
+    return jwt.encode(user, payload, issuer, ttl, session.token_secret)
 
-def try_decode_oauth_jwt_code(token: str, secret: str) -> dict:
+def try_decode_oauth_jwt_code(token: str, secret: str | None = None) -> dict:
     try:
         token_payload = jwt.decode(token, secret)
     except jwt.jwt.exceptions.InvalidSignatureError:
@@ -27,7 +28,7 @@ def try_decode_oauth_jwt_code(token: str, secret: str) -> dict:
     except jwt.jwt.exceptions.PyJWTError:
         return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code invalid!"), token
 
-    if token_payload.get("type") != "code":
+    if token_payload.get("typ") != "code":
         return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid type!"), token
 
     # All ok, return JWT payload.

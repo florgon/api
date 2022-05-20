@@ -62,15 +62,26 @@ async def method_oauth_authorize(client_id: int, state: str, redirect_uri: str, 
 @router.get("/oauth.accessToken")
 async def method_oauth_access_token(code: str, client_id: int, client_secret: str, redirect_uri: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Resolves given code. """
-    is_valid, code_payload_or_error, _ = try_decode_oauth_jwt_code(code, settings.jwt_secret)
+    # Validate session token.
+    is_valid, code_payload_or_error, _ = try_decode_oauth_jwt_code(code)
+    if not is_valid:
+        return code_payload_or_error
+    session_id = code_payload_or_error.get("sid", None)
+
+    session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+    if not session:
+        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!")
+
+    is_valid, code_payload_or_error, _ = try_decode_oauth_jwt_code(code, session.token_secret)
     if not is_valid:
         return code_payload_or_error
     code_payload = code_payload_or_error
     code_scope = code_payload["scope"]
-    if redirect_uri != code_payload["redirect_uri"]:
+    
+    if redirect_uri != code_payload["ruri"]:
         return api_error(ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH, "redirect_uri should be same!")
 
-    if client_id != code_payload["client_id"]:
+    if client_id != code_payload["cid"]:
         return api_error(ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH, "Given code was obtained with different client!")
 
     # Query OAuth client.
@@ -87,10 +98,12 @@ async def method_oauth_access_token(code: str, client_id: int, client_secret: st
     user = crud.user.get_by_id(db=db, user_id=code_payload["sub"])
     if not user:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
-
+    if session.owner_id != user.id:
+        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
+    
     access_token_permissions = parse_permissions_from_scope(code_scope)
     access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl 
-    access_token = encode_access_jwt_token(user, normalize_scope(code_scope), settings.jwt_issuer, access_token_ttl, settings.jwt_secret)
+    access_token = encode_access_jwt_token(user, session, normalize_scope(code_scope), settings.jwt_issuer, access_token_ttl)
 
     response_payload = {
         "access_token": access_token,
@@ -125,16 +138,26 @@ async def method_oauth_allow_client(session_token: str, \
     """
 
     # Validate session token.
-    is_valid, token_payload_or_error, _ = try_decode_session_jwt_token(session_token, settings.jwt_secret)
+    is_valid, token_payload_or_error, _ = try_decode_session_jwt_token(session_token)
     if not is_valid:
         return token_payload_or_error
-    session_token_payload = token_payload_or_error
+    session_id = token_payload_or_error.get("sid", None)
 
+    session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+    if not session:
+        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!")
+
+    is_valid, session_token_payload, _ = try_decode_session_jwt_token(session_token, session.token_secret)
+    if not is_valid:
+        return token_payload_or_error
+    
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=session_token_payload["sub"])
     if not user:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!")
-
+    if session.owner_id != user.id:
+        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
+    
     # Query OAuth client.
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
 
@@ -151,7 +174,7 @@ async def method_oauth_allow_client(session_token: str, \
         # Encoding OAuth code.
         # Code should be resolved at server-side at redirect_uri, using resolve OAuth method.
         # Code should have very small time-to-live (TTL), as it should be resolved to access token with default TTL immediatly at server.
-        code = encode_oauth_jwt_code(user, client_id, redirect_uri, scope, settings.jwt_issuer, settings.oauth_code_jwt_ttl, settings.jwt_secret)
+        code = encode_oauth_jwt_code(user, session, client_id, redirect_uri, scope, settings.jwt_issuer, settings.oauth_code_jwt_ttl)
         
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
@@ -173,7 +196,7 @@ async def method_oauth_allow_client(session_token: str, \
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
         access_token_permissions = parse_permissions_from_scope(scope)
         access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl 
-        access_token = encode_access_jwt_token(user, normalize_scope(scope), settings.jwt_issuer, access_token_ttl, settings.jwt_secret)
+        access_token = encode_access_jwt_token(user, session, normalize_scope(scope), settings.jwt_issuer, access_token_ttl)
 
         # Constructing redirect URL with hash-link parameters.
         # Email field should be passed only if OAuth client requested given scope permission.

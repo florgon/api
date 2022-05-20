@@ -41,13 +41,15 @@ def encode(user, payload: dict, issuer: str, ttl: int, secret: str) -> str:
     return token
 
 
-def decode(token: str, secret: str) -> dict:
+def decode(token: str, secret: str | None = None) -> dict:
     """ Returns is given token valid and its payload. """
-    token_payload = jwt.decode(token, secret, algorithms=JWT_ALGORITHM)
+    token_payload = jwt.decode(token, secret, algorithms=JWT_ALGORITHM, options={
+        "verify_signature": (secret is not None)
+    })
     return token_payload
 
 
-def try_decode(token: str, secret: str, *, _token_type: str) -> dict:
+def try_decode(token: str, secret: str | None = None, *, _token_type: str = "") -> tuple:
     # Decode token.
     try:
         token_payload = decode(token, secret)
@@ -58,7 +60,7 @@ def try_decode(token: str, secret: str, *, _token_type: str) -> dict:
     except jwt.exceptions.PyJWTError:
         return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!"), token
 
-    if token_payload.get("type") != _token_type:
+    if token_payload.get("typ", "") != _token_type:
         return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid type!"), token
 
     # All ok, return JWT payload.

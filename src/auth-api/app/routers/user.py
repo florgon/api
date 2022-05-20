@@ -20,18 +20,12 @@ from app.config import get_settings, Settings
 router = APIRouter()
 
 
-# TODO: Updating user account information.
-# TODO: User password recovery.
-# TODO: [User account deletion request]
-# TODO: [2FA]
-
-
 @router.get("/user.getInfo")
-async def method_user_get_info(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account information. """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db, settings.jwt_secret)
+    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -48,7 +42,7 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db), sett
 
 @router.get("/user.getProfileInfo")
 async def method_user_get_profile_info(req: Request, \
-    user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account profile information. """
 
     if user_id is None and username is None:
@@ -71,7 +65,7 @@ async def method_user_get_profile_info(req: Request, \
     if not user.privacy_profile_public:
         return api_error(ApiErrorCode.USER_PROFILE_PRIVATE, "Requested user preferred to keep his profile private!")
     if user.privacy_profile_require_auth:
-        is_authenticated, _, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+        is_authenticated, _, _ = try_query_user_from_request(req, db)
         if not is_authenticated:
             return api_error(ApiErrorCode.USER_PROFILE_AUTH_REQUIRED, "Requested user preferred to show his profile only for authorized users!")
     return api_success(serialize_user(user, **{
@@ -82,11 +76,11 @@ async def method_user_get_profile_info(req: Request, \
     }))
 
 @router.get("/user.getCounters")
-async def method_user_get_counter(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_user_get_counter(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account counters (Count of different items, like for badges). """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -101,11 +95,11 @@ async def method_user_get_counter(req: Request, db: Session = Depends(get_db), s
 
 @router.get("/user.setProfileInfo")
 async def method_user_set_profile_info(req: Request, \
-    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user public profile information. """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -119,15 +113,14 @@ async def method_user_set_profile_info(req: Request, \
 @router.get("/user.setInfo")
 async def method_user_set_info(req: Request, \
     first_name: str | None = None, last_name: str | None = None, sex: bool | None = None, avatar_url: str | None = None, \
-    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user account information. """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db, settings.jwt_secret)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
-    permissions = parse_permissions_from_scope(token_payload["scope"])
 
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot update user information, due to user account deactivation!")
