@@ -36,6 +36,8 @@ def _decode_token_from_request(db: Session, req: Request, *, \
     session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
     if not session:
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!")
+    if not session.is_active:
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Session closed (Token invalid due to session deactivation)!")
 
     # Decode with session token.
     token_payload = jwt.decode(token, session.token_secret, _token_type=token_type)

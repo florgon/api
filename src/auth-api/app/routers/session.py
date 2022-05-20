@@ -51,15 +51,32 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
     session_token = encode_session_jwt_token(user, session, settings.jwt_issuer, settings.session_token_jwt_ttl)
     return api_success({
         **serialize_user(user),
-        "session_token": session_token
+        "session_token": session_token,
+        "sid": session.id
     })
 
 
 @router.get("/_session._logout")
-async def method_session_logout(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
+async def method_session_logout(req: Request, \
+    revoke_all: bool = False,
+    db: Session = Depends(get_db)) -> JSONResponse:
     """ Logout user over all session. """
-    query_auth_data_from_request(req, db, only_session_token=True)
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Logout from all devices is not implemented yet")
+    session = query_auth_data_from_request(req, db, only_session_token=True)[2]
+
+    if revoke_all:
+        sessions = crud.user_session.get_by_owner_id(db, session.owner_id)
+        for _session in sessions:
+            _session.is_active = False
+        db.commit()
+        return api_success({
+            "sids": [_session.id for _session in sessions]
+        })
+    
+    session.is_active = False
+    db.commit()
+    return api_success({
+        "sid": session.id
+    })
 
 
 @router.get("/_session._signin")
@@ -75,5 +92,6 @@ async def method_session_signin(login: str, password: str, db: Session = Depends
     session_token = encode_session_jwt_token(user, session, settings.jwt_issuer, settings.session_token_jwt_ttl)
     return api_success({
         **serialize_user(user),
-        "session_token": session_token
+        "session_token": session_token,
+        "sid": session.id
     })

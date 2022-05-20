@@ -20,6 +20,9 @@ def get_by_id(db: Session, session_id: int) -> UserSession:
     return db.query(UserSession).filter(UserSession.id == session_id).first()
 
 
+def get_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
+    return db.query(UserSession).filter(UserSession.owner_id == owner_id).all()
+
 def create(db: Session, owner_id: int) -> UserSession:
     """Creates user session"""
 
