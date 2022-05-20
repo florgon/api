@@ -32,7 +32,8 @@ def _try_decode_token_from_request(db: Session, req: Request, *, \
                 session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
                 if not session:
                     return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"), token, session
-                return jwt.try_decode(session_token, session.token_secret, _token_type="session"), token, session
+                is_valid, token_payload_or_error, token = jwt.try_decode(session_token, session.token_secret, _token_type="session")
+                return is_valid, token_payload_or_error, token, session
         return False, api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!"), token, None
 
     is_valid, token_payload_or_error, token = jwt.try_decode(token, None, _token_type="access")
@@ -41,7 +42,7 @@ def _try_decode_token_from_request(db: Session, req: Request, *, \
     session_id = token_payload_or_error.get("sid", None)
     session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
     if not session:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"), False, session
+        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"), token, session
     is_authenticated, token_payload_or_error, token = jwt.try_decode(token, session.token_secret, _token_type="access")
     if not is_authenticated:
         return is_authenticated, token_payload_or_error, token, session
