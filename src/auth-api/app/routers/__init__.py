@@ -9,5 +9,6 @@ from . import (
     oauth,
     session,
     user,
-    utils
+    utils,
+    ext_social_auth
 )

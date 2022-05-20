@@ -60,6 +60,7 @@ for router in [
     routers.session.router,
     routers.oauth.router,
     routers.user.router,
-    routers.utils.router
+    routers.utils.router,
+    routers.ext_social_auth.router
 ]:
      app.include_router(router, prefix=get_settings().proxy_url_prefix)
