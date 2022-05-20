@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 # Services.
-from app.services.request import try_query_user_from_request
+from app.services.request import query_auth_data_from_request
 from app.services.permissions import Permission
 from app.services.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
 from app.services.api.errors import ApiErrorCode
@@ -31,10 +31,7 @@ router = APIRouter()
 @router.get("/oauthClient.new")
 async def method_oauth_client_new(display_name: str, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Creates new OAuth client """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
-    if not is_authenticated:
-        return user_or_error
-    user = user_or_error
+    user = query_auth_data_from_request(req, db, required_permission=Permission.oauth_clients)[0]
     if not user.is_verified:
         return api_error(ApiErrorCode.USER_EMAIL_NOT_CONFIRMED, "Please confirm your email, before accessing OAuth clients!")
 
@@ -45,11 +42,7 @@ async def method_oauth_client_new(display_name: str, req: Request, db: Session =
 @router.get("/oauthClient.list")
 async def method_oauth_client_list(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns list of user owned OAuth clients. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
-    if not is_authenticated:
-        return user_or_error
-    user = user_or_error
-
+    user = query_auth_data_from_request(req, db, required_permission=Permission.oauth_clients)[0]
     oauth_clients = crud.oauth_client.get_by_owner_id(db=db, owner_id=user.id)
     return api_success(serialize_oauth_clients(oauth_clients, include_deactivated=False))
 
@@ -67,10 +60,7 @@ async def method_oauth_client_get(client_id: int, db: Session = Depends(get_db))
 @router.get("/oauthClient.expireSecret")
 async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for expring client secret. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
-    if not is_authenticated:
-        return user_or_error
-    user = user_or_error
+    user = query_auth_data_from_request(req, db, required_permission=Permission.oauth_clients)[0]
 
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
     if not oauth_client or not oauth_client.is_active:
@@ -85,11 +75,7 @@ async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Se
 @router.get("/oauthClient.edit")
 async def method_oauth_client_update(client_id: int, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for updating client information. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
-    if not is_authenticated:
-        return user_or_error
-    user = user_or_error
-
+    user = query_auth_data_from_request(req, db, required_permission=Permission.oauth_clients)[0]
     # Query OAuth client.
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
     if not oauth_client or not oauth_client.is_active:

@@ -4,9 +4,7 @@
 
 from . import jwt
 
-# Services.
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 def encode_oauth_jwt_code(user, session, client_id: int, redirect_uri: str, scope: str, issuer: str, ttl: int) -> str:
     payload = {
@@ -18,18 +16,17 @@ def encode_oauth_jwt_code(user, session, client_id: int, redirect_uri: str, scop
     }
     return jwt.encode(user, payload, issuer, ttl, session.token_secret)
 
-def try_decode_oauth_jwt_code(token: str, secret: str | None = None) -> dict:
+def decode_oauth_jwt_code(token: str, secret: str | None = None) -> dict:
     try:
         token_payload = jwt.decode(token, secret)
     except jwt.jwt.exceptions.InvalidSignatureError:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has invalid signature!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has invalid signature!")
     except jwt.jwt.exceptions.ExpiredSignatureError:
-        return False, api_error(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired!")
     except jwt.jwt.exceptions.PyJWTError:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code invalid!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Code invalid!")
 
     if token_payload.get("typ") != "code":
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid type!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has wrong type!")
 
-    # All ok, return JWT payload.
-    return True, token_payload, token
+    return token_payload

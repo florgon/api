@@ -6,7 +6,7 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-from app.services.request import try_query_user_from_request
+from app.services.request import query_auth_data_from_request
 from app.services.cftokens import confirm_cft, generate_confirmation_link
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
@@ -50,10 +50,7 @@ async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_
 @router.get("/_emailConfirmation.resend")
 async def method_email_confirmation_resend(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Resends email confirmation to user email address. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db)
-    if not is_authenticated:
-        return user_or_error
-    user = user_or_error
+    user = query_auth_data_from_request(req, db)[0]
     if user.is_verified:
         return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
 

@@ -2,13 +2,10 @@
     JSON Web Tokens service.
 """
 
-# JWT libraries.
 import time
 import jwt
 
-# Services.
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 # Base JWT algorithm, not required to be changed by you,
 # may be changed to RS256 later....
@@ -41,27 +38,20 @@ def encode(user, payload: dict, issuer: str, ttl: int, secret: str) -> str:
     return token
 
 
-def decode(token: str, secret: str | None = None) -> dict:
-    """ Returns is given token valid and its payload. """
-    token_payload = jwt.decode(token, secret, algorithms=JWT_ALGORITHM, options={
-        "verify_signature": (secret is not None)
-    })
-    return token_payload
-
-
-def try_decode(token: str, secret: str | None = None, *, _token_type: str = "") -> tuple:
-    # Decode token.
+def decode(token: str, secret: str | None = None, *, _token_type: str) -> dict:
+    """ Returns token payload. """
     try:
-        token_payload = decode(token, secret)
+        token_payload = jwt.decode(token, secret, algorithms=JWT_ALGORITHM, options={
+            "verify_signature": (secret is not None)
+        })
     except jwt.exceptions.InvalidSignatureError:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid signature!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid signature!")
     except jwt.exceptions.ExpiredSignatureError:
-        return False, api_error(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Token has been expired!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Token has been expired!")
     except jwt.exceptions.PyJWTError:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!")
 
     if token_payload.get("typ", "") != _token_type:
-        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has invalid type!"), token
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has wrong type!")
 
-    # All ok, return JWT payload.
-    return True, token_payload, token
+    return token_payload

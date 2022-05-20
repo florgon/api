@@ -21,8 +21,10 @@ def encode_access_jwt_token(user, session, nscope: str, issuer: str, ttl: int) -
     }
     return jwt.encode(user, payload, issuer, ttl, session.token_secret)
 
-def try_decode_access_jwt_token(token: str, secret: str) -> tuple:
-    return jwt.try_decode(token=token, secret=secret, _token_type="access")
 
-def try_decode_session_jwt_token(token: str, secret: str | None = None) -> tuple:
-    return jwt.try_decode(token=token, secret=secret, _token_type="session")
+def decode_access_jwt_token(token: str, secret: str) -> tuple:
+    return jwt.decode(token=token, secret=secret, _token_type="access")
+
+
+def decode_session_jwt_token(token: str, secret: str | None = None) -> tuple:
+    return jwt.decode(token=token, secret=secret, _token_type="session")

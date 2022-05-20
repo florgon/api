@@ -48,3 +48,10 @@ class ApiErrorCode(Enum):
     USER_NOT_FOUND = 102, 404
     USER_PROFILE_PRIVATE = 103, 403
     USER_PROFILE_AUTH_REQUIRED = 104, 401
+
+
+class ApiErrorException(Exception):
+    def __init__(self, api_code: ApiErrorCode, message: str="", data: dict | None = None):
+        self.api_code = api_code
+        self.message = message
+        self.data = data

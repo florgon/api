@@ -16,10 +16,10 @@ from app.services.api.response import (
 
 # Other.
 from app.services.tokens import (
-    try_decode_session_jwt_token, encode_access_jwt_token
+    decode_session_jwt_token, encode_access_jwt_token
 )
 from app.services.oauth_code import (
-    encode_oauth_jwt_code, try_decode_oauth_jwt_code
+    encode_oauth_jwt_code, decode_oauth_jwt_code
 )
 from app.services.permissions import normalize_scope, parse_permissions_from_scope, Permission
 from app.database.dependencies import get_db, Session
@@ -63,21 +63,16 @@ async def method_oauth_authorize(client_id: int, state: str, redirect_uri: str, 
 async def method_oauth_access_token(code: str, client_id: int, client_secret: str, redirect_uri: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Resolves given code. """
     # Validate session token.
-    is_valid, code_payload_or_error, _ = try_decode_oauth_jwt_code(code)
-    if not is_valid:
-        return code_payload_or_error
-    session_id = code_payload_or_error.get("sid", None)
+    code_payload = decode_oauth_jwt_code(code)
 
+    session_id = code_payload.get("sid", None)
     session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
     if not session:
         return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!")
 
-    is_valid, code_payload_or_error, _ = try_decode_oauth_jwt_code(code, session.token_secret)
-    if not is_valid:
-        return code_payload_or_error
-    code_payload = code_payload_or_error
+    code_payload = decode_oauth_jwt_code(code, session.token_secret)
     code_scope = code_payload["scope"]
-    
+
     if redirect_uri != code_payload["ruri"]:
         return api_error(ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH, "redirect_uri should be same!")
 
@@ -138,21 +133,17 @@ async def method_oauth_allow_client(session_token: str, \
     """
 
     # Validate session token.
-    is_valid, token_payload_or_error, _ = try_decode_session_jwt_token(session_token)
-    if not is_valid:
-        return token_payload_or_error
-    session_id = token_payload_or_error.get("sid", None)
+    token_payload = decode_session_jwt_token(session_token)
+    session_id = token_payload.get("sid", None)
 
     session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
     if not session:
         return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!")
 
-    is_valid, session_token_payload, _ = try_decode_session_jwt_token(session_token, session.token_secret)
-    if not is_valid:
-        return token_payload_or_error
+    token_payload = decode_session_jwt_token(session_token, session.token_secret)
     
     # Query user.
-    user = crud.user.get_by_id(db=db, user_id=session_token_payload["sub"])
+    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
     if not user:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!")
     if session.owner_id != user.id:
