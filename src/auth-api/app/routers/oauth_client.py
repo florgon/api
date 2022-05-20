@@ -29,9 +29,9 @@ router = APIRouter()
 
 
 @router.get("/oauthClient.new")
-async def method_oauth_client_new(display_name: str, req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_oauth_client_new(display_name: str, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Creates new OAuth client """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret, required_permission=Permission.oauth_clients)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -43,9 +43,9 @@ async def method_oauth_client_new(display_name: str, req: Request, db: Session =
 
 
 @router.get("/oauthClient.list")
-async def method_oauth_client_list(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_oauth_client_list(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns list of user owned OAuth clients. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret, required_permission=Permission.oauth_clients)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -65,9 +65,9 @@ async def method_oauth_client_get(client_id: int, db: Session = Depends(get_db))
 
 
 @router.get("/oauthClient.expireSecret")
-async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for expring client secret. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret, required_permission=Permission.oauth_clients)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -83,9 +83,9 @@ async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Se
 
 
 @router.get("/oauthClient.edit")
-async def method_oauth_client_update(client_id: int, req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_oauth_client_update(client_id: int, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ OAUTH API endpoint for updating client information. """
-    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, settings.jwt_secret, required_permission=Permission.oauth_clients)
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, required_permission=Permission.oauth_clients)
     if not is_authenticated:
         return user_or_error
     user = user_or_error

@@ -15,8 +15,8 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error
 
 
-def try_decode_token_from_request(req: Request, jwt_secret: str, *, \
-    allow_session_token: bool = False, required_permission: Permission | None = None) -> tuple[bool, JSONResponse, str]:
+def _try_decode_token_from_request(db: Session, req: Request, *, \
+    allow_session_token: bool = False, required_permission: Permission | None = None) -> tuple[bool, JSONResponse | dict, str, object | None]:
     """ Tries to get and decode auth JWT token from request """
     # Get token from request.
     token = req.headers.get("Authorization") or req.query_params.get("token") or req.query_params.get("access_token")
@@ -25,12 +25,26 @@ def try_decode_token_from_request(req: Request, jwt_secret: str, *, \
         if allow_session_token:
             session_token = req.query_params.get("session_token")
             if session_token:
-                return jwt.try_decode(session_token, jwt_secret, _token_type="session")
-        return False, api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!"), token
+                is_valid, token_payload_or_error, token = jwt.try_decode(session_token, None, _token_type="session")
+                if not is_valid:
+                    return False, token_payload_or_error, token, None
+                session_id = token_payload_or_error.get("sid", None)
+                session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+                if not session:
+                    return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"), token, session
+                return jwt.try_decode(session_token, session.token_secret, _token_type="session"), token, session
+        return False, api_error(ApiErrorCode.AUTH_REQUIRED, "Authentication required!"), token, None
 
-    is_authenticated, token_payload_or_error, token = jwt.try_decode(token, jwt_secret, _token_type="access")
+    is_valid, token_payload_or_error, token = jwt.try_decode(token, None, _token_type="access")
+    if not is_valid:
+        return False, token_payload_or_error, token, None
+    session_id = token_payload_or_error.get("sid", None)
+    session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+    if not session:
+        return False, api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"), False, session
+    is_authenticated, token_payload_or_error, token = jwt.try_decode(token, session.token_secret, _token_type="access")
     if not is_authenticated:
-        return is_authenticated, token_payload_or_error, token
+        return is_authenticated, token_payload_or_error, token, session
 
     token_payload = token_payload_or_error
     if required_permission:
@@ -38,15 +52,15 @@ def try_decode_token_from_request(req: Request, jwt_secret: str, *, \
         if required_permission not in permissions:
             return False, api_error(ApiErrorCode.AUTH_INSUFFICIENT_PERMISSSIONS, f"Insufficient permissions (required: {required_permission.value})", {
                 "required_scope": required_permission.value
-            }), token
-    return is_authenticated, token_payload_or_error, token
+            }), token, session
+    return is_authenticated, token_payload_or_error, token, session
 
-def try_query_user_from_request(req: Request, db: Session, jwt_secret: str, *, \
+def try_query_user_from_request(req: Request, db: Session, *, \
     allow_session_token: bool = False, required_permission: Permission | None = None) -> tuple[bool, JSONResponse, str]:
     """ Tries to get and decode user from JWT token from request """
 
     # Try authenticate.
-    is_authenticated, token_payload_or_error, token = try_decode_token_from_request(req, jwt_secret, allow_session_token=allow_session_token, required_permission=required_permission)
+    is_authenticated, token_payload_or_error, token, session = _try_decode_token_from_request(db, req, allow_session_token=allow_session_token, required_permission=required_permission)
     if not is_authenticated:
         return False, token_payload_or_error, token
     token_payload = token_payload_or_error
@@ -57,6 +71,8 @@ def try_query_user_from_request(req: Request, db: Session, jwt_secret: str, *, \
     # Check that user exists.
     if not user:
         return False, api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!"), token_payload
+    if session.owner_id != user.id:
+        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
 
     # All.
     return True, user, token_payload

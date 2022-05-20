@@ -23,15 +23,12 @@ from app.config import get_settings, Settings
 router = APIRouter()
 
 
-# TODO: Activity history (Session signup / signin)
-# TODO: Send sensitive information using form, body data.
-
 @router.get("/_session._getUserInfo")
-async def method_session_get_user_info(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_session_get_user_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account information. """
 
     # Authentication, query user.
-    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db, settings.jwt_secret, allow_session_token=True)
+    is_authenticated, user_or_error, token_payload = try_query_user_from_request(req, db, allow_session_token=True)
     if not is_authenticated:
         return user_or_error
     user = user_or_error
@@ -59,11 +56,25 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
 
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
-    session_token = encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
+    session = crud.user_session.create(db, user.id)
+    session_token = encode_session_jwt_token(user, session, settings.jwt_issuer, settings.session_token_jwt_ttl)
     return api_success({
         **serialize_user(user),
         "session_token": session_token
     })
+
+
+@router.get("/_session._logout")
+async def method_session_logout(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
+    """ Logout user over all session. """
+
+    # Authentication, query user.
+    is_authenticated, user_or_error, _ = try_query_user_from_request(req, db, allow_session_token=True)
+    if not is_authenticated:
+        return user_or_error
+    _ = user_or_error
+
+    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Logout from all devices is not implemented yet")
 
 
 @router.get("/_session._signin")
@@ -75,7 +86,8 @@ async def method_session_signin(login: str, password: str, db: Session = Depends
     if not user or not check_password(password=password, hashed_password=user.password):
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid credentials for authentication (password or login).")
 
-    session_token = encode_session_jwt_token(user, settings.jwt_issuer, settings.session_token_jwt_ttl, settings.jwt_secret)
+    session = crud.user_session.create(db, user.id)
+    session_token = encode_session_jwt_token(user, session, settings.jwt_issuer, settings.session_token_jwt_ttl)
     return api_success({
         **serialize_user(user),
         "session_token": session_token
