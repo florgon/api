@@ -55,4 +55,3 @@ for router in [
     routers.utils.router
 ]:
      app.include_router(router, prefix=get_settings().proxy_url_prefix)
-     app.include_router(router)
