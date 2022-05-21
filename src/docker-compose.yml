@@ -19,7 +19,7 @@ services:
     env_file:
       - .server.env
     volumes:
-      - ./auth-api:/srv/www/florgon/auth-api
+      - ./api:/srv/www/florgon/api
     ports:
       - "${COMPOSE_EXPOSED_PORT}:8000"
     depends_on:

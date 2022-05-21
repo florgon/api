@@ -6,12 +6,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Project directory.
-WORKDIR /srv/www/florgon/auth-api
+WORKDIR /srv/www/florgon/api
 
 # Install requirements.
-COPY auth-api/requirements.txt /srv/www/florgon/auth-api/
+COPY api/requirements.txt /srv/www/florgon/api/
 RUN pip install --upgrade pip
 RUN pip install --upgrade --no-cache-dir -r requirements.txt
 
 # Copy whole project.
-COPY . /srv/www/florgon/auth-api/
+COPY . /srv/www/florgon/api/
