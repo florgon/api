@@ -33,7 +33,8 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> J
     return api_success(serialize_user(user, **{
         "include_email": Permission.email in permissions, 
         "include_optional_fields": True,
-        "include_private_fields": True
+        "include_private_fields": True,
+        "include_profile_fields": True
     }))
 
 @router.get("/user.getProfileInfo")
