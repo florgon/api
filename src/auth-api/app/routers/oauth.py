@@ -3,7 +3,7 @@
 """
 
 # Libraries.
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
 # Services.
@@ -60,61 +60,20 @@ async def method_oauth_authorize(client_id: int, state: str, redirect_uri: str, 
 
 
 @router.get("/oauth.accessToken")
-async def method_oauth_access_token(code: str, client_id: int, client_secret: str, redirect_uri: str, grant_type: str = "authorization_code", db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
-    """ Resolves given code. """
+async def method_oauth_access_token(req: Request, \
+    client_id: int, client_secret: str, grant_type: str | None = None, \
+    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+    """ Resolves grant to access token. """
 
-    if grant_type != "authorization_code":
-        # Requested grant_type is not exists.
-        return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `grant_type` value! Allowed: authorization_code.")
-    # Validate session token.
-    code_payload = decode_oauth_jwt_code(code)
-
-    session_id = code_payload.get("sid", None)
-    session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
-    if not session:
-        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!")
-
-    code_payload = decode_oauth_jwt_code(code, session.token_secret)
-    code_scope = code_payload["scope"]
-
-    if redirect_uri != code_payload["ruri"]:
-        return api_error(ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH, "redirect_uri should be same!")
-
-    if client_id != code_payload["cid"]:
-        return api_error(ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH, "Given code was obtained with different client!")
-
-    # Query OAuth client.
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-
-    # Verification for OAuth client.
-    if not oauth_client or not oauth_client.is_active:
-        return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found or deactivated!")
-
-    if oauth_client.secret != client_secret:
-        return api_error(ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret!")
-
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=code_payload["sub"])
-    if not user:
-        return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
-    if session.owner_id != user.id:
-        return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
+    if not grant_type or grant_type == "authorization_code":
+        return _grant_type_authorization_code(req, client_id, client_secret, db, settings)
     
-    access_token_permissions = parse_permissions_from_scope(code_scope)
-    access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl 
-    access_token = encode_access_jwt_token(user, session, normalize_scope(code_scope), settings.jwt_issuer, access_token_ttl)
-
-    response_payload = {
-        "access_token": access_token,
-        "expires_in": access_token_ttl,
-        "user_id": user.id,
-    }
-
-    if Permission.email in access_token_permissions:
-        response_payload["email"] = user.email
-
-    return api_success(response_payload)
-
+    if grant_type == "password":
+        return _grant_type_password()
+    
+    # Requested grant_type is not exists.
+    return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `grant_type` value! Allowed: authorization_code.")
+    
 
 @router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(session_token: str, \
@@ -207,3 +166,68 @@ async def method_oauth_allow_client(session_token: str, \
 
     # Requested response_type is not exists.
     return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `response_type` value! Allowed: code, token.")
+
+
+
+def _grant_type_authorization_code(req: Request, \
+    client_id: int, client_secret: str, \
+    db: Session, settings: Settings) -> JSONResponse:
+        """OAuth authorization code grant type."""
+        code = req.query_params.get("code", None)
+        redirect_uri = req.query_params.get("redirect_uri", None)
+        if not code:
+            return api_error(ApiErrorCode.API_INVALID_REQUEST, "`code` required for `authorization_code` grant type!")
+        if not redirect_uri:
+            return api_error(ApiErrorCode.API_INVALID_REQUEST, "`redirect_uri` required for `authorization_code` grant type!")
+
+        # Validate session token.
+        code_payload = decode_oauth_jwt_code(code)
+
+        session_id = code_payload.get("sid", None)
+        session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+        if not session:
+            return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!")
+
+        code_payload = decode_oauth_jwt_code(code, session.token_secret)
+        code_scope = code_payload["scope"]
+
+        if redirect_uri != code_payload["ruri"]:
+            return api_error(ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH, "redirect_uri should be same!")
+
+        if client_id != code_payload["cid"]:
+            return api_error(ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH, "Given code was obtained with different client!")
+
+        # Query OAuth client.
+        oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+
+        # Verification for OAuth client.
+        if not oauth_client or not oauth_client.is_active:
+            return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found or deactivated!")
+
+        if oauth_client.secret != client_secret:
+            return api_error(ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret!")
+
+        # Query user.
+        user = crud.user.get_by_id(db=db, user_id=code_payload["sub"])
+        if not user:
+            return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
+        if session.owner_id != user.id:
+            return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
+        
+        access_token_permissions = parse_permissions_from_scope(code_scope)
+        access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl 
+        access_token = encode_access_jwt_token(user, session, normalize_scope(code_scope), settings.jwt_issuer, access_token_ttl)
+
+        response_payload = {
+            "access_token": access_token,
+            "expires_in": access_token_ttl,
+            "user_id": user.id,
+        }
+
+        if Permission.email in access_token_permissions:
+            response_payload["email"] = user.email
+
+        return api_success(response_payload)
+
+def _grant_type_password() -> JSONResponse:
+    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Password grant_type is not implemented! (And will be not implemented).") 

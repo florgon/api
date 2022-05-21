@@ -20,9 +20,6 @@ from app.services.api.response import (
 # Other.
 from app.database.dependencies import get_db
 from app.database import crud
-from app.config import (
-    Settings, get_settings
-)
 
 
 router = APIRouter()
