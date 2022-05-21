@@ -5,7 +5,6 @@
 # Libraries.
 from sqlalchemy.orm import Session
 from fastapi import Request
-from fastapi.responses import JSONResponse
 
 # Services.
 from app.database import crud

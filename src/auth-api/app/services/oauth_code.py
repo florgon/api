@@ -18,7 +18,7 @@ def encode_oauth_jwt_code(user, session, client_id: int, redirect_uri: str, scop
 
 def decode_oauth_jwt_code(token: str, secret: str | None = None) -> dict:
     try:
-        token_payload = jwt.decode(token, secret)
+        token_payload = jwt.decode(token, secret, _token_type="code")
     except jwt.jwt.exceptions.InvalidSignatureError:
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has invalid signature!")
     except jwt.jwt.exceptions.ExpiredSignatureError:
