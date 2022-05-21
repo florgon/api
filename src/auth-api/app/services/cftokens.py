@@ -30,5 +30,5 @@ def confirm_cft(token: str, max_age: int, secret: str, salt: str) -> tuple[bool,
 def generate_confirmation_link(email: str, cft_secret: str, cft_salt: str, proxy_url_host: str, proxy_url_prefix: str) -> str:
     """ Returns confirmation link ready to be sent to user. """
     confirmation_token = generate_cft(email, cft_secret, cft_salt)
-    confirmation_link = urllib.parse.urljoin(proxy_url_host, proxy_url_prefix + "/email/confirm")
+    confirmation_link = urllib.parse.urljoin(proxy_url_host, proxy_url_prefix + "/_emailConfirmation.confirm")
     return f"{confirmation_link}?cft={confirmation_token}"

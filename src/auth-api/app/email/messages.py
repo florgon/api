@@ -30,5 +30,5 @@ async def send_verification_email(email: str, username: str, confirmation_link: 
     # Send email.
     await send(email, 
         "Sign-up on Florgon", 
-        f"Hello, {username}! Please confirm your email address by clicking link below! Welcome to Florgon! Link: {confirmation_link}"
+        f"Hello, {username}! Please confirm your Florgon account email address by clicking link below! Welcome to Florgon! Link: {confirmation_link}"
     )
