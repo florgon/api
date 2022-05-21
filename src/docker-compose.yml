@@ -21,10 +21,9 @@ services:
     volumes:
       - ./api:/srv/www/florgon/api
     ports:
-      - "${COMPOSE_EXPOSED_PORT}:8000"
+      - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
       - database
     links:
       - database
     build: .
-    command: "uvicorn app.app:app --host ${COMPOSE_LOCAL_HOST}"

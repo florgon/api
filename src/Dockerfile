@@ -15,3 +15,6 @@ RUN pip install --upgrade --no-cache-dir -r requirements.txt
 
 # Copy whole project.
 COPY . /srv/www/florgon/api/
+
+# Run project.
+CMD ["uvicorn", "app.app:app", "--host", "0.0.0.0", "--port", "80"]
