@@ -60,8 +60,12 @@ async def method_oauth_authorize(client_id: int, state: str, redirect_uri: str, 
 
 
 @router.get("/oauth.accessToken")
-async def method_oauth_access_token(code: str, client_id: int, client_secret: str, redirect_uri: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_oauth_access_token(code: str, client_id: int, client_secret: str, redirect_uri: str, grant_type: str = "authorization_code", db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Resolves given code. """
+
+    if grant_type != "authorization_code":
+        # Requested grant_type is not exists.
+        return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `grant_type` value! Allowed: authorization_code.")
     # Validate session token.
     code_payload = decode_oauth_jwt_code(code)
 
