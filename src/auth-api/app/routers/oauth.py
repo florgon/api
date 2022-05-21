@@ -69,10 +69,16 @@ async def method_oauth_access_token(req: Request, \
         return _grant_type_authorization_code(req, client_id, client_secret, db, settings)
     
     if grant_type == "password":
-        return _grant_type_password()
+        return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Password grant_type is not implemented! (And will be not implemented soon).") 
+
+    if grant_type == "client_credentials":
+        return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Client credentials grant_type is not implemented! (And will be not implemented soon).") 
     
+    if grant_type == "refresh_token":
+        return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Refresh token grant_type is not implemented! (And will be not implemented soon).") 
+
     # Requested grant_type is not exists.
-    return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `grant_type` value! Allowed: authorization_code.")
+    return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `grant_type` value! Allowed: `authorization_code`, `password`, `client_credentials`, `refresh_token`.")
     
 
 @router.get("/_oauth._allowClient")
@@ -228,6 +234,3 @@ def _grant_type_authorization_code(req: Request, \
             response_payload["email"] = user.email
 
         return api_success(response_payload)
-
-def _grant_type_password() -> JSONResponse:
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Password grant_type is not implemented! (And will be not implemented).") 
