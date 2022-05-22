@@ -9,7 +9,7 @@ from fastapi import Request
 
 from app.database import crud
 from app.services import jwt
-from app.services.permissions import Permission, Permissions, parse_permissions_from_scope
+from app.services.permissions import Permissions, parse_permissions_from_scope
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 from app.database.models.user import User
@@ -18,6 +18,12 @@ from app.database.models.user_session import UserSession
 
 class AuthData(object):
     """ DTO for authenticated request."""
+
+    user: User
+    token_payload: dict
+    session: UserSession
+    permissions: Permissions | None
+
     def __init__(self, token_payload: str, session: UserSession, \
         user: User | None = None, permissions: Permissions | None = None) -> None:
         """
