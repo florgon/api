@@ -85,21 +85,22 @@ async def method_user_get_counter(req: Request, db: Session = Depends(get_db)) -
     })
 
 
-@router.get("/user.setProfileInfo")
-async def method_user_set_profile_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
-    """ Updates user public profile information. """
-    query_auth_data_from_request(req, db, required_permission=Permission.edit)
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Updating public profile information is not implemented yet!")
-
-
 @router.get("/user.setInfo")
 async def method_user_set_info(req: Request, \
     first_name: str | None = None, last_name: str | None = None, sex: bool | None = None, avatar_url: str | None = None, \
+    privacy_profile_public: bool | None = None, privacy_profile_require_auth: bool | None = None, \
+    profile_bio: str | None = None, profile_website: str | None = None, \
+    profile_social_username_gh: str | None = None, profile_social_username_vk: str | None = None, \
+    profile_social_username_tg: str | None = None, \
     db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user account information. """
 
     user = query_auth_data_from_request(req, db, required_permission=Permission.edit)[0]
     
+    # Notice:
+    # IK this is shit,
+    # but this is temporary solution,
+    # and will be rewriten later.
     is_updated = False
     if first_name is not None and first_name != user.first_name:
         user.first_name = first_name
@@ -112,6 +113,27 @@ async def method_user_set_info(req: Request, \
         is_updated = True
     if avatar_url is not None and avatar_url != user.avatar:
         user.avatar = avatar_url
+        is_updated = True
+    if privacy_profile_public is not None and privacy_profile_public != user.privacy_profile_public:
+        user.privacy_profile_public = privacy_profile_public
+        is_updated = True
+    if privacy_profile_require_auth is not None and privacy_profile_require_auth != user.privacy_profile_require_auth:
+        user.privacy_profile_require_auth = privacy_profile_require_auth
+        is_updated = True
+    if profile_bio is not None and profile_bio != user.profile_bio:
+        user.profile_bio = profile_bio
+        is_updated = True
+    if profile_website is not None and profile_website != user.profile_website:
+        user.profile_website = profile_website
+        is_updated = True
+    if profile_social_username_gh is not None and profile_social_username_gh != user.profile_social_username_gh:
+        user.profile_social_username_gh = profile_social_username_gh
+        is_updated = True
+    if profile_social_username_vk is not None and profile_social_username_vk != user.profile_social_username_vk:
+        user.profile_social_username_vk = profile_social_username_vk
+        is_updated = True
+    if profile_social_username_tg is not None and profile_social_username_tg != user.profile_social_username_tg:
+        user.profile_social_username_tg = profile_social_username_tg
         is_updated = True
 
     if is_updated:
