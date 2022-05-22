@@ -125,11 +125,12 @@ def _query_scope_permissions(scope: str, required_permissions: Permissions | Non
     permissions = parse_permissions_from_scope(scope)
 
     if required_permissions:
-        if required_permissions not in permissions:
-            raise ApiErrorException(
-                ApiErrorCode.AUTH_INSUFFICIENT_PERMISSSIONS, 
-                f"Insufficient permissions (required: {required_permission.value})", 
-                {"required_scope": required_permission.value})
+        for required_permission in required_permissions:
+            if required_permission not in permissions:
+                raise ApiErrorException(
+                    ApiErrorCode.AUTH_INSUFFICIENT_PERMISSSIONS, 
+                    f"Insufficient permissions (required: {required_permission.value})", 
+                    {"required_scope": required_permission.value})
 
     return permissions
 
