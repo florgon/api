@@ -6,6 +6,7 @@
 from . import (
     email,
     oauth_client,
+    secure,
     oauth,
     session,
     user,
