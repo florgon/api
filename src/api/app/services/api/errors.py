@@ -1,5 +1,5 @@
 """
-    Standartized API error cpdes container.
+    Standartized API error codes container.
 """
 
 from enum import Enum

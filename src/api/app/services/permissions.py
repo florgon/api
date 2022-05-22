@@ -1,6 +1,7 @@
 from enum import Enum
 
 
+
 class Permission(Enum):
     oauth_clients = "oauth_clients"
     email = "email"
@@ -9,17 +10,19 @@ class Permission(Enum):
     gatey = "gatey",
     notes = "notes"
 
+Permissions: list[Permission] = list[Permission]  # Type hint.
+
 
 def normalize_scope(scope: str) -> str:
     return SCOPE_PERMISSION_SEPARATOR.join([permission.value for permission in parse_permissions_from_scope(scope)])
 
 
-def parse_permissions_from_scope(scope: str) -> set[Permission]:
-    return set([
+def parse_permissions_from_scope(scope: str) -> Permissions:
+    return list(set([
         Permission(permission) for permission in 
         scope.split(SCOPE_PERMISSION_SEPARATOR)
         if (permission and permission in SCOPE_ALLOWED_PERMISSIONS and permission)
-    ])
+    ]))
 
 
 SCOPE_PERMISSION_SEPARATOR = ","

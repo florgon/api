@@ -2,11 +2,9 @@
     API response wrappers.
 """
 
-# Libraries.
 from typing import Dict, Optional
 from fastapi.responses import JSONResponse
 
-# API.
 from .errors import ApiErrorCode
 from .version import API_VERSION
 

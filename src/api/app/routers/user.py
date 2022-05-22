@@ -89,7 +89,7 @@ async def method_user_set_info(req: Request, \
     db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user account information. """
 
-    auth_data = query_auth_data_from_request(req, db, required_permission=Permission.edit)
+    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.edit])
     user = auth_data.user
     
     # Notice:

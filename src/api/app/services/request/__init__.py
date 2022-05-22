@@ -9,7 +9,7 @@ from fastapi import Request
 
 from app.database import crud
 from app.services import jwt
-from app.services.permissions import Permission, parse_permissions_from_scope
+from app.services.permissions import Permission, Permissions, parse_permissions_from_scope
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 from app.database.models.user import User
@@ -19,7 +19,7 @@ from app.database.models.user_session import UserSession
 class AuthData(object):
     """ DTO for authenticated request."""
     def __init__(self, token_payload: str, session: UserSession, \
-        user: User | None = None, permissions: list[Permission] | None = None) -> None:
+        user: User | None = None, permissions: Permissions | None = None) -> None:
         """
             :param user: User database model object.
             :param token_payload: Decoded token payload.
@@ -35,7 +35,7 @@ class AuthData(object):
 
 def query_auth_data_from_token(token: str, db: Session, *, \
     only_session_token: bool = False, 
-    required_permission: Permission | None = None,
+    required_permissions: Permissions | None = None,
     allow_deactivated: bool = False
     ) -> AuthData:
     """
@@ -43,7 +43,7 @@ def query_auth_data_from_token(token: str, db: Session, *, \
         :param token: Token itself.
         :param db: Database session.
         :param only_session_token: If true, will query for session token, not access.
-        :param required_permission: If passed, will require permission from token.
+        :param required_permissions: If passed, will require permission from token.
         :param allow_deactivated: If true, allow deactivated user to authenticate.
     """
 
@@ -51,13 +51,13 @@ def query_auth_data_from_token(token: str, db: Session, *, \
     token_type = "session" if only_session_token else "access"
     auth_data = _decode_token(
         token, token_type, db,
-        required_permission=required_permission
+        required_permissions=required_permissions
     )
     return _query_auth_data(auth_data, db, allow_deactivated)
 
 
 def query_auth_data_from_request(req: Request, db: Session, *, \
-    only_session_token: bool = False, required_permission: Permission | None = None, allow_deactivated: bool = False
+    only_session_token: bool = False, required_permissions: Permissions | None = None, allow_deactivated: bool = False
     ) -> AuthData:
     """
         Queries authentication data from request (from request token).
@@ -73,7 +73,7 @@ def query_auth_data_from_request(req: Request, db: Session, *, \
     return query_auth_data_from_token(
         token, db, 
         only_session_token=only_session_token, 
-        required_permission=required_permission, 
+        required_permissions=required_permissions, 
         allow_deactivated=allow_deactivated
     )
 
@@ -90,13 +90,13 @@ def _get_token_from_request(req: Request, only_session_token: bool) -> str:
 
 
 def _decode_token(token: str, token_type: str, db: Session, \
-    required_permission: Permission | None = None) -> AuthData:
+    required_permissions: Permissions | None = None) -> AuthData:
     """
         Decodes given token, to it payload and session.
         :param token: Token to decode.
         :param token_type: Token type to get.
         :param db: Database session.
-        :param required_permission: If passed, will require permission from token.
+        :param required_permissions: If passed, will require permission from token.
     """
     
     # Decode without verifying signature, to query session, and then
@@ -106,7 +106,7 @@ def _decode_token(token: str, token_type: str, db: Session, \
     token_payload = jwt.decode(token, session.token_secret, _token_type=token_type)
 
     # Checks for token allowance.
-    permissions = _query_scope_permissions(token_payload.get("scope", ""), required_permission)
+    permissions = _query_scope_permissions(token_payload.get("scope", ""), required_permissions)
 
     # Return DTO.
     return AuthData(
@@ -116,16 +116,16 @@ def _decode_token(token: str, token_type: str, db: Session, \
     )
 
 
-def _query_scope_permissions(scope: str, required_permission: Permission | None) -> None:
+def _query_scope_permissions(scope: str, required_permissions: Permissions | None) -> None:
     """
         Queries scope permissions with checking required permission.
         :param scope: Scope string (From request).
-        :param required_permission: Permission to require.
+        :param required_permissions: Permission to require.
     """
     permissions = parse_permissions_from_scope(scope)
 
-    if required_permission:
-        if required_permission not in permissions:
+    if required_permissions:
+        if required_permissions not in permissions:
             raise ApiErrorException(
                 ApiErrorCode.AUTH_INSUFFICIENT_PERMISSSIONS, 
                 f"Insufficient permissions (required: {required_permission.value})", 
