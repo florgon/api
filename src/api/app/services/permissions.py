@@ -5,9 +5,9 @@ from enum import Enum
 class Permission(Enum):
     oauth_clients = "oauth_clients"
     email = "email"
-    noexpire = "noexpire",
-    edit = "edit",
-    gatey = "gatey",
+    noexpire = "noexpire"
+    edit = "edit"
+    gatey = "gatey"
     notes = "notes"
 
 Permissions: list[Permission] = list[Permission]  # Type hint.
