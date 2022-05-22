@@ -174,7 +174,6 @@ async def method_oauth_allow_client(session_token: str, \
     return api_error(ApiErrorCode.API_INVALID_REQUEST, "Unknown `response_type` value! Allowed: code, token.")
 
 
-
 def _grant_type_authorization_code(req: Request, \
     client_id: int, client_secret: str, \
     db: Session, settings: Settings) -> JSONResponse:

@@ -22,16 +22,10 @@ router = APIRouter()
 @router.get("/user.getInfo")
 async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account information. """
-
-    # Authentication, query user.
-    user, token_payload, _  = query_auth_data_from_request(req, db)
-    permissions = parse_permissions_from_scope(token_payload["scope"])
-
-    if not user.is_active:
-        return api_error(ApiErrorCode.USER_DEACTIVATED, "Cannot get user information, due to user account deactivation!")
-
-    return api_success(serialize_user(user, **{
-        "include_email": Permission.email in permissions, 
+    auth_data = query_auth_data_from_request(req, db)
+    email_allowed = Permission.email in auth_data.permissions
+    return api_success(serialize_user(auth_data.user, **{
+        "include_email": email_allowed, 
         "include_optional_fields": True,
         "include_private_fields": True,
         "include_profile_fields": True
@@ -79,9 +73,9 @@ async def method_user_get_profile_info(req: Request, \
 @router.get("/user.getCounters")
 async def method_user_get_counter(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account counters (Count of different items, like for badges). """
-    query_auth_data_from_request(req, db)
+    auth_data = query_auth_data_from_request(req, db)
     return api_success({
-        "oauth_clients": crud.oauth_client.get_count_by_owner_id()
+        "oauth_clients": crud.oauth_client.get_count_by_owner_id(db, auth_data.user.id)
     })
 
 
@@ -95,7 +89,8 @@ async def method_user_set_info(req: Request, \
     db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user account information. """
 
-    user = query_auth_data_from_request(req, db, required_permission=Permission.edit)[0]
+    auth_data = query_auth_data_from_request(req, db, required_permission=Permission.edit)
+    user = auth_data.user
     
     # Notice:
     # IK this is shit,

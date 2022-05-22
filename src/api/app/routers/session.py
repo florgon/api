@@ -26,11 +26,11 @@ router = APIRouter()
 @router.get("/_session._getUserInfo")
 async def method_session_get_user_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account information. """
-    user, token_payload, _ = query_auth_data_from_request(req, db, only_session_token=True)
-    session_issued_at = token_payload["iat"]
-    session_expires_at = token_payload["exp"]
+    auth_data = query_auth_data_from_request(req, db, only_session_token=True)
+    session_issued_at = auth_data.token_payload["iat"]
+    session_expires_at = auth_data.token_payload["exp"]
     return api_success({
-        **serialize_user(user),
+        **serialize_user(auth_data.user),
         "siat": session_issued_at,
         "sexp": session_expires_at
     })
@@ -61,7 +61,8 @@ async def method_session_logout(req: Request, \
     revoke_all: bool = False,
     db: Session = Depends(get_db)) -> JSONResponse:
     """ Logout user over all session. """
-    session = query_auth_data_from_request(req, db, only_session_token=True)[2]
+    auth_data = query_auth_data_from_request(req, db, only_session_token=True)
+    session = auth_data.session
 
     if revoke_all:
         sessions = crud.user_session.get_by_owner_id(db, session.owner_id)
