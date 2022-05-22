@@ -30,7 +30,7 @@ class AuthData(object):
         self.session = session
 
         # Parse permission once.
-        self.permissions = permissions if permissions else parse_permissions_from_scope(token_payload["scope"])
+        self.permissions = permissions if permissions else parse_permissions_from_scope(token_payload.get("scope", ""))
 
 
 def query_auth_data_from_token(token: str, db: Session, *, \
@@ -106,7 +106,7 @@ def _decode_token(token: str, token_type: str, db: Session, \
     token_payload = jwt.decode(token, session.token_secret, _token_type=token_type)
 
     # Checks for token allowance.
-    permissions = _query_scope_permissions(token_payload["scope"], required_permission)
+    permissions = _query_scope_permissions(token_payload.get("scope", ""), required_permission)
 
     # Return DTO.
     return AuthData(
