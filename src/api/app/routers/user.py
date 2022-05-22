@@ -37,6 +37,7 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> J
         "include_profile_fields": True
     }))
 
+
 @router.get("/user.getProfileInfo")
 async def method_user_get_profile_info(req: Request, \
     user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db)) -> JSONResponse:
@@ -74,6 +75,7 @@ async def method_user_get_profile_info(req: Request, \
         "include_profile_fields": True
     }))
 
+
 @router.get("/user.getCounters")
 async def method_user_get_counter(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account counters (Count of different items, like for badges). """
@@ -86,7 +88,7 @@ async def method_user_get_counter(req: Request, db: Session = Depends(get_db)) -
 @router.get("/user.setProfileInfo")
 async def method_user_set_profile_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user public profile information. """
-    query_auth_data_from_request(req, db)
+    query_auth_data_from_request(req, db, required_permission=Permission.edit)
     return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Updating public profile information is not implemented yet!")
 
 
@@ -96,7 +98,7 @@ async def method_user_set_info(req: Request, \
     db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user account information. """
 
-    user = query_auth_data_from_request(req, db)[0]
+    user = query_auth_data_from_request(req, db, required_permission=Permission.edit)[0]
     
     is_updated = False
     if first_name is not None and first_name != user.first_name:
