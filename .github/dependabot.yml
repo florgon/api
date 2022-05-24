@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/src/auth-api/"
+    directory: "/src/api/"
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
