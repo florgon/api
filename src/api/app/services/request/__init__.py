@@ -122,7 +122,7 @@ def _decode_token(token: str, token_type: str, db: Session, \
     )
 
 
-def _query_scope_permissions(scope: str, required_permissions: Permissions | None) -> None:
+def _query_scope_permissions(scope: str, required_permissions: Permissions | None) -> Permissions:
     """
         Queries scope permissions with checking required permission.
         :param scope: Scope string (From request).
@@ -162,8 +162,8 @@ def _query_session_from_sid(session_id: int | None, db: Session) -> UserSession:
 def _query_auth_data(auth_data: AuthData, \
     db: Session, allow_deactivated: bool) -> AuthData:
     """
-        Queries authentication data from token payload and session.
-        :param token_payload: Payload of authentication token.
+        Finalizes query of  authentication data.
+        :param auth_data: Authentication data.
         :param session: User session.
         :param db: Database session.
         :param allow_deactivated: If true, allow deactivated user to authenticate.

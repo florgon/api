@@ -5,6 +5,6 @@
 from . import (
     api, serializers, validators, request,
     
-    jwt, 
+    jwt, permissions, 
     cftokens, passwords
 )
