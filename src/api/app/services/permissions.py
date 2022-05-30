@@ -7,10 +7,14 @@ class Permission(Enum):
     email = "email"
     noexpire = "noexpire"
     edit = "edit"
+
+    # Services.
     gatey = "gatey"
     notes = "notes"
+    habits = "habits"
 
-Permissions: list[Permission] = list[Permission]  # Type hint.
+
+Permissions: type = list[Permission]  # Type hint (alias).
 
 
 def normalize_scope(scope: str) -> str:
@@ -32,5 +36,6 @@ SCOPE_ALLOWED_PERMISSIONS = [permission.value for permission in [
     Permission.noexpire,
     Permission.edit,
     Permission.gatey,
-    Permission.notes
+    Permission.notes,
+    Permission.habits
 ]]
