@@ -33,7 +33,7 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> J
     }))
 
 
-@router.get("/user.getProfileInfo", dependencies=[Depends(RateLimiter(seconds=3))])
+@router.get("/user.getProfileInfo", dependencies=[Depends(RateLimiter(seconds=1))])
 async def method_user_get_profile_info(req: Request, \
     user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account profile information. """
