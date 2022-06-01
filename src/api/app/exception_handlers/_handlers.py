@@ -31,5 +31,5 @@ async def _api_error_exception_handler(_, e: ApiErrorException):
 
 async def _too_many_requests_handler(_, exception):
     return api_error(ApiErrorCode.API_TOO_MANY_REQUESTS, "Too Many Requests!", {
-        "retry-after": exception.headers["Retry-After"]
+        "retry-after": int(exception.headers["Retry-After"])
     }, headers=exception.headers)
