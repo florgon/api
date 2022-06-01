@@ -2,13 +2,14 @@
     Config environment variables reader.
 """
 
-from pydantic import BaseSettings, PostgresDsn
+from pydantic import BaseSettings, PostgresDsn, RedisDsn
 
 
 class Settings(BaseSettings):
     """ Base settings. """
     database_url: PostgresDsn
-
+    cache_url: RedisDsn
+    
     oauth_screen_provider_url: str
     
     jwt_issuer: str

@@ -10,6 +10,7 @@ from app.services.request import query_auth_data_from_request
 from app.services.cftokens import confirm_cft, generate_confirmation_link
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
+from app.services.limiter.depends import RateLimiter
 
 from app.database.dependencies import get_db, Session
 from app.database import crud
@@ -47,7 +48,7 @@ async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_
     })
 
 
-@router.get("/_emailConfirmation.resend")
+@router.get("/_emailConfirmation.resend", dependencies=[Depends(RateLimiter(hours=1))])
 async def method_email_confirmation_resend(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ Resends email confirmation to user email address. """
     auth_data = query_auth_data_from_request(req, db)

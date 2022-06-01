@@ -3,7 +3,6 @@
     (FastAPI exception handlers)
 """
 
-
 from app.services.api.response import api_error
 from app.services.api.errors import ( 
     ApiErrorCode, 
@@ -28,3 +27,9 @@ async def _internal_server_error_handler(_, __):
 
 async def _api_error_exception_handler(_, e: ApiErrorException):
     return api_error(e.api_code, e.message, e.data)
+
+
+async def _too_many_requests_handler(_, exception):
+    return api_error(ApiErrorCode.API_TOO_MANY_REQUESTS, "Too Many Requests!", {
+        "retry-after": exception.headers["Retry-After"]
+    }, headers=exception.headers)

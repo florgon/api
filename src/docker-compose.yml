@@ -13,6 +13,17 @@ services:
       - ../db:/var/lib/postgresql/data
     env_file: 
       - .database.env
+    networks:
+      - florgon-api
+  cache:
+    image: redis:7-alpine
+    hostname: florgon-api
+    restart: always
+    command: redis-server
+    volumes:
+      - ../cache:/data
+    networks:
+      - florgon-api
   server:
     hostname: florgon-api
     restart: always
@@ -24,6 +35,13 @@ services:
       - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
       - database
+      - cache
     links:
       - database
+      - cache
+    networks:
+      - florgon-api
     build: .
+
+networks:
+  florgon-api:

@@ -12,6 +12,7 @@ from app.services.request import query_auth_data_from_request
 from app.services.permissions import Permission
 from app.services.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
 from app.services.api.errors import ApiErrorCode
+from app.services.limiter.depends import RateLimiter
 from app.services.api.response import (
     api_error,
     api_success
@@ -25,7 +26,7 @@ from app.database import crud
 router = APIRouter()
 
 
-@router.get("/oauthClient.new")
+@router.get("/oauthClient.new", dependencies=[Depends(RateLimiter(times=2, hours=12))])
 async def method_oauth_client_new(display_name: str, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Creates new OAuth client """
     auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.oauth_clients])

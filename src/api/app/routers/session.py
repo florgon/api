@@ -14,6 +14,7 @@ from app.services.tokens import encode_session_jwt_token
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.serializers.user import serialize_user
+from app.services.limiter.depends import RateLimiter
 
 from app.database.dependencies import get_db, Session
 from app.database import crud
@@ -36,7 +37,7 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
     })
 
 
-@router.get("/_session._signup")
+@router.get("/_session._signup", dependencies=[Depends(RateLimiter(times=5, hours=24))])
 async def method_session_signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
     """ API endpoint to signup and create new user. """
 
