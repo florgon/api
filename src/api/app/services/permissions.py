@@ -1,7 +1,6 @@
 from enum import Enum
 
 
-
 class Permission(Enum):
     oauth_clients = "oauth_clients"
     email = "email"
@@ -22,6 +21,7 @@ def normalize_scope(scope: str) -> str:
 
 
 def parse_permissions_from_scope(scope: str) -> Permissions:
+    assert isinstance(scope, str)
     return list(set([
         Permission(permission) for permission in 
         scope.split(SCOPE_PERMISSION_SEPARATOR)
