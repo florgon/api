@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 # Services.
 from app.services.request import query_auth_data_from_request
 from app.services.permissions import Permission
-from app.services.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
+
 from app.services.api.errors import ApiErrorCode
 from app.services.limiter.depends import RateLimiter
 from app.services.api.response import (
@@ -19,6 +19,7 @@ from app.services.api.response import (
 )
 
 # Other.
+from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
 from app.database.dependencies import get_db
 from app.database import crud
 

@@ -13,9 +13,9 @@ from app.services.passwords import check_password
 from app.services.tokens import encode_session_jwt_token
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
-from app.services.serializers.user import serialize_user
 from app.services.limiter.depends import RateLimiter
 
+from app.serializers.user import serialize_user
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings

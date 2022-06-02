@@ -10,8 +10,8 @@ from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.serializers.user import serialize_user
 from app.services.limiter.depends import RateLimiter
+from app.serializers.user import serialize_user
 from app.database import crud
 
 from app.database.dependencies import get_db, Session
