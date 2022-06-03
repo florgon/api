@@ -7,7 +7,10 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
 # Services.
-from app.services.tokens import encode_access_jwt_token
+from app.services.permissions import (
+    normalize_scope, parse_permissions_from_scope, 
+    Permission
+)
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import (
     api_error,
@@ -15,13 +18,9 @@ from app.services.api.response import (
 )
 
 # Other.
-from app.services.tokens import (
-    decode_session_jwt_token, encode_access_jwt_token
-)
-from app.services.oauth_code import (
-    encode_oauth_jwt_code, decode_oauth_jwt_code
-)
-from app.services.permissions import normalize_scope, parse_permissions_from_scope, Permission
+from app.tokens.oauth_code import OAuthCode
+from app.tokens.access_token import AccessToken
+from app.tokens.session_token import SessionToken
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import (
@@ -102,17 +101,17 @@ async def method_oauth_allow_client(session_token: str, \
     """
 
     # Validate session token.
-    token_payload = decode_session_jwt_token(session_token)
-    session_id = token_payload.get("sid", None)
+    session_token_unsigned = SessionToken.decode_unsigned(session_token)
+    session_id = session_token_unsigned.get_session_id()
 
     session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
     if not session:
         return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!")
 
-    token_payload = decode_session_jwt_token(session_token, session.token_secret)
+    session_token_signed = SessionToken.decode(session_token, key=session.token_secret)
     
     # Query user.
-    user = crud.user.get_by_id(db=db, user_id=token_payload["sub"])
+    user = crud.user.get_by_id(db=db, user_id=session_token_signed.get_subject())
     if not user:
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!")
     if session.owner_id != user.id:
@@ -134,7 +133,12 @@ async def method_oauth_allow_client(session_token: str, \
         # Encoding OAuth code.
         # Code should be resolved at server-side at redirect_uri, using resolve OAuth method.
         # Code should have very small time-to-live (TTL), as it should be resolved to access token with default TTL immediatly at server.
-        code = encode_oauth_jwt_code(user, session, client_id, redirect_uri, scope, settings.jwt_issuer, settings.oauth_code_jwt_ttl)
+        scope = normalize_scope(scope)
+        code = OAuthCode(
+            settings.jwt_issuer, settings.oauth_code_jwt_ttl, 
+            user.id, session.id, 
+            scope, redirect_uri, client_id
+        ).encode(key=session.token_secret)
         
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
@@ -155,8 +159,12 @@ async def method_oauth_allow_client(session_token: str, \
         # Encoding access token.
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
         access_token_permissions = parse_permissions_from_scope(scope)
-        access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl 
-        access_token = encode_access_jwt_token(user, session, normalize_scope(scope), settings.jwt_issuer, access_token_ttl)
+        access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl
+        access_token = AccessToken(
+            settings.jwt_issuer, access_token_ttl, 
+            user.id, session.id, 
+            normalize_scope(scope)
+        ).encode(key=session.token_secret)
 
         # Constructing redirect URL with hash-link parameters.
         # Email field should be passed only if OAuth client requested given scope permission.
@@ -185,21 +193,20 @@ def _grant_type_authorization_code(req: Request, \
         if not redirect_uri:
             return api_error(ApiErrorCode.API_INVALID_REQUEST, "`redirect_uri` required for `authorization_code` grant type!")
 
-        # Validate session token.
-        code_payload = decode_oauth_jwt_code(code)
 
-        session_id = code_payload.get("sid", None)
+        code_unsigned = OAuthCode.decode_unsigned(code)
+
+        session_id = code_unsigned.get_session_id()
         session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
         if not session:
             return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!")
 
-        code_payload = decode_oauth_jwt_code(code, session.token_secret)
-        code_scope = code_payload["scope"]
+        code_signed = OAuthCode.decode(code, key=session.token_secret)
 
-        if redirect_uri != code_payload["ruri"]:
+        if redirect_uri != code_signed.get_redirect_uri():
             return api_error(ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH, "redirect_uri should be same!")
 
-        if client_id != code_payload["cid"]:
+        if client_id != code_signed.get_client_id():
             return api_error(ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH, "Given code was obtained with different client!")
 
         # Query OAuth client.
@@ -213,16 +220,20 @@ def _grant_type_authorization_code(req: Request, \
             return api_error(ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret!")
 
         # Query user.
-        user = crud.user.get_by_id(db=db, user_id=code_payload["sub"])
+        user = crud.user.get_by_id(db=db, user_id=code_signed.get_subject())
         if not user:
             return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Unable to find user that belongs to this code!")
         if session.owner_id != user.id:
             return api_error(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
         
-        access_token_permissions = parse_permissions_from_scope(code_scope)
+        access_token_permissions = parse_permissions_from_scope(code_signed.get_scope())
         access_token_ttl = 0 if Permission.noexpire in access_token_permissions else settings.access_token_jwt_ttl 
-        access_token = encode_access_jwt_token(user, session, normalize_scope(code_scope), settings.jwt_issuer, access_token_ttl)
-
+        access_token = AccessToken(
+            settings.jwt_issuer, access_token_ttl, 
+            user.id, session.id, 
+            normalize_scope(code_signed.get_scope())
+        ).encode(key=session.token_secret)
+    
         response_payload = {
             "access_token": access_token,
             "expires_in": access_token_ttl,

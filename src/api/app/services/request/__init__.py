@@ -8,35 +8,37 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 
 from app.database import crud
-from app.services import jwt
 from app.services.permissions import Permissions, parse_permissions_from_scope
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
+from app.tokens.access_token import AccessToken
+from app.tokens.session_token import SessionToken
+from app.tokens._token import _Token
 from app.database.models.user import User
 from app.database.models.user_session import UserSession
 
-
+TokenType = SessionToken | AccessToken
 class AuthData(object):
     """ DTO for authenticated request."""
 
     user: User
-    token_payload: dict
+    token: TokenType
     session: UserSession
     permissions: Permissions | None
 
-    def __init__(self, token_payload: str, session: UserSession, \
+    def __init__(self, token: TokenType, session: UserSession, \
         user: User | None = None, permissions: Permissions | None = None) -> None:
         """
             :param user: User database model object.
-            :param token_payload: Decoded token payload.
+            :param token: Session or access token object.
             :param session: User session database model object.
         """
         self.user = user
-        self.token_payload = token_payload
+        self.token = token
         self.session = session
 
         # Parse permission once.
-        self.permissions = permissions if permissions else parse_permissions_from_scope(token_payload.get("scope", ""))
+        self.permissions = permissions if permissions else parse_permissions_from_scope(token._scope)
 
 
 def query_auth_data_from_token(token: str, db: Session, *, \
@@ -54,11 +56,13 @@ def query_auth_data_from_token(token: str, db: Session, *, \
     """
 
     # Decode external token and query auth data from it.
-    token_type = "session" if only_session_token else "access"
+    token_type = SessionToken if only_session_token else AccessToken
     auth_data = _decode_token(
         token, token_type, db,
         required_permissions=required_permissions
     )
+    if only_session_token:
+        assert auth_data.token._type == SessionToken._type
     return _query_auth_data(auth_data, db, allow_deactivated)
 
 
@@ -91,11 +95,11 @@ def _get_token_from_request(req: Request, only_session_token: bool) -> str:
         :param only_session_token: If true, will get session token.
     """
     if only_session_token:
-        return req.query_params.get("session_token")
-    return req.headers.get("Authorization") or req.query_params.get("access_token")
+        return req.query_params.get("session_token", "")
+    return req.headers.get("Authorization", "") or req.query_params.get("access_token", "")
 
 
-def _decode_token(token: str, token_type: str, db: Session, \
+def _decode_token(token: str, token_type: AccessToken | SessionToken, db: Session, \
     required_permissions: Permissions | None = None) -> AuthData:
     """
         Decodes given token, to it payload and session.
@@ -105,18 +109,20 @@ def _decode_token(token: str, token_type: str, db: Session, \
         :param required_permissions: If passed, will require permission from token.
     """
     
-    # Decode without verifying signature, to query session, and then
-    # decode with session token secret, with veryfing user token identity signature.
-    token_payload = jwt.decode(token, None, _token_type=token_type)
-    session = _query_session_from_sid(token_payload.get("sid", None), db)
-    token_payload = jwt.decode(token, session.token_secret, _token_type=token_type)
+    if token_type._type not in ("access", "session"):
+        raise ValueError("Unexpected type of the token type inside _decode_token!")
+
+    unsigned_token = token_type.decode_unsigned(token)
+    session = _query_session_from_sid(unsigned_token.get_session_id(), db)
+    signed_token = token_type.decode(token, key=session.token_secret)
+    assert signed_token.signature_is_valid()
 
     # Checks for token allowance.
-    permissions = _query_scope_permissions(token_payload.get("scope", ""), required_permissions)
+    permissions = _query_scope_permissions(signed_token.get_scope(), required_permissions)
 
     # Return DTO.
     return AuthData(
-        token_payload=token_payload,
+        token=signed_token,
         session=session,
         permissions=permissions
     )
@@ -168,7 +174,7 @@ def _query_auth_data(auth_data: AuthData, \
         :param db: Database session.
         :param allow_deactivated: If true, allow deactivated user to authenticate.
     """
-    user = crud.user.get_by_id(db=db, user_id=auth_data.token_payload["sub"])
+    user = crud.user.get_by_id(db=db, user_id=auth_data.token.get_subject())
 
     # Validate authentication data.
     if not user:

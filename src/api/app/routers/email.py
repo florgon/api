@@ -5,9 +5,16 @@
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
+import urllib.parse
+
+
+from app.tokens.email_token import EmailToken
+from app.tokens.exceptions import (
+    TokenExpiredError, TokenInvalidError,
+    TokenInvalidSignatureError, TokenWrongTypeError
+)
 
 from app.services.request import query_auth_data_from_request
-from app.services.cftokens import confirm_cft, generate_confirmation_link
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
@@ -29,13 +36,17 @@ async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_
     """ Confirms email from given CFT (Confirmation token). """
 
     # Validating CFT, grabbing email from CFT payload.
-    is_valid, token_payload = confirm_cft(cft, settings.cft_max_age, settings.cft_secret, settings.cft_salt)
-    if not is_valid:
+    try:
+        email_token = EmailToken.decode(cft, key=settings.cft_secret)
+    except (TokenInvalidError, TokenInvalidSignatureError):
         return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.")
-    email = token_payload
-
+    except TokenExpiredError:
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Confirmation token expired. Try resend confirmation again.")
+    except TokenWrongTypeError:
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Expected confirmation to be a confirmation token, not another type of token.")
+        
     # Query user.
-    user = crud.user.get_by_email(db=db, email=email)
+    user = crud.user.get_by_id(db=db, user_id=email_token.get_subject())
     if not user:
         return api_error(ApiErrorCode.EMAIL_CONFIRMATION_USER_NOT_FOUND, "Confirmation token has been issued for email, that does not refers to any existing user! Did you updated your account email address?")
     if user.is_verified:
@@ -43,7 +54,7 @@ async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_
         
     crud.user.email_confirm(db, user)
     return api_success({
-        "email": email,
+        "email": user.email,
         "confirmed": True
     })
 
@@ -57,8 +68,11 @@ async def method_email_confirmation_resend(req: Request, db: Session = Depends(g
     if user.is_verified:
         return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
 
+    # TBD: Refactor this.
     email = user.email
-    email_confirmation_link = generate_confirmation_link(email, settings.cft_secret, settings.cft_salt, settings.proxy_url_host, settings.proxy_url_prefix)
+    confirmation_token = EmailToken(settings.jwt_issuer, settings.oauth_code_jwt_ttl, user.id).encode(key=settings.cft_secret)
+    confirmation_link = urllib.parse.urljoin(settings.proxy_url_host, settings.proxy_url_prefix + "/_emailConfirmation.confirm")
+    email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
     await messages.send_verification_email(email, user.username, email_confirmation_link)
 
     return api_success({

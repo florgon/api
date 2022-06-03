@@ -16,8 +16,8 @@ async def method_secure_check_token(token: str, scope: str = "", \
     required_permissions = parse_permissions_from_scope(scope)
     auth_data = query_auth_data_from_token(token, db, required_permissions=required_permissions)
     return api_success({
-        "scope": auth_data.token_payload["scope"],
-        "user_id": auth_data.token_payload["sub"],
-        "expires_at": float(auth_data.token_payload.get("exp", 0)),
-        "issued_at": auth_data.token_payload["iat"],
+        "scope": auth_data.token.get_scope(),
+        "user_id": auth_data.token.get_subject(),
+        "expires_at": float(auth_data.token.get_raw_payload().get("exp", 0)),
+        "issued_at": auth_data.token._issued_at,
     })

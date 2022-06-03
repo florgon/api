@@ -10,11 +10,12 @@ from fastapi.responses import JSONResponse
 from app.services.request import query_auth_data_from_request, Request
 from app.services.validators.user import validate_signup_fields
 from app.services.passwords import check_password
-from app.services.tokens import encode_session_jwt_token
+
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 
+from app.tokens.session_token import SessionToken
 from app.serializers.user import serialize_user
 from app.database.dependencies import get_db, Session
 from app.database import crud
@@ -28,12 +29,10 @@ router = APIRouter()
 async def method_session_get_user_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account information. """
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
-    session_issued_at = auth_data.token_payload["iat"]
-    session_expires_at = auth_data.token_payload["exp"]
     return api_success({
         **serialize_user(auth_data.user),
-        "siat": session_issued_at,
-        "sexp": session_expires_at
+        "siat": auth_data.token.get_issued_at(),
+        "sexp": auth_data.token.get_expires_at()
     })
 
 
@@ -49,10 +48,10 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
     session = crud.user_session.create(db, user.id)
-    session_token = encode_session_jwt_token(user, session, settings.jwt_issuer, settings.session_token_jwt_ttl)
+    token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
     return api_success({
         **serialize_user(user),
-        "session_token": session_token,
+        "session_token": token.encode(key=session.token_secret),
         "sid": session.id
     })
 
@@ -91,9 +90,9 @@ async def method_session_signin(login: str, password: str, db: Session = Depends
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid credentials for authentication (password or login).")
 
     session = crud.user_session.create(db, user.id)
-    session_token = encode_session_jwt_token(user, session, settings.jwt_issuer, settings.session_token_jwt_ttl)
+    token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
     return api_success({
         **serialize_user(user),
-        "session_token": session_token,
+        "session_token":  token.encode(key=session.token_secret),
         "sid": session.id
     })
