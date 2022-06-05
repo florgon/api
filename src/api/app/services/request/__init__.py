@@ -118,7 +118,8 @@ def _decode_token(token: str, token_type: AccessToken | SessionToken, db: Sessio
     assert signed_token.signature_is_valid()
 
     # Checks for token allowance.
-    permissions = _query_scope_permissions(signed_token.get_scope(), required_permissions)
+    scope = signed_token.get_scope() if token_type._type == "access" else ""
+    permissions = _query_scope_permissions(scope, required_permissions)
 
     # Return DTO.
     return AuthData(
