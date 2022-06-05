@@ -38,7 +38,7 @@ class AuthData(object):
         self.session = session
 
         # Parse permission once.
-        self.permissions = permissions if permissions else parse_permissions_from_scope(token._scope)
+        self.permissions = permissions if permissions is not None else parse_permissions_from_scope(token.get_scope())
 
 
 def query_auth_data_from_token(token: str, db: Session, *, \
