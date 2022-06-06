@@ -1,5 +1,8 @@
+[![Unit tests](https://github.com/florgon/api/actions/workflows/unittests.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/unittests.yml)
+
 # Florgon API.
 API server for Florgon services. SSO OAuth, Profiles, Publications and more.
+
 
 # See in action.
 API deployed and used in production [here](https://api.florgon.space/).
