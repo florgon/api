@@ -6,7 +6,7 @@ fastapi_mail==1.0.8
 uvicorn==0.17.6
 
 # Database.
-sqlalchemy==1.4.36
+sqlalchemy==1.4.37
 psycopg2-binary==2.9.3
 aioredis==2.0.1
 
