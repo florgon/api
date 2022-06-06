@@ -8,5 +8,5 @@ class TestPasswordsUnit(unittest.TestCase):
         test_password = "mypassword"
         with self.assertRaises(AssertionError):
             check_password(32, 64)
-        self.assertFalse(check_password(test_password, get_hashed_password(test_password)))
+        self.assertTrue(check_password(test_password, get_hashed_password(test_password)))
         self.assertEqual(get_hashed_password(test_password), get_hashed_password(test_password))
