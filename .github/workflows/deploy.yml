@@ -1,0 +1,25 @@
+name: Deploy in production
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+ 
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Deploy on production server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_SECRET }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+          script: |
+            cd /srv/www/api
+            ./deploy_callback.sh
