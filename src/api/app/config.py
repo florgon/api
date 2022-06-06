@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     fastapi_debug: bool = False
     fastapi_title: str = "Florgon API"
     fastapi_description: str = "Florgon main API (Built with FastAPI)"
-    fastapi_documentation_enabled: str = False
+    fastapi_documentation_enabled: bool = False
 
 _settings = Settings()
 

@@ -54,9 +54,9 @@ def _construct_app() -> FastAPI:
         description=settings.fastapi_description,
     
         # Disable any documentation.
-        openapi_url="openapi.json" if settings.fastapi_documentation_enabled else None,
-        docs_url="docs" if settings.fastapi_documentation_enabled else None, 
-        redoc_url="redoc" if settings.fastapi_documentation_enabled else None, 
+        openapi_url="/openapi.json" if settings.fastapi_documentation_enabled else None,
+        docs_url="/docs" if settings.fastapi_documentation_enabled else None, 
+        redoc_url="/redoc" if settings.fastapi_documentation_enabled else None, 
     )
 
     # Initialising database connection and all ORM stuff.
