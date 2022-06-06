@@ -10,8 +10,8 @@ WORKDIR /srv/www/florgon/api
 
 # Install requirements.
 COPY api/requirements.txt /srv/www/florgon/api/
-RUN pip install --upgrade pip
-RUN pip install --upgrade --no-cache-dir -r requirements.txt
+RUN pip install --upgrade --quiet pip
+RUN pip install --upgrade --quiet --no-cache-dir -r requirements.txt
 
 # Copy whole project.
 COPY . /srv/www/florgon/api/

@@ -31,6 +31,13 @@ class Settings(BaseSettings):
     mail_host_password: str
     mail_host_username: str
 
+    # Not documented yet.
+    cors_enabled: bool = True
+    fastapi_debug: bool = False
+    fastapi_title: str = "Florgon API"
+    fastapi_description: str = "Florgon main API (Built with FastAPI)"
+    fastapi_documentation_enabled: str = False
+
 _settings = Settings()
 
 def get_settings():

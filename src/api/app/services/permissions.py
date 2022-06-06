@@ -30,7 +30,7 @@ def parse_permissions_from_scope(scope: str) -> Permissions:
 
 
 SCOPE_PERMISSION_SEPARATOR = ","
-SCOPE_ALLOWED_PERMISSIONS = [permission.value for permission in [
+SCOPE_ALLOWED_PERMISSIONS = list(map(lambda p: p.value, (
     Permission.oauth_clients,
     Permission.email,
     Permission.noexpire,
@@ -38,4 +38,4 @@ SCOPE_ALLOWED_PERMISSIONS = [permission.value for permission in [
     Permission.gatey,
     Permission.notes,
     Permission.habits
-]]
+)))

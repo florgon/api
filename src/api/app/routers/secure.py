@@ -18,6 +18,6 @@ async def method_secure_check_token(token: str, scope: str = "", \
     return api_success({
         "scope": auth_data.token.get_scope(),
         "user_id": auth_data.token.get_subject(),
-        "expires_at": float(auth_data.token.get_raw_payload().get("exp", 0)),
-        "issued_at": auth_data.token._issued_at,
+        "expires_at": auth_data.token.get_expires_at(),
+        "issued_at": auth_data.token.get_issued_at(),
     })
