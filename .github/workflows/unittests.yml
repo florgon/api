@@ -18,6 +18,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Docker
+      working-directory: ./src
       run: docker-compose up -d
     - name: Pytest
+      working-directory: ./src/api/app
       run: docker run --network container:florgon-api-server pytest
