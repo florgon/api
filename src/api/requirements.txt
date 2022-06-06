@@ -1,5 +1,5 @@
 # FastAPI.
-fastapi==0.75.2
+fastapi==0.78.0
 fastapi_mail==1.0.8
 
 # Server.
