@@ -23,4 +23,4 @@ jobs:
       run: docker ps -a
     - name: Pytest
       working-directory: ./src/api/app
-      run: docker run --network container:florgon-api_server_1 pytest
+      run: docker exec florgon-api_server_1 pytest .
