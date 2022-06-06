@@ -3,10 +3,14 @@ name: Unit tests
 on:
   push:
     branches: [ main ]
+    paths:
+      - "src/**"
   pull_request:
     branches: [ main ]
+    paths:
+      - "src/**"
   workflow_dispatch:
-  
+
 permissions:
   contents: read
 
