@@ -68,6 +68,7 @@ def _construct_app() -> FastAPI:
     register_handlers(app_instance)
     register_routers(app_instance)
 
+    return app_instance
 
 # Root application for uvicorn runner or whatever else.
 # (Docker compose is running with app.app:app, means that this application instance
