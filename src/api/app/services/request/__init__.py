@@ -44,7 +44,8 @@ class AuthData(object):
 def query_auth_data_from_token(token: str, db: Session, *, \
     only_session_token: bool = False, 
     required_permissions: Permissions | None = None,
-    allow_deactivated: bool = False
+    allow_deactivated: bool = False,
+    request: Request | None,
     ) -> AuthData:
     """
         Queries authentication data from your token.
@@ -59,7 +60,8 @@ def query_auth_data_from_token(token: str, db: Session, *, \
     token_type = SessionToken if only_session_token else AccessToken
     auth_data = _decode_token(
         token, token_type, db,
-        required_permissions=required_permissions
+        required_permissions=required_permissions,
+        request=request
     )
     if only_session_token:
         assert auth_data.token._type == SessionToken._type
@@ -67,7 +69,7 @@ def query_auth_data_from_token(token: str, db: Session, *, \
 
 
 def query_auth_data_from_request(req: Request, db: Session, *, \
-    only_session_token: bool = False, required_permissions: Permissions | None = None, allow_deactivated: bool = False
+    only_session_token: bool = False, required_permissions: Permissions | None = None, allow_deactivated: bool = False,
     ) -> AuthData:
     """
         Queries authentication data from request (from request token).
@@ -84,7 +86,8 @@ def query_auth_data_from_request(req: Request, db: Session, *, \
         token, db, 
         only_session_token=only_session_token, 
         required_permissions=required_permissions, 
-        allow_deactivated=allow_deactivated
+        allow_deactivated=allow_deactivated,
+        request=req
     )
 
 
@@ -100,7 +103,8 @@ def _get_token_from_request(req: Request, only_session_token: bool) -> str:
 
 
 def _decode_token(token: str, token_type: AccessToken | SessionToken, db: Session, \
-    required_permissions: Permissions | None = None) -> AuthData:
+    required_permissions: Permissions | None = None,
+    request: Request | None = None) -> AuthData:
     """
         Decodes given token, to it payload and session.
         :param token: Token to decode.
@@ -113,7 +117,7 @@ def _decode_token(token: str, token_type: AccessToken | SessionToken, db: Sessio
         raise ValueError("Unexpected type of the token type inside _decode_token!")
 
     unsigned_token = token_type.decode_unsigned(token)
-    session = _query_session_from_sid(unsigned_token.get_session_id(), db)
+    session = _query_session_from_sid(unsigned_token.get_session_id(), db, request)
     signed_token = token_type.decode(token, key=session.token_secret)
     assert signed_token.signature_is_valid()
 
@@ -148,7 +152,7 @@ def _query_scope_permissions(scope: str, required_permissions: Permissions | Non
     return permissions
 
 
-def _query_session_from_sid(session_id: int | None, db: Session) -> UserSession:
+def _query_session_from_sid(session_id: int | None, db: Session, request: Request | None=None) -> UserSession:
     """
         Queries session from SID (session_id).
         :param session_id: SID itself.
@@ -162,7 +166,13 @@ def _query_session_from_sid(session_id: int | None, db: Session) -> UserSession:
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!")
     if not session.is_active:
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Session closed (Token invalid due to session deactivation)!")
-
+    if request is not None:
+        if request.client.host != session.ip_address:
+            raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!")
+        user_agent_string = request.headers.get("User-Agent")
+        user_agent = crud.user_agent.get_by_string(db, user_agent_string)
+        if user_agent is None or user_agent.id != session.user_agent_id:
+            raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!")
     return session
 
 
