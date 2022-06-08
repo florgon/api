@@ -6,6 +6,7 @@
 
 from fastapi import APIRouter, Depends, Header
 from fastapi.responses import JSONResponse
+from api.app.services.permissions import Permission
 
 from app.services.request import query_auth_data_from_request, Request
 from app.services.validators.user import validate_signup_fields
@@ -17,6 +18,7 @@ from app.services.limiter.depends import RateLimiter
 
 from app.tokens.session_token import SessionToken
 from app.serializers.user import serialize_user
+from app.serializers.session import serialize_sessions
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
@@ -86,6 +88,21 @@ async def method_session_logout(req: Request, \
     db.commit()
     return api_success({
         "sid": session.id
+    })
+
+@router.get("/_session._list")
+async def method_session_list(req: Request, \
+    db: Session = Depends(get_db)) -> JSONResponse:
+    """ Returns list of all active sessions. """
+    # This is weird, _session method allowed with only access token,
+    # And also seems to expose private session information.
+    auth_data = query_auth_data_from_request(req, db, only_session_token=False, required_permissions=[Permission.sessions])
+    current_session = auth_data.session
+    sessions = crud.user_session.get_by_owner_id(db, current_session.owner_id)
+    return api_success({
+        **serialize_sessions(sessions, include_deactivated=False),
+        "count": len(sessions),
+        "current_id": current_session.id
     })
 
 

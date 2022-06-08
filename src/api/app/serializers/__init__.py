@@ -4,5 +4,6 @@
 
 from . import (
     user,
-    oauth_client
+    oauth_client,
+    session
 )
