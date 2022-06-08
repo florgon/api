@@ -4,7 +4,7 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from fastapi.responses import JSONResponse
 
 from app.services.request import query_auth_data_from_request, Request
@@ -40,6 +40,7 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
 async def method_session_signup(
     req: Request,
     username: str, email: str, password: str, 
+    user_agent: str = Header(""),
     db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
 ) -> JSONResponse:
     """ API endpoint to signup and create new user. """
@@ -52,7 +53,9 @@ async def method_session_signup(
     await RateLimiter(times=2, hours=24).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
-    session = crud.user_session.create(db, user.id)
+    session_user_agent = user_agent
+    session_client_host = req.client.host
+    session = crud.user_session.get_or_create_new(db, user.id, session_client_host, session_user_agent)
     token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
     return api_success({
         **serialize_user(user),
@@ -90,6 +93,7 @@ async def method_session_logout(req: Request, \
 async def method_session_signin(
     req: Request,
     login: str, password: str, 
+    user_agent: str = Header(""),
     db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
 ) -> JSONResponse:
     """ Authenticates user and gives new session token for user. """
@@ -98,9 +102,11 @@ async def method_session_signin(
     user = crud.user.get_by_login(db=db, login=login)
     if not user or not check_password(password=password, hashed_password=user.password):
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid credentials for authentication (password or login).")
-    await RateLimiter(times=1, seconds=15).check(req)
+    await RateLimiter(times=2, seconds=15).check(req)
     
-    session = crud.user_session.create(db, user.id)
+    session_user_agent = user_agent
+    session_client_host = req.client.host
+    session = crud.user_session.get_or_create_new(db, user.id, session_client_host, session_user_agent)
     token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
     return api_success({
         **serialize_user(user),
