@@ -31,6 +31,7 @@ def get_by_ip_address_and_user_agent(db: Session, ip_address: str, user_agent: U
     return db.query(UserSession).\
         filter(UserSession.ip_address == ip_address).\
         filter(UserSession.user_agent_id == user_agent.id).\
+        filter(UserSession.is_active == True).\
             first()
 
 
