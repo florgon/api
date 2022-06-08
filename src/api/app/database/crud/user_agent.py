@@ -14,6 +14,9 @@ def get_by_string(db: Session, user_agent_string: str) -> UserAgent:
     user_agent = db.query(UserAgent).filter(UserAgent.user_agent == user_agent_string).first()
     return user_agent
 
+def get_by_id(db: Session, user_agent_id: int) -> UserAgent | None:
+    return db.query(UserAgent).filter(UserAgent.id == user_agent_id).first()
+
 
 def get_or_create_by_string(db: Session, user_agent_string: str) -> UserAgent:
     """ Returns user agent by it`s string. """

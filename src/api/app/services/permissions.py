@@ -6,7 +6,8 @@ class Permission(Enum):
     email = "email"
     noexpire = "noexpire"
     edit = "edit"
-
+    sessions = "sessions"
+    
     # Services.
     gatey = "gatey"
     notes = "notes"

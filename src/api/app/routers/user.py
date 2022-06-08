@@ -12,6 +12,7 @@ from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.limiter.depends import RateLimiter
 from app.serializers.user import serialize_user
+from app.serializers.session import serialize_session
 from app.database import crud
 
 from app.database.dependencies import get_db, Session
