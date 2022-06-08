@@ -46,11 +46,11 @@ class User(Base):
     privacy_profile_require_auth = Column(Boolean, nullable=False, default=False)
 
     # Public profile.
-    profile_bio = Column(Text, nullable=False)
-    profile_website = Column(String, nullable=False)
-    profile_social_username_vk = Column(String, nullable=False)
-    profile_social_username_tg = Column(String, nullable=False)
-    profile_social_username_gh = Column(String, nullable=False)
+    profile_bio = Column(Text, nullable=True)
+    profile_website = Column(String, nullable=True)
+    profile_social_username_vk = Column(String, nullable=True)
+    profile_social_username_tg = Column(String, nullable=True)
+    profile_social_username_gh = Column(String, nullable=True)
 
     # Times.
     time_created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
