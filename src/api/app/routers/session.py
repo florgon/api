@@ -36,8 +36,12 @@ async def method_session_get_user_info(req: Request, db: Session = Depends(get_d
     })
 
 
-@router.get("/_session._signup", dependencies=[Depends(RateLimiter(times=5, hours=24))])
-async def method_session_signup(username: str, email: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+@router.get("/_session._signup")
+async def method_session_signup(
+    req: Request,
+    username: str, email: str, password: str, 
+    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+) -> JSONResponse:
     """ API endpoint to signup and create new user. """
 
     # Validate request for fields.
@@ -45,6 +49,7 @@ async def method_session_signup(username: str, email: str, password: str, db: Se
     if not is_valid:
         return validation_error
 
+    await RateLimiter(times=2, hours=24).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
     session = crud.user_session.create(db, user.id)
@@ -63,7 +68,8 @@ async def method_session_logout(req: Request, \
     """ Logout user over all session. """
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     session = auth_data.session
-
+    await RateLimiter(times=1, seconds=15).check(req)
+    
     if revoke_all:
         sessions = crud.user_session.get_by_owner_id(db, session.owner_id)
         for _session in sessions:
@@ -81,14 +87,19 @@ async def method_session_logout(req: Request, \
 
 
 @router.get("/_session._signin")
-async def method_session_signin(login: str, password: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_session_signin(
+    req: Request,
+    login: str, password: str, 
+    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+) -> JSONResponse:
     """ Authenticates user and gives new session token for user. """
-
+  
     # Check credentials.
     user = crud.user.get_by_login(db=db, login=login)
     if not user or not check_password(password=password, hashed_password=user.password):
         return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "Invalid credentials for authentication (password or login).")
-
+    await RateLimiter(times=1, seconds=15).check(req)
+    
     session = crud.user_session.create(db, user.id)
     token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
     return api_success({

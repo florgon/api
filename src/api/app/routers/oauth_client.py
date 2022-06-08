@@ -27,12 +27,13 @@ from app.database import crud
 router = APIRouter()
 
 
-@router.get("/oauthClient.new", dependencies=[Depends(RateLimiter(times=2, hours=12))])
+@router.get("/oauthClient.new")
 async def method_oauth_client_new(display_name: str, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """ Creates new OAuth client """
     auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.oauth_clients])
     if not auth_data.user.is_verified:
         return api_error(ApiErrorCode.USER_EMAIL_NOT_CONFIRMED, "Please confirm your email, before accessing OAuth clients!")
+    await RateLimiter(times=2, minutes=30).check(req)
 
     oauth_client = crud.oauth_client.create(db=db, owner_id=auth_data.user.id, display_name=display_name)
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))

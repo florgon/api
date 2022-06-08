@@ -59,14 +59,18 @@ async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_
     })
 
 
-@router.get("/_emailConfirmation.resend", dependencies=[Depends(RateLimiter(hours=1))])
-async def method_email_confirmation_resend(req: Request, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+@router.get("/_emailConfirmation.resend")
+async def method_email_confirmation_resend(
+    req: Request, db: Session = Depends(get_db), 
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
     """ Resends email confirmation to user email address. """
     auth_data = query_auth_data_from_request(req, db)
     user = auth_data.user
     
     if user.is_verified:
         return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
+    await RateLimiter(times=2, hours=1).check(req)
 
     # TBD: Refactor this.
     email = user.email

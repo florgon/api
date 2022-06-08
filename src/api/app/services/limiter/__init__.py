@@ -27,7 +27,7 @@ async def default_identifier(request: Request):
     return ip + ":" + request.scope["path"]
 
 
-async def default_callback(request: Request, response: Response, pexpire: int):
+async def default_callback(request: Request, response: Response | None, pexpire: int):
     """
     default callback when too many requests
     :param request:
