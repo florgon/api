@@ -35,7 +35,7 @@ class AccessToken(_Token):
         self._scope = scope
 
     @classmethod
-    def decode(cls, token: str, key: str):
+    def decode(cls, token: str, key: str | None = None):
         """
             Decoding with custom payload fields.
         """
