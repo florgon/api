@@ -30,7 +30,7 @@ class SessionToken(_Token):
         self._session_id = session_id
 
     @classmethod
-    def decode(cls, token: str, key: str):
+    def decode(cls, token: str, key: str | None = None):
         """
             Decoding with custom payload fields.
         """

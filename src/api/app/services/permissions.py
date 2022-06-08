@@ -13,7 +13,7 @@ class Permission(Enum):
     habits = "habits"
 
 
-Permissions: type = list[Permission]  # Type hint (alias).
+Permissions = list[Permission]  # Type hint (alias).
 
 
 def normalize_scope(scope: str) -> str:
