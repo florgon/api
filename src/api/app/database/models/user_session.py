@@ -21,6 +21,9 @@ class UserSession(Base):
     
     token_secret = Column(String, nullable=False)
     
+    ip_address = Column(String(12), nullable=False)
+    user_agent_id = Column(Integer, ForeignKey("user_agents.id"), nullable=False)
+    
     is_active = Column(Boolean, nullable=False, default=True)
 
     time_created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
