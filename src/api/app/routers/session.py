@@ -6,7 +6,7 @@
 
 from fastapi import APIRouter, Depends, Header
 from fastapi.responses import JSONResponse
-from api.app.services.permissions import Permission
+from app.services.permissions import Permission
 
 from app.services.request import query_auth_data_from_request, Request
 from app.services.validators.user import validate_signup_fields
