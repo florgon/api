@@ -3,7 +3,7 @@ fastapi==0.75.2
 fastapi_mail==1.0.9
 
 # Server.
-uvicorn==0.17.6
+uvicorn==0.18.1
 
 # Database.
 sqlalchemy==1.4.37
