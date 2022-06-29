@@ -268,7 +268,7 @@ class _Token(object):
         # Checking token types.
         expected_type = cls._type
         got_type = payload.get("typ", "")
-        if got_type != got_type:
+        if got_type != expected_type:
             # Tried to inject another type of token into another type of token.
             raise exceptions.TokenWrongTypeError(f"Expected token type to be {expected_type}, but got {got_type}")
 
