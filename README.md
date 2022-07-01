@@ -9,7 +9,7 @@ API server for Florgon services. SSO OAuth, Profiles, Publications and more.
 API deployed and used in production [here](https://api.florgon.space/).
 
 # Technologies.
-Docker (Docker-Compose), Python (FastAPI), PostgreSQL and JWT standart.
+Docker (Docker-Compose), Python (FastAPI), PostgreSQL and JWT standard.
 
 ## How to run.
 See [`/docs/deployment/HOW_TO_RUN.md`](/docs/deployment/HOW_TO_RUN.md)

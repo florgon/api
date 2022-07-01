@@ -26,7 +26,8 @@ def serialize(session: UserSession, db: Session, in_list: bool = False):
 def serialize_list(sessions: list[UserSession], db: Session, *, include_deactivated: bool = False) -> dict:
     return {
         "sessions": [
-            serialize(session, db=db, in_list=True) for session in sessions if (session.is_active or include_deactivated)
+            serialize(session, db=db, in_list=True)
+            for session in sessions if (session.is_active or include_deactivated)
         ]
     }
 
