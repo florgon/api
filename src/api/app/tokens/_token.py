@@ -89,6 +89,11 @@ class _Token(object):
         """ Returns raw payload of decoded token or None if token was not decoded. """
         return self._raw_payload
 
+    @classmethod
+    def get_type(cls) -> str:
+        """ Returns token type for internal check, not supposed to be used so much. """
+        return cls._type
+
     def get_payload(self) -> dict:
         """ Returns custom token payload from decoded payload or custom injection. """
         return self.custom_payload

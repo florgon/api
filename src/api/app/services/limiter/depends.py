@@ -44,5 +44,6 @@ class RateLimiter:
         )
         if pexpire != 0:
             return await callback(request, response, pexpire)
+
     async def check(self, request: Request, response: Response | None = None):
         return await self.__call__(request, response)
