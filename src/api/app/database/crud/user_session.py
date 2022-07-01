@@ -28,11 +28,11 @@ def get_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
 
 
 def get_by_ip_address_and_user_agent(db: Session, ip_address: str, user_agent: UserAgent) -> UserSession | None:
-    return db.query(UserSession).\
-        filter(UserSession.ip_address == ip_address).\
-        filter(UserSession.user_agent_id == user_agent.id).\
-        filter(UserSession.is_active == True).\
-            first()
+    return db.query(UserSession). \
+        filter(UserSession.ip_address == ip_address). \
+        filter(UserSession.user_agent_id == user_agent.id). \
+        filter(UserSession.is_active is True). \
+        first()
 
 
 def get_or_create_new(db: Session, owner_id: int, client_host: str, client_user_agent: str) -> UserSession:
@@ -49,8 +49,8 @@ def get_or_create_new(db: Session, owner_id: int, client_host: str, client_user_
     # Create new user session.
     session_token_secret = generate_secret()
     session = UserSession(
-        owner_id=owner_id, 
-        token_secret=session_token_secret, 
+        owner_id=owner_id,
+        token_secret=session_token_secret,
         ip_address=client_host,
         user_agent_id=user_agent_id)
 

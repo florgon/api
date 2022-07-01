@@ -12,11 +12,9 @@ from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.limiter.depends import RateLimiter
 from app.serializers.user import serialize_user
-from app.serializers.session import serialize_session
 from app.database import crud
 
 from app.database.dependencies import get_db, Session
-
 
 router = APIRouter()
 
@@ -27,7 +25,7 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> J
     auth_data = query_auth_data_from_request(req, db)
     email_allowed = Permission.email in auth_data.permissions
     return api_success(serialize_user(auth_data.user, **{
-        "include_email": email_allowed, 
+        "include_email": email_allowed,
         "include_optional_fields": True,
         "include_private_fields": True,
         "include_profile_fields": True
@@ -35,23 +33,26 @@ async def method_user_get_info(req: Request, db: Session = Depends(get_db)) -> J
 
 
 @router.get("/user.getProfileInfo", dependencies=[Depends(RateLimiter(times=3, seconds=1))])
-async def method_user_get_profile_info(req: Request, \
-    user_id: int | None = None, username: str | None = None, db: Session = Depends(get_db)) -> JSONResponse:
+async def method_user_get_profile_info(req: Request,
+                                       user_id: int | None = None, username: str | None = None,
+                                       db: Session = Depends(get_db)) -> JSONResponse:
     """ Returns user account profile information. """
+    user = None
 
     if user_id is None and username is None:
         return api_error(ApiErrorCode.API_INVALID_REQUEST, "user_id or username required!")
     if user_id is not None and username is not None:
         return api_error(ApiErrorCode.API_INVALID_REQUEST, "Please pass only user_id or username!")
-        
+
     if user_id is not None:
         user = crud.user.get_by_id(db, user_id)
-    else:
+    elif username is not None:
         user = crud.user.get_by_username(db, username)
 
     # User.
     if not user:
-        return api_error(ApiErrorCode.USER_NOT_FOUND, f"User with requested {'username' if user_id is None else 'id'} was not found!")
+        return api_error(ApiErrorCode.USER_NOT_FOUND,
+                         f"User with requested {'username' if user_id is None else 'id'} was not found!")
     if not user.is_active:
         return api_error(ApiErrorCode.USER_DEACTIVATED, "Unable to get user, due to user account deactivation!")
 
@@ -62,8 +63,9 @@ async def method_user_get_profile_info(req: Request, \
         try:
             query_auth_data_from_request(req, db)
         except ApiErrorException:
-            return api_error(ApiErrorCode.USER_PROFILE_AUTH_REQUIRED, "Requested user preferred to show his profile only for authorized users!")
-            
+            return api_error(ApiErrorCode.USER_PROFILE_AUTH_REQUIRED,
+                             "Requested user preferred to show his profile only for authorized users!")
+
     return api_success(serialize_user(user, **{
         "include_email": False,
         "include_optional_fields": True,
@@ -82,22 +84,25 @@ async def method_user_get_counter(req: Request, db: Session = Depends(get_db)) -
 
 
 @router.get("/user.setInfo")
-async def method_user_set_info(req: Request, \
-    first_name: str | None = None, last_name: str | None = None, sex: bool | None = None, avatar_url: str | None = None, \
-    privacy_profile_public: bool | None = None, privacy_profile_require_auth: bool | None = None, \
-    profile_bio: str | None = None, profile_website: str | None = None, \
-    profile_social_username_gh: str | None = None, profile_social_username_vk: str | None = None, \
-    profile_social_username_tg: str | None = None, \
-    db: Session = Depends(get_db)) -> JSONResponse:
+async def method_user_set_info(req: Request,
+                               first_name: str | None = None, last_name: str | None = None, sex: bool | None = None,
+                               avatar_url: str | None = None,
+                               privacy_profile_public: bool | None = None,
+                               privacy_profile_require_auth: bool | None = None,
+                               profile_bio: str | None = None, profile_website: str | None = None,
+                               profile_social_username_gh: str | None = None,
+                               profile_social_username_vk: str | None = None,
+                               profile_social_username_tg: str | None = None,
+                               db: Session = Depends(get_db)) -> JSONResponse:
     """ Updates user account information. """
 
     auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.edit])
     user = auth_data.user
-    
+
     # Notice:
-    # IK this is shit,
+    # IK this is trash,
     # but this is temporary solution,
-    # and will be rewriten later.
+    # and will be rewritten later.
     is_updated = False
     if first_name is not None and first_name != user.first_name:
         user.first_name = first_name
@@ -138,7 +143,7 @@ async def method_user_set_info(req: Request, \
 
     return api_success({
         **serialize_user(user, **{
-            "include_email": False, 
+            "include_email": False,
             "include_optional_fields": False,
             "include_private_fields": True
         }),

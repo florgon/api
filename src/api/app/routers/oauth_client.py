@@ -32,7 +32,8 @@ async def method_oauth_client_new(display_name: str, req: Request, db: Session =
     """ Creates new OAuth client """
     auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.oauth_clients])
     if not auth_data.user.is_verified:
-        return api_error(ApiErrorCode.USER_EMAIL_NOT_CONFIRMED, "Please confirm your email, before accessing OAuth clients!")
+        return api_error(ApiErrorCode.USER_EMAIL_NOT_CONFIRMED,
+                         "Please confirm your email, before accessing OAuth clients!")
     await RateLimiter(times=2, minutes=30).check(req)
 
     oauth_client = crud.oauth_client.create(db=db, owner_id=auth_data.user.id, display_name=display_name)
@@ -58,8 +59,9 @@ async def method_oauth_client_get(client_id: int, db: Session = Depends(get_db))
 
 
 @router.get("/oauthClient.expireSecret")
-async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Session = Depends(get_db)) -> JSONResponse:
-    """ OAUTH API endpoint for expring client secret. """
+async def method_oauth_client_expire_secret(client_id: int, req: Request, db: Session = Depends(get_db)
+                                            ) -> JSONResponse:
+    """ OAUTH API endpoint for expiring client secret. """
     auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.oauth_clients])
 
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)

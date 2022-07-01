@@ -25,7 +25,7 @@ def validate_signup_fields(db, username, email, password):
         return False, api_error(ApiErrorCode.AUTH_USERNAME_TAKEN, "Given username is already taken!")
 
     # Check email.
-    if not validate_email(email, verify=False): # TODO.
+    if not validate_email(email, verify=False):  # TODO.
         return False, api_error(ApiErrorCode.AUTH_EMAIL_INVALID, "Email invalid!")
 
     # Check username.
@@ -34,7 +34,8 @@ def validate_signup_fields(db, username, email, password):
     if len(username) > 16:
         return False, api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 16!")
     if not username.isalpha() or not username.islower():
-        return False, api_error(ApiErrorCode.AUTH_USERNAME_INVALID, "Username should only contain lowercase alphabet characters!")
+        return False, api_error(ApiErrorCode.AUTH_USERNAME_INVALID,
+                                "Username should only contain lowercase alphabet characters!")
     
     # Check password.
     if len(password) <= 5:

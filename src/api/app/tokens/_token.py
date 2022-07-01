@@ -2,13 +2,14 @@
     Florgon API base token class implementation.
 
     Provides base class for tokens,
-    Some sort of a abstract class.
+    Some sort of abstract class.
 """
 
 import jwt  # Library with base JWT implementation.
 import time  # Utils for expiration dates.
 
 from . import exceptions
+
 
 class _Token(object):
     """
@@ -17,22 +18,23 @@ class _Token(object):
         Some sort of Abstract class that represents any Token
         (For example, Access, Session or whatever token you want).
         
-        All tokens should be childrens of this class.
+        All tokens should be children of this class.
 
-        To implement token, inherit from this class and implement own token implementation (
+        To implement token, inherit from this class and implement own token implementation:
             custom fields,
             override encode / decode methods with injecting own payload,
             update token type.
-        ).
 
         Notice that updating token type is very important, because core implementation based on
-        token type validation, which means that there is no way to inject another type of token into another type of token.
+        token type validation, which means that there is no way
+        to inject another type of token into another type of token.
 
         Specifications: Implements JWT (JSON Web Token) as abstract class.
     """
 
     # Token payload without BASE token fields (your own payload or payload).
-    # Being set when decoding token and this data will WRITTEN encoding token (as custom payload in additional to base).
+    # Being set when decoding token and this data will be WRITTEN encoding token
+    # (as custom payload in additional to base).
     # You should use this field with injecting own fields there on overriding token encoding.
     custom_payload: dict = {}
 
@@ -51,17 +53,17 @@ class _Token(object):
     # The token will be marked as invalid signature.
     _signature_is_valid: bool = True
 
-    # Token addional headers (JWT headers), not supposed to use mostly.
+    # Token additional headers (JWT headers), not supposed to use mostly.
     _custom_headers: dict = {}
 
     # Secret key for signing actual token.
-    # Should not be modyfied directly as it will be updated automatically.
+    # Should not be modified directly as it will be updated automatically.
     _key: str | None = None
 
     # Core type of the token.
     # Should be individual for each token class, as there is validation for token type,
     # and core would not allow you to inject another type of token into another token type.
-    # SHOULD BE OVERRIDEN IN CHILDREN CLASSES.
+    # SHOULD BE OVERRIDDEN IN CHILDREN CLASSES.
     _type: str = ""  # Will fail when encoding token.
 
     # Base token fields.
@@ -190,7 +192,7 @@ class _Token(object):
         issued_at = float(payload["iat"])
         ttl, expires_at = 0, 0  # By default token does not has TTL (No expiration).
         if "exp" in payload:
-            # If ther is expiration date,
+            # If there is expiration date,
             # calculate TTL based on expiration timestamp minus issued timestamp.
             expires_at = float(payload["exp"])
             ttl = expires_at - issued_at
@@ -257,7 +259,7 @@ class _Token(object):
             # Raised when token is expired at current time.
             raise exceptions.TokenExpiredError
         except jwt.exceptions.PyJWTError:
-            # Raised when ther is any error during decoding (
+            # Raised when there is any error during decoding (
             #   Important notice!
             #   PyJWT raises own error as PyJWTError too,
             #   this means server will throw token invalid error, which is may be caused
@@ -274,11 +276,12 @@ class _Token(object):
 
         return payload
 
-    def __init__(self, \
-        issuer: str, ttl: int | float, \
-            subject: int, \
-                payload: dict | None = None, \
-                    *, key: str | None = None):
+    def __init__(self,
+                 issuer: str, ttl: int | float,
+                 subject: int,
+                 payload: dict | None = None,
+                 *, key: str | None = None
+                 ):
         """
             Base token constructor.
 

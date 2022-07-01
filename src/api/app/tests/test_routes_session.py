@@ -10,17 +10,18 @@ def client():
     with TestClient(app) as c:
         yield c
 
+
 def test_read_session_signup_get_user_info(client):
-    username = "testuser"
+    username = "tester"
     signup_response = client.get("/_session._signup", params={
         "username": username,
-        "email": "test@example.com",
+        "email": "tester@example.com",
         "password": "password"
     })
 
     json = signup_response.json()
     assert "v" in json
-    if (signup_response.status_code == 400):
+    if signup_response.status_code == 400:
         # If unable to authenticate,
         # check that blocked due to username/email taken.
         assert "error" in json

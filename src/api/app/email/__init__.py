@@ -2,7 +2,5 @@
     Stuff for working with mail.
 """
 
-from . import (
-    messages,
-    config
-)
+from . import messages as messages
+from . import config as config

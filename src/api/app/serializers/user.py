@@ -4,7 +4,13 @@
 
 import time
 
-def serialize(user, *, include_email: bool = False, include_optional_fields: bool = False, include_private_fields: bool = False, include_profile_fields: bool = False):
+
+def serialize(user, *,
+              include_email: bool = False,
+              include_optional_fields: bool = False,
+              include_private_fields: bool = False,
+              include_profile_fields: bool = False
+              ):
     """Returns dict object for API response with serialized user data."""
     serialized_user = {
         "id": user.id,
@@ -37,9 +43,9 @@ def serialize(user, *, include_email: bool = False, include_optional_fields: boo
         if include_private_fields:
             serialized_user["states"]["is_confirmed"] = user.is_verified
 
-    
     return {
         "user": serialized_user
     }
+
 
 serialize_user = serialize

@@ -32,25 +32,34 @@ router = APIRouter()
 
 
 @router.get("/_emailConfirmation.confirm")
-async def method_email_confirmation_confirm(cft: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)) -> JSONResponse:
+async def method_email_confirmation_confirm(cft: str,
+                                            db: Session = Depends(get_db),
+                                            settings: Settings = Depends(get_settings)
+                                            ) -> JSONResponse:
     """ Confirms email from given CFT (Confirmation token). """
 
     # Validating CFT, grabbing email from CFT payload.
     try:
         email_token = EmailToken.decode(cft, key=settings.cft_secret)
     except (TokenInvalidError, TokenInvalidSignatureError):
-        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
+                         "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.")
     except TokenExpiredError:
-        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Confirmation token expired. Try resend confirmation again.")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
+                         "Confirmation token expired. Try resend confirmation again.")
     except TokenWrongTypeError:
-        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID, "Expected confirmation to be a confirmation token, not another type of token.")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
+                         "Expected confirmation to be a confirmation token, not another type of token.")
         
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=email_token.get_subject())
     if not user:
-        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_USER_NOT_FOUND, "Confirmation token has been issued for email, that does not refers to any existing user! Did you updated your account email address?")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_USER_NOT_FOUND,
+                         "Confirmation token has been issued for email, that does not refers to any existing user! "
+                         "Did you updated your account email address?")
     if user.is_verified:
-        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED,
+                         "Confirmation not required. You already confirmed your email!")
         
     crud.user.email_confirm(db, user)
     return api_success({
@@ -69,13 +78,16 @@ async def method_email_confirmation_resend(
     user = auth_data.user
     
     if user.is_verified:
-        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED, "Confirmation not required. You already confirmed your email!")
+        return api_error(ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED,
+                         "Confirmation not required. You already confirmed your email!")
     await RateLimiter(times=2, hours=1).check(req)
 
     # TBD: Refactor this.
     email = user.email
-    confirmation_token = EmailToken(settings.jwt_issuer, settings.oauth_code_jwt_ttl, user.id).encode(key=settings.cft_secret)
-    confirmation_link = urllib.parse.urljoin(settings.proxy_url_host, settings.proxy_url_prefix + "/_emailConfirmation.confirm")
+    confirmation_token = EmailToken(settings.jwt_issuer, settings.oauth_code_jwt_ttl, user.id).\
+        encode(key=settings.cft_secret)
+    confirmation_link = urllib.parse.urljoin(settings.proxy_url_host,
+                                             settings.proxy_url_prefix + "/_emailConfirmation.confirm")
     email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
     await messages.send_verification_email(email, user.username, email_confirmation_link)
 

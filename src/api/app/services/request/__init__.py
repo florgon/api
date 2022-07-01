@@ -13,11 +13,12 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
-from app.tokens._token import _Token
 from app.database.models.user import User
 from app.database.models.user_session import UserSession
 
 TokenType = SessionToken | AccessToken
+
+
 class AuthData(object):
     """ DTO for authenticated request."""
 
@@ -42,7 +43,7 @@ class AuthData(object):
 
 
 def query_auth_data_from_token(token: str, db: Session, *, \
-    only_session_token: bool = False, 
+    only_session_token: bool = False,
     required_permissions: Permissions | None = None,
     allow_deactivated: bool = False,
     request: Request | None,
@@ -83,9 +84,9 @@ def query_auth_data_from_request(req: Request, db: Session, *, \
     # Get token from request and query data from it as external token.
     token = _get_token_from_request(req, only_session_token)
     return query_auth_data_from_token(
-        token, db, 
-        only_session_token=only_session_token, 
-        required_permissions=required_permissions, 
+        token, db,
+        only_session_token=only_session_token,
+        required_permissions=required_permissions,
         allow_deactivated=allow_deactivated,
         request=req
     )
@@ -102,17 +103,17 @@ def _get_token_from_request(req: Request, only_session_token: bool) -> str:
     return req.headers.get("Authorization", "") or req.query_params.get("access_token", "")
 
 
-def _decode_token(token: str, token_type: AccessToken | SessionToken, db: Session, \
+def _decode_token(token: str, token_type: type[AccessToken | SessionToken], db: Session, \
     required_permissions: Permissions | None = None,
     request: Request | None = None) -> AuthData:
     """
-        Decodes given token, to it payload and session.
+        Decodes given token, to payload and session.
         :param token: Token to decode.
         :param token_type: Token type to get.
         :param db: Database session.
         :param required_permissions: If passed, will require permission from token.
     """
-    
+
     if token_type._type not in ("access", "session"):
         raise ValueError("Unexpected type of the token type inside _decode_token!")
 
@@ -145,18 +146,18 @@ def _query_scope_permissions(scope: str, required_permissions: Permissions | Non
         for required_permission in required_permissions:
             if required_permission not in permissions:
                 raise ApiErrorException(
-                    ApiErrorCode.AUTH_INSUFFICIENT_PERMISSSIONS, 
-                    f"Insufficient permissions (required: {required_permission.value})", 
+                    ApiErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
+                    f"Insufficient permissions (required: {required_permission.value})",
                     {"required_scope": required_permission.value})
 
     return permissions
 
 
-def _query_session_from_sid(session_id: int | None, db: Session, request: Request | None=None) -> UserSession:
+def _query_session_from_sid(session_id: int | None, db: Session, request: Request | None = None) -> UserSession:
     """
         Queries session from SID (session_id).
         :param session_id: SID itself.
-        :param db: Database sesion.
+        :param db: Database session.
     """
 
     session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
@@ -176,8 +177,8 @@ def _query_session_from_sid(session_id: int | None, db: Session, request: Reques
     return session
 
 
-def _query_auth_data(auth_data: AuthData, \
-    db: Session, allow_deactivated: bool) -> AuthData:
+def _query_auth_data(auth_data: AuthData,
+                     db: Session, allow_deactivated: bool) -> AuthData:
     """
         Finalizes query of  authentication data.
         :param auth_data: Authentication data.
@@ -194,7 +195,7 @@ def _query_auth_data(auth_data: AuthData, \
         raise ApiErrorException(ApiErrorCode.USER_DEACTIVATED, "User account deactivated, access denied!")
     if auth_data.session.owner_id != user.id:
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
-    
+
     # Return modified DTO.
     auth_data.user = user
     return auth_data

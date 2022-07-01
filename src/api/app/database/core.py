@@ -19,6 +19,7 @@ metadata = MetaData(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base(metadata=metadata)
 
+
 def create_all():
-    """Creatas all database metadata. """
+    """Creates all database metadata. """
     metadata.create_all(bind=engine)
