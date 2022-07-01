@@ -5,7 +5,7 @@
 """
 
 if __name__ == "__main__":
-    # You not supposed to run this directly.
+    # You are not supposed to run this directly.
     # Raise error if tried to run from CLI directly.
     print("ERROR: This application should be run with `Uvicorn` manually, or by Docker (Docker-Compose).\n")
     print("ERROR: Please use methods above, or search FastAPI application inside `/app.py`")
@@ -29,7 +29,7 @@ from . import database
 def _construct_app() -> FastAPI:
     """
         Returns FastAPI application ready to run.
-        Creates base FastAPI instance with registering all reqired stuff on it.
+        Creates base FastAPI instance with registering all required stuff on it.
     """
 
     settings = get_settings()
@@ -38,7 +38,7 @@ def _construct_app() -> FastAPI:
         debug=settings.fastapi_debug,
 
         # Custom settings.
-        # By default modified by setters (below), or empty if not used.
+        # By default, modified by setters (below), or empty if not used.
         routes=None,
         middleware=None,
         exception_handlers=None,
@@ -62,13 +62,14 @@ def _construct_app() -> FastAPI:
     # Initialising database connection and all ORM stuff.
     database.core.create_all()
 
-    # Register all internal stuff as routers/handlers/middlewares and etc.
+    # Register all internal stuff as routers/handlers/middlewares etc.
     add_event_handlers(app_instance)
     add_middlewares(app_instance)
     register_handlers(app_instance)
     register_routers(app_instance)
 
     return app_instance
+
 
 # Root application for uvicorn runner or whatever else.
 # (Docker compose is running with app.app:app, means that this application instance

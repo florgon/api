@@ -1,12 +1,12 @@
 """
-    Standartized API error codes container.
+    Standardized API error codes container.
 """
 
 from enum import Enum
 
 
 class ApiErrorCode(Enum):
-    """ API Standartized error codes. """
+    """ API Standardized error codes. """
 
     # Auth field is taken.
     AUTH_USERNAME_TAKEN = 0, 400
@@ -22,7 +22,7 @@ class ApiErrorCode(Enum):
     AUTH_EMAIL_INVALID = 30, 400
     AUTH_PASSWORD_INVALID = 31, 400
     AUTH_USERNAME_INVALID = 32, 400
-    AUTH_INSUFFICIENT_PERMISSSIONS = 33, 403
+    AUTH_INSUFFICIENT_PERMISSIONS = 33, 403
     
     # API.
     API_INVALID_REQUEST = 40, 400
@@ -52,7 +52,7 @@ class ApiErrorCode(Enum):
 
 
 class ApiErrorException(Exception):
-    def __init__(self, api_code: ApiErrorCode, message: str="", data: dict | None = None):
+    def __init__(self, api_code: ApiErrorCode, message: str = "", data: dict | None = None):
         self.api_code = api_code
         self.message = message
         self.data = data

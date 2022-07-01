@@ -2,14 +2,16 @@
     FastAPI dependencies
 """
 
-# For importing Session from dependecies, not sqlalchemy.
-from sqlalchemy.orm import Session
+# For importing Session from dependencies!
+# Do not remove.
+from sqlalchemy.orm import Session  # noqa
 
 # Importing session.
 from .core import (
     SessionLocal,
     sessionmaker
 )
+
 
 def get_db() -> sessionmaker:
     """Session getter for database. Used as dependency for database itself. """

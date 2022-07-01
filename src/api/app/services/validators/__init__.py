@@ -2,6 +2,4 @@
     Validators.
 """
 
-from . import (
-    user
-)
+from . import user as user

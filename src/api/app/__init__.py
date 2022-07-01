@@ -2,7 +2,8 @@
     Florgon API server application.
     Provides full FastAPI API application with tests.
 
-    How to run: Please see root source directory of the repository. For now application is based on Docker + Docker Compose.
+    How to run: Please see root source directory of the repository.
+    For now application is based on Docker + Docker Compose.
     Tests: For testing please run `pytest` inside your docker server container.
     Configuration: Please specify settings inside `.server.env` in the repository source directory (Docker-Compose).
     Requirements: See `requirements.txt` in `..`. Should be installed at build time of docker container.

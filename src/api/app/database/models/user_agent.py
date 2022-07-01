@@ -3,7 +3,6 @@
 """
 
 # ORM.
-from sqlalchemy.sql import func
 from sqlalchemy import (
     Text, Integer, Column
 )

@@ -1,7 +1,8 @@
 import time
 
 from app.database.models.user_session import UserSession
-from app.database.crud.user_agent import get_by_id
+from app.database.crud.user_agent import get_by_id as get_user_agent_by_id
+
 
 def serialize(session: UserSession, in_list: bool = False):
     """Returns dict object for API response with serialized session data."""
@@ -9,7 +10,7 @@ def serialize(session: UserSession, in_list: bool = False):
     serialized_session = {
         "id": session.id,
         "ip": session.ip_address,
-        "user_agent": get_by_id(session.user_agent_id).user_agent,
+        "user_agent": get_user_agent_by_id(user_agent_id=session.user_agent_id).user_agent,  # TODO ASAP!
         "created_at": time.mktime(session.time_created.timetuple())
     }
     

@@ -1,5 +1,5 @@
 """
-    Florgon API sessiion token implementation.
+    Florgon API session token implementation.
 """
 
 from ._token import _Token
@@ -22,10 +22,10 @@ class SessionToken(_Token):
     def get_session_id(self) -> int:
         return self._session_id
 
-    def __init__(self, issuer: str, ttl: int | float, user_id: int, \
-        session_id: int | None = None, \
-            payload: dict | None = None, *, key: str | None = None
-    ):
+    def __init__(self, issuer: str, ttl: int | float, user_id: int,
+                 session_id: int | None = None,
+                 payload: dict | None = None, *, key: str | None = None
+                 ):
         super().__init__(issuer, ttl, subject=user_id, payload={}, key=key)
         self._session_id = session_id
 

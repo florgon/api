@@ -8,8 +8,8 @@ from .errors import ApiErrorCode
 from .version import API_VERSION
 
 
-def api_error(api_code: ApiErrorCode, message: str="", \
-    data: dict | None = None, headers: dict | None= None) -> JSONResponse:
+def api_error(api_code: ApiErrorCode, message: str = "",
+              data: dict | None = None, headers: dict | None = None) -> JSONResponse:
     """Returns API error response. """
 
     # Processing arguments.

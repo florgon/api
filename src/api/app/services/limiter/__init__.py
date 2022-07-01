@@ -18,6 +18,7 @@ from starlette.responses import Response
 from starlette.status import HTTP_429_TOO_MANY_REQUESTS
 from app.config import get_settings
 
+
 async def default_identifier(request: Request):
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:

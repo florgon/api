@@ -9,7 +9,7 @@ class OAuthCode(_Token):
     """
         Access token JWT implementation.
 
-        Used for main authorzation, provides access to APIs.
+        Used for main authorization, provides access to APIs.
         Issued with OAuth flow.
         Linked with session.
     """
@@ -30,15 +30,15 @@ class OAuthCode(_Token):
 
     def get_redirect_uri(self) -> str:
         return self._redirect_uri
-    
+
     def get_client_id(self) -> int:
         return self._client_id
 
-    def __init__(self, issuer: str, ttl: int | float, user_id: int, \
-        session_id: int | None = None, scope: str | None = None, \
-            redirect_uri: str | None = None, client_id: int | None = None, \
-                payload: dict | None = None, *, key: str | None = None
-    ):
+    def __init__(self, issuer: str, ttl: int | float, user_id: int,
+                 session_id: int | None = None, scope: str | None = None,
+                 redirect_uri: str | None = None, client_id: int | None = None,
+                 payload: dict | None = None, *, key: str | None = None
+                 ):
         super().__init__(issuer, ttl, subject=user_id, payload={}, key=key)
         self._session_id = session_id
         self._scope = scope

@@ -19,7 +19,6 @@ class User(Base):
     # Database.
     id = Column(Integer, primary_key=True, index=True, nullable=False)
 
-
     # Sensitive information.
     email = Column(String, unique=True, index=True, nullable=False)
 
@@ -58,4 +57,4 @@ class User(Base):
     time_verified = Column(DateTime(timezone=True), nullable=True)
 
     def is_female(self) -> bool:
-        return self.sex == False
+        return self.sex is False

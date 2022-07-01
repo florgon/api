@@ -38,7 +38,9 @@ class Settings(BaseSettings):
     fastapi_description: str = "Florgon main API (Built with FastAPI)"
     fastapi_documentation_enabled: bool = False
 
+
 _settings = Settings()
+
 
 def get_settings():
     return _settings

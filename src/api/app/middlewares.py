@@ -32,11 +32,11 @@ def _add_cors_middleware(app: FastAPI) -> None:
         return
 
     # For now,
-    # COSR middleware exposes all,
-    # later there is may be some configuration to modify behavior.
+    # CORS middleware exposes all,
+    # later there is maybe some configuration to modify behavior.
     app.add_middleware(CORSMiddleware,
-        allow_credentials=True,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"]
-    )
+                       allow_credentials=True,
+                       allow_origins=["*"],
+                       allow_methods=["*"],
+                       allow_headers=["*"]
+                       )

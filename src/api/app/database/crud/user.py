@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.database.models.user import User
 from app.services.passwords import get_hashed_password
 
+
 def get_by_id(db: Session, user_id: int) -> User:
     """ Returns user by it`s ID. """
     return db.query(User).filter(User.id == user_id).first()

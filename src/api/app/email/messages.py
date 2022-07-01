@@ -10,9 +10,10 @@ from fastapi_mail import (
 # Core.
 from .config import config
 
+
 async def send(email: str, subject: str, body: str):
-    """ Sends message to single recepient email. """
-    
+    """ Sends message to single recipient email. """
+
     if not config:
         return  # Mail disabled.
 
@@ -24,11 +25,14 @@ async def send(email: str, subject: str, body: str):
         subtype="plain"
     ))
 
+
 async def send_verification_email(email: str, username: str, confirmation_link: str):
     """ Send verification email to user. """
 
     # Send email.
-    await send(email, 
-        "Sign-up on Florgon", 
-        f"Hello, {username}! Please confirm your Florgon account email address by clicking link below! Welcome to Florgon! Link: {confirmation_link}"
-    )
+    await send(email,
+               "Sign-up on Florgon",
+               f"Hello, {username}! Please confirm your Florgon account email address by clicking link below! "
+               f"Welcome to Florgon! "
+               f"Link: {confirmation_link}"
+               )
