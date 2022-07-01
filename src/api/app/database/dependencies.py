@@ -4,7 +4,7 @@
 
 # For importing Session from dependencies!
 # Do not remove.
-from sqlalchemy.orm import Session  # type: ignore
+from sqlalchemy.orm import Session  # noqa # pylint: disable=unused-import
 
 # Importing session.
 from .core import SessionLocal, sessionmaker
