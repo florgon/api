@@ -39,7 +39,7 @@ class OAuthCode(_Token):
                  redirect_uri: str | None = None, client_id: int | None = None,
                  payload: dict | None = None, *, key: str | None = None
                  ):
-        super().__init__(issuer, ttl, subject=user_id, payload=payload, key=key)
+        super().__init__(issuer, ttl, subject=user_id, payload={}, key=key)
         self._session_id = session_id
         self._scope = scope
         self._redirect_uri = redirect_uri
