@@ -11,22 +11,22 @@ from app.services.passwords import get_hashed_password
 
 
 def get_by_id(db: Session, user_id: int) -> User:
-    """ Returns user by it`s ID. """
+    """Returns user by it`s ID."""
     return db.query(User).filter(User.id == user_id).first()
 
 
 def get_by_email(db: Session, email: str) -> User:
-    """ Returns user by it`s email. """
+    """Returns user by it`s email."""
     return db.query(User).filter(User.email == email).first()
 
 
 def get_by_username(db: Session, username: str) -> User:
-    """ Returns user by it`s username. """
+    """Returns user by it`s username."""
     return db.query(User).filter(User.username == username).first()
 
 
 def get_by_login(db: Session, login: str) -> User:
-    """ Returns user by it`s login. """
+    """Returns user by it`s login."""
     user = get_by_username(db=db, username=login)
     if not user:
         return get_by_email(db=db, email=login)
@@ -34,18 +34,18 @@ def get_by_login(db: Session, login: str) -> User:
 
 
 def email_confirm(db: Session, user: User):
-    """ Confirms user email. """
+    """Confirms user email."""
     user.is_verified = True
     db.commit()
 
 
 def email_is_taken(db: Session, email: str) -> bool:
-    """ Returns is given email is taken or not. """
+    """Returns is given email is taken or not."""
     return db.query(User).filter(User.email == email).first() is not None
 
 
 def username_is_taken(db: Session, username: str) -> bool:
-    """ Returns is given username is taken or not. """
+    """Returns is given username is taken or not."""
     return db.query(User).filter(User.username == username).first() is not None
 
 

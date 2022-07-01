@@ -22,100 +22,125 @@ TokenType = SessionToken | AccessToken
 
 
 class AuthData(object):
-    """ DTO for authenticated request."""
+    """DTO for authenticated request."""
 
     user: User
     token: TokenType
     session: UserSession
     permissions: Permissions | None
 
-    def __init__(self, token: TokenType, session: UserSession,
-                 user: User | None = None, permissions: Permissions | None = None) -> None:
+    def __init__(
+        self,
+        token: TokenType,
+        session: UserSession,
+        user: User | None = None,
+        permissions: Permissions | None = None,
+    ) -> None:
         """
-            :param user: User database model object.
-            :param token: Session or access token object.
-            :param session: User session database model object.
+        :param user: User database model object.
+        :param token: Session or access token object.
+        :param session: User session database model object.
         """
         self.user = user
         self.token = token
         self.session = session
 
         # Parse permission once.
-        self.permissions = permissions if permissions is not None else parse_permissions_from_scope(token.get_scope())
+        self.permissions = (
+            permissions
+            if permissions is not None
+            else parse_permissions_from_scope(token.get_scope())
+        )
 
 
-def query_auth_data_from_token(token: str, db: Session, *,
-                               only_session_token: bool = False,
-                               required_permissions: Permissions | None = None,
-                               allow_deactivated: bool = False,
-                               request: Request | None = None,
-                               ) -> AuthData:
+def query_auth_data_from_token(
+    token: str,
+    db: Session,
+    *,
+    only_session_token: bool = False,
+    required_permissions: Permissions | None = None,
+    allow_deactivated: bool = False,
+    request: Request | None = None,
+) -> AuthData:
     """
-        Queries authentication data from your token.
-        :param token: Token itself.
-        :param db: Database session.
-        :param only_session_token: If true, will query for session token, not access.
-        :param required_permissions: If passed, will require permission from token.
-        :param allow_deactivated: If true, allow deactivated user to authenticate.
-        :param request: Request for the session check (ip, user agent)
+    Queries authentication data from your token.
+    :param token: Token itself.
+    :param db: Database session.
+    :param only_session_token: If true, will query for session token, not access.
+    :param required_permissions: If passed, will require permission from token.
+    :param allow_deactivated: If true, allow deactivated user to authenticate.
+    :param request: Request for the session check (ip, user agent)
     """
 
     # Decode external token and query auth data from it.
     token_type = SessionToken if only_session_token else AccessToken
     auth_data = _decode_token(
-        token, token_type, db,
+        token,
+        token_type,
+        db,
         required_permissions=required_permissions,
-        request=request
+        request=request,
     )
     if only_session_token:
         assert auth_data.token.get_type() == SessionToken.get_type()
     return _query_auth_data(auth_data, db, allow_deactivated)
 
 
-def query_auth_data_from_request(req: Request, db: Session, *,
-                                 only_session_token: bool = False, required_permissions: Permissions | None = None,
-                                 allow_deactivated: bool = False,
-                                 ) -> AuthData:
+def query_auth_data_from_request(
+    req: Request,
+    db: Session,
+    *,
+    only_session_token: bool = False,
+    required_permissions: Permissions | None = None,
+    allow_deactivated: bool = False,
+) -> AuthData:
     """
-        Queries authentication data from request (from request token).
-        :param req: Request itself.
-        :param db: Database session.
-        :param only_session_token: If true, will query for session token, not access.
-        :param required_permissions: If passed, will require permission from token.
-        :param allow_deactivated: If true, allow deactivated user to authenticate.
+    Queries authentication data from request (from request token).
+    :param req: Request itself.
+    :param db: Database session.
+    :param only_session_token: If true, will query for session token, not access.
+    :param required_permissions: If passed, will require permission from token.
+    :param allow_deactivated: If true, allow deactivated user to authenticate.
     """
 
     # Get token from request and query data from it as external token.
     token = _get_token_from_request(req, only_session_token)
     return query_auth_data_from_token(
-        token, db,
+        token,
+        db,
         only_session_token=only_session_token,
         required_permissions=required_permissions,
         allow_deactivated=allow_deactivated,
-        request=req
+        request=req,
     )
 
 
 def _get_token_from_request(req: Request, only_session_token: bool) -> str:
     """
-        Returns token from request.
-        :param req: Request itself.
-        :param only_session_token: If true, will get session token.
+    Returns token from request.
+    :param req: Request itself.
+    :param only_session_token: If true, will get session token.
     """
     if only_session_token:
         return req.query_params.get("session_token", "")
-    return req.headers.get("Authorization", "") or req.query_params.get("access_token", "")
+    return req.headers.get("Authorization", "") or req.query_params.get(
+        "access_token", ""
+    )
 
 
-def _decode_token(token: str, token_type: Type[AccessToken | SessionToken], db: Session,
-                  required_permissions: Permissions | None = None,
-                  request: Request | None = None) -> AuthData:
+def _decode_token(
+    token: str,
+    token_type: Type[AccessToken | SessionToken],
+    db: Session,
+    required_permissions: Permissions | None = None,
+    request: Request | None = None,
+) -> AuthData:
     """
-        Decodes given token, to payload and session.
-        :param token: Token to decode.
-        :param token_type: Token type to get.
-        :param db: Database session.
-        :param required_permissions: If passed, will require permission from token.
+    Decodes given token, to payload and session.
+    :param token: Token to decode.
+    :param token_type: Token type to get.
+    :param db: Database session.
+    :param required_permissions: If passed, will require permission from token.
     """
 
     if token_type.get_type() not in ("access", "session"):
@@ -131,18 +156,16 @@ def _decode_token(token: str, token_type: Type[AccessToken | SessionToken], db: 
     permissions = _query_scope_permissions(scope, required_permissions)
 
     # Return DTO.
-    return AuthData(
-        token=signed_token,
-        session=session,
-        permissions=permissions
-    )
+    return AuthData(token=signed_token, session=session, permissions=permissions)
 
 
-def _query_scope_permissions(scope: str, required_permissions: Permissions | None) -> Permissions:
+def _query_scope_permissions(
+    scope: str, required_permissions: Permissions | None
+) -> Permissions:
     """
-        Queries scope permissions with checking required permission.
-        :param scope: Scope string (From request).
-        :param required_permissions: Permission to require.
+    Queries scope permissions with checking required permission.
+    :param scope: Scope string (From request).
+    :param required_permissions: Permission to require.
     """
     permissions = parse_permissions_from_scope(scope)
 
@@ -152,53 +175,72 @@ def _query_scope_permissions(scope: str, required_permissions: Permissions | Non
                 raise ApiErrorException(
                     ApiErrorCode.AUTH_INSUFFICIENT_PERMISSIONS,
                     f"Insufficient permissions (required: {required_permission.value})",
-                    {"required_scope": required_permission.value})
+                    {"required_scope": required_permission.value},
+                )
 
     return permissions
 
 
-def _query_session_from_sid(session_id: int | None, db: Session, request: Request | None = None) -> UserSession:
+def _query_session_from_sid(
+    session_id: int | None, db: Session, request: Request | None = None
+) -> UserSession:
     """
-        Queries session from SID (session_id).
-        :param session_id: SID itself.
-        :param db: Database session.
+    Queries session from SID (session_id).
+    :param session_id: SID itself.
+    :param db: Database session.
     """
 
-    session = crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+    session = (
+        crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+    )
 
     # Validate session.
     if not session:
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid!")
     if not session.is_active:
-        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN,
-                                "Session closed (Token invalid due to session deactivation)!")
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN,
+            "Session closed (Token invalid due to session deactivation)!",
+        )
     if request is not None:
         if request.client.host != session.ip_address:
-            raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!")
+            raise ApiErrorException(
+                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
+            )
         user_agent_string = request.headers.get("User-Agent")
         user_agent = crud.user_agent.get_by_string(db, user_agent_string)
         if user_agent is None or user_agent.id != session.user_agent_id:
-            raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!")
+            raise ApiErrorException(
+                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
+            )
     return session
 
 
-def _query_auth_data(auth_data: AuthData,
-                     db: Session, allow_deactivated: bool) -> AuthData:
+def _query_auth_data(
+    auth_data: AuthData, db: Session, allow_deactivated: bool
+) -> AuthData:
     """
-        Finalizes query of  authentication data.
-        :param auth_data: Authentication data.
-        :param db: Database session.
-        :param allow_deactivated: If true, allow deactivated user to authenticate.
+    Finalizes query of  authentication data.
+    :param auth_data: Authentication data.
+    :param db: Database session.
+    :param allow_deactivated: If true, allow deactivated user to authenticate.
     """
     user = crud.user.get_by_id(db=db, user_id=auth_data.token.get_subject())
 
     # Validate authentication data.
     if not user:
-        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_CREDENTIALS, "User with given token does not exists!")
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
+            "User with given token does not exists!",
+        )
     if not allow_deactivated and not user.is_active:
-        raise ApiErrorException(ApiErrorCode.USER_DEACTIVATED, "User account deactivated, access denied!")
+        raise ApiErrorException(
+            ApiErrorCode.USER_DEACTIVATED, "User account deactivated, access denied!"
+        )
     if auth_data.session.owner_id != user.id:
-        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!")
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!"
+        )
 
     # Return modified DTO.
     auth_data.user = user

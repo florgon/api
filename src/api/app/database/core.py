@@ -21,5 +21,5 @@ Base = declarative_base(metadata=metadata)
 
 
 def create_all():
-    """Creates all database metadata. """
+    """Creates all database metadata."""
     metadata.create_all(bind=engine)

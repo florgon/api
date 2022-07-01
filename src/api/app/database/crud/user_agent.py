@@ -10,8 +10,10 @@ from app.database.models.user_agent import UserAgent
 
 
 def get_by_string(db: Session, user_agent_string: str) -> UserAgent:
-    """ Returns user agent by it`s string. """
-    user_agent = db.query(UserAgent).filter(UserAgent.user_agent == user_agent_string).first()
+    """Returns user agent by it`s string."""
+    user_agent = (
+        db.query(UserAgent).filter(UserAgent.user_agent == user_agent_string).first()
+    )
     return user_agent
 
 
@@ -20,7 +22,7 @@ def get_by_id(db: Session, user_agent_id: int) -> UserAgent | None:
 
 
 def get_or_create_by_string(db: Session, user_agent_string: str) -> UserAgent:
-    """ Returns user agent by it`s string. """
+    """Returns user agent by it`s string."""
     user_agent = get_by_string(db, user_agent_string)
     if user_agent is None:
         user_agent = UserAgent(user_agent=user_agent_string)

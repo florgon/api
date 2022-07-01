@@ -1,6 +1,10 @@
 import unittest
 
-from app.services.permissions import parse_permissions_from_scope, normalize_scope, Permission
+from app.services.permissions import (
+    parse_permissions_from_scope,
+    normalize_scope,
+    Permission,
+)
 
 
 class TestPermissionsUnit(unittest.TestCase):
@@ -18,5 +22,7 @@ class TestPermissionsUnit(unittest.TestCase):
         self.assertIsInstance(parse_permissions_from_scope(""), list)
         self.assertEqual(parse_permissions_from_scope(""), [])
         self.assertEqual(parse_permissions_from_scope("email"), [Permission.email])
-        self.assertEqual(parse_permissions_from_scope("email,  email"), [Permission.email])
+        self.assertEqual(
+            parse_permissions_from_scope("email,  email"), [Permission.email]
+        )
         self.assertEqual(parse_permissions_from_scope("\nemail, \remail"), [])

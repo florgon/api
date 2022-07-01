@@ -13,11 +13,14 @@ def client():
 
 def test_read_session_signup_get_user_info(client):
     username = "tester"
-    signup_response = client.get("/_session._signup", params={
-        "username": username,
-        "email": "tester@example.com",
-        "password": "password"
-    })
+    signup_response = client.get(
+        "/_session._signup",
+        params={
+            "username": username,
+            "email": "tester@example.com",
+            "password": "password",
+        },
+    )
 
     json = signup_response.json()
     assert "v" in json
@@ -39,9 +42,9 @@ def test_read_session_signup_get_user_info(client):
     assert "session_token" in json["success"]
 
     session_token = json["success"]["session_token"]
-    get_info_response = client.get("/_session._getUserInfo", params={
-        "session_token": session_token
-    })
+    get_info_response = client.get(
+        "/_session._getUserInfo", params={"session_token": session_token}
+    )
     json = get_info_response.json()
     assert "v" in json
     assert "success" in json
