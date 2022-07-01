@@ -101,7 +101,7 @@ async def method_session_list(req: Request,
     current_session = auth_data.session
     sessions = crud.user_session.get_by_owner_id(db, current_session.owner_id)
     return api_success({
-        **serialize_sessions(sessions, include_deactivated=False),
+        **serialize_sessions(sessions, db=db, include_deactivated=False),
         "count": len(sessions),
         "current_id": current_session.id
     })
