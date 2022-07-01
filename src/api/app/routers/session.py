@@ -27,24 +27,31 @@ router = APIRouter()
 
 
 @router.get("/_session._getUserInfo")
-async def method_session_get_user_info(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
-    """ Returns user account information. """
+async def method_session_get_user_info(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Returns user account information."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
-    return api_success({
-        **serialize_user(auth_data.user),
-        "siat": auth_data.token.get_issued_at(),
-        "sexp": auth_data.token.get_expires_at()
-    })
+    return api_success(
+        {
+            **serialize_user(auth_data.user),
+            "siat": auth_data.token.get_issued_at(),
+            "sexp": auth_data.token.get_expires_at(),
+        }
+    )
 
 
 @router.get("/_session._signup")
 async def method_session_signup(
-        req: Request,
-        username: str, email: str, password: str,
-        user_agent: str = Header(""),
-        db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+    req: Request,
+    username: str,
+    email: str,
+    password: str,
+    user_agent: str = Header(""),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """ API endpoint to signup and create new user. """
+    """API endpoint to signup and create new user."""
 
     # Validate request for fields.
     is_valid, validation_error = validate_signup_fields(db, username, email, password)
@@ -56,20 +63,26 @@ async def method_session_signup(
 
     session_user_agent = user_agent
     session_client_host = req.client.host
-    session = crud.user_session.get_or_create_new(db, user.id, session_client_host, session_user_agent)
-    token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
-    return api_success({
-        **serialize_user(user),
-        "session_token": token.encode(key=session.token_secret),
-        "sid": session.id
-    })
+    session = crud.user_session.get_or_create_new(
+        db, user.id, session_client_host, session_user_agent
+    )
+    token = SessionToken(
+        settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id
+    )
+    return api_success(
+        {
+            **serialize_user(user),
+            "session_token": token.encode(key=session.token_secret),
+            "sid": session.id,
+        }
+    )
 
 
 @router.get("/_session._logout")
-async def method_session_logout(req: Request,
-                                revoke_all: bool = False,
-                                db: Session = Depends(get_db)) -> JSONResponse:
-    """ Logout user over all session. """
+async def method_session_logout(
+    req: Request, revoke_all: bool = False, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Logout user over all session."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     session = auth_data.session
     await RateLimiter(times=1, seconds=15).check(req)
@@ -79,56 +92,66 @@ async def method_session_logout(req: Request,
         for _session in sessions:
             _session.is_active = False
         db.commit()
-        return api_success({
-            "sids": [_session.id for _session in sessions]
-        })
+        return api_success({"sids": [_session.id for _session in sessions]})
 
     session.is_active = False
     db.commit()
-    return api_success({
-        "sid": session.id
-    })
+    return api_success({"sid": session.id})
 
 
 @router.get("/_session._list")
-async def method_session_list(req: Request,
-                              db: Session = Depends(get_db)) -> JSONResponse:
-    """ Returns list of all active sessions. """
+async def method_session_list(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Returns list of all active sessions."""
     # This is weird, _session method allowed with only access token,
     # And also seems to expose private session information.
-    auth_data = query_auth_data_from_request(req, db, only_session_token=False,
-                                             required_permissions=[Permission.sessions])
+    auth_data = query_auth_data_from_request(
+        req, db, only_session_token=False, required_permissions=[Permission.sessions]
+    )
     current_session = auth_data.session
     sessions = crud.user_session.get_by_owner_id(db, current_session.owner_id)
-    return api_success({
-        **serialize_sessions(sessions, db=db, include_deactivated=False),
-        "count": len(sessions),
-        "current_id": current_session.id
-    })
+    return api_success(
+        {
+            **serialize_sessions(sessions, db=db, include_deactivated=False),
+            "count": len(sessions),
+            "current_id": current_session.id,
+        }
+    )
 
 
 @router.get("/_session._signin")
 async def method_session_signin(
-        req: Request,
-        login: str, password: str,
-        user_agent: str = Header(""),
-        db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+    req: Request,
+    login: str,
+    password: str,
+    user_agent: str = Header(""),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """ Authenticates user and gives new session token for user. """
+    """Authenticates user and gives new session token for user."""
 
     # Check credentials.
     user = crud.user.get_by_login(db=db, login=login)
     if not user or not check_password(password=password, hashed_password=user.password):
-        return api_error(ApiErrorCode.AUTH_INVALID_CREDENTIALS,
-                         "Invalid credentials for authentication (password or login).")
+        return api_error(
+            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
+            "Invalid credentials for authentication (password or login).",
+        )
     await RateLimiter(times=2, seconds=15).check(req)
 
     session_user_agent = user_agent
     session_client_host = req.client.host
-    session = crud.user_session.get_or_create_new(db, user.id, session_client_host, session_user_agent)
-    token = SessionToken(settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id)
-    return api_success({
-        **serialize_user(user),
-        "session_token": token.encode(key=session.token_secret),
-        "sid": session.id
-    })
+    session = crud.user_session.get_or_create_new(
+        db, user.id, session_client_host, session_user_agent
+    )
+    token = SessionToken(
+        settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id
+    )
+    return api_success(
+        {
+            **serialize_user(user),
+            "session_token": token.encode(key=session.token_secret),
+            "sid": session.id,
+        }
+    )

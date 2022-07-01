@@ -19,13 +19,17 @@ class RateLimiter:
         callback: Optional[Callable] = None,
     ):
         self.times = times
-        self.milliseconds = milliseconds + 1000 * seconds + 60000 * minutes + 3600000 * hours
+        self.milliseconds = (
+            milliseconds + 1000 * seconds + 60000 * minutes + 3600000 * hours
+        )
         self.identifier = identifier
         self.callback = callback
 
     async def __call__(self, request: Request, response: Response):
         if not FastAPILimiter.redis:
-            raise Exception("You must call FastAPILimiter.init in startup event of fastapi!")
+            raise Exception(
+                "You must call FastAPILimiter.init in startup event of fastapi!"
+            )
         index = 0
         for route in request.app.routes:
             if route.path == request.scope["path"]:

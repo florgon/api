@@ -11,29 +11,33 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
         },
         "display": {
             "name": oauth_client.display_name,
-            "avatar":
-                oauth_client.display_avatar if oauth_client.display_avatar else
-                "https://oauth.florgon.space/logo192.png",
+            "avatar": oauth_client.display_avatar
+            if oauth_client.display_avatar
+            else "https://oauth.florgon.space/logo192.png",
         },
-        "created_at": time.mktime(oauth_client.time_created.timetuple())
+        "created_at": time.mktime(oauth_client.time_created.timetuple()),
     }
-    
+
     if display_secret:
         serialized_oauth_client["secret"] = oauth_client.secret
- 
+
     if in_list:
         return serialized_oauth_client
-        
-    return {
-        "oauth_client": serialized_oauth_client
-    }
+
+    return {"oauth_client": serialized_oauth_client}
 
 
-def serialize_list(oauth_clients: list, *, include_deactivated: bool = False, display_secret: bool = False):
+def serialize_list(
+    oauth_clients: list,
+    *,
+    include_deactivated: bool = False,
+    display_secret: bool = False
+):
     return {
         "oauth_clients": [
             serialize(oauth_client, display_secret=display_secret, in_list=True)
-            for oauth_client in oauth_clients if (oauth_client.is_active or include_deactivated)
+            for oauth_client in oauth_clients
+            if (oauth_client.is_active or include_deactivated)
         ]
     }
 

@@ -16,20 +16,24 @@ router = APIRouter()
 
 @router.get("/extSocialAuthVk.signin")
 async def method_ext_social_auth_vk_signin() -> JSONResponse:
-    """ OAuth with social VK provider. """
+    """OAuth with social VK provider."""
 
     return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "VK OAuth not implemented yet")
 
 
 @router.get("/extSocialAuthGithub.signin")
 async def method_ext_social_auth_github_signin() -> JSONResponse:
-    """ OAuth with social GitHub provider. """
+    """OAuth with social GitHub provider."""
 
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "GitHub OAuth not implemented yet")
+    return api_error(
+        ApiErrorCode.API_NOT_IMPLEMENTED, "GitHub OAuth not implemented yet"
+    )
 
 
 @router.get("/extSocialAuthYandex.signin")
 async def method_ext_social_auth_github_signin() -> JSONResponse:
-    """ OAuth with social Yandex provider. """
+    """OAuth with social Yandex provider."""
 
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Yandex OAuth not implemented yet")
+    return api_error(
+        ApiErrorCode.API_NOT_IMPLEMENTED, "Yandex OAuth not implemented yet"
+    )

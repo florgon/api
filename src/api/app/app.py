@@ -7,8 +7,12 @@
 if __name__ == "__main__":
     # You are not supposed to run this directly.
     # Raise error if tried to run from CLI directly.
-    print("ERROR: This application should be run with `Uvicorn` manually, or by Docker (Docker-Compose).\n")
-    print("ERROR: Please use methods above, or search FastAPI application inside `/app.py`")
+    print(
+        "ERROR: This application should be run with `Uvicorn` manually, or by Docker (Docker-Compose).\n"
+    )
+    print(
+        "ERROR: Please use methods above, or search FastAPI application inside `/app.py`"
+    )
     exit(1)
 
 from fastapi import FastAPI
@@ -28,15 +32,14 @@ from . import database
 
 def _construct_app() -> FastAPI:
     """
-        Returns FastAPI application ready to run.
-        Creates base FastAPI instance with registering all required stuff on it.
+    Returns FastAPI application ready to run.
+    Creates base FastAPI instance with registering all required stuff on it.
     """
 
     settings = get_settings()
     app_instance = FastAPI(
         # FastAPI debug.
         debug=settings.fastapi_debug,
-
         # Custom settings.
         # By default, modified by setters (below), or empty if not used.
         routes=None,
@@ -47,16 +50,14 @@ def _construct_app() -> FastAPI:
         callbacks=None,
         on_shutdown=None,
         on_startup=None,
-
         # Documentation settings.
         # Notice that documentation is disabled by default and recommended to be disabled.
         title=settings.fastapi_title,
         description=settings.fastapi_description,
-    
         # Disable any documentation.
         openapi_url="/openapi.json" if settings.fastapi_documentation_enabled else None,
-        docs_url="/docs" if settings.fastapi_documentation_enabled else None, 
-        redoc_url="/redoc" if settings.fastapi_documentation_enabled else None, 
+        docs_url="/docs" if settings.fastapi_documentation_enabled else None,
+        redoc_url="/redoc" if settings.fastapi_documentation_enabled else None,
     )
 
     # Initialising database connection and all ORM stuff.

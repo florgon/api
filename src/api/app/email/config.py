@@ -18,5 +18,5 @@ if settings.mail_enabled:
         MAIL_TLS=True,
         MAIL_SSL=False,
         USE_CREDENTIALS=True,
-        VALIDATE_CERTS=True
+        VALIDATE_CERTS=True,
     )

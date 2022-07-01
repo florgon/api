@@ -4,16 +4,15 @@
 
 # ORM.
 from sqlalchemy.sql import func
-from sqlalchemy import (
-    ForeignKey, Integer, String, Column, Boolean, DateTime
-)
+from sqlalchemy import ForeignKey, Integer, String, Column, Boolean, DateTime
 
 # Core model base.
 from app.database.core import Base
 
 
 class OAuthClient(Base):
-    """ Auth service OAuth2 client model"""
+    """Auth service OAuth2 client model"""
+
     __tablename__ = "oauth_clients"
 
     # Access data.
@@ -33,6 +32,8 @@ class OAuthClient(Base):
     # Means is client verified by administrators (allow access to direct auth later)
     is_verified = Column(Boolean, nullable=False, default=False)
 
-    time_created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    time_created = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     time_updated = Column(DateTime(timezone=True), onupdate=func.now())
     time_verified = Column(DateTime(timezone=True), nullable=True)

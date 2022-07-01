@@ -38,7 +38,9 @@ async def default_callback(request: Request, response: Response | None, pexpire:
     """
     expire = ceil(pexpire / 1000)
     raise HTTPException(
-        HTTP_429_TOO_MANY_REQUESTS, "Too Many Requests", headers={"Retry-After": str(expire)}
+        HTTP_429_TOO_MANY_REQUESTS,
+        "Too Many Requests",
+        headers={"Retry-After": str(expire)},
     )
 
 
@@ -84,10 +86,11 @@ end"""
 
 
 async def on_startup():
-    redis = await aioredis.from_url(get_settings().cache_url, encoding="utf-8", decode_responses=True)
-    await FastAPILimiter.init(redis) 
+    redis = await aioredis.from_url(
+        get_settings().cache_url, encoding="utf-8", decode_responses=True
+    )
+    await FastAPILimiter.init(redis)
 
 
 async def on_shutdown():
     await FastAPILimiter.close()
-

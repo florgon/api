@@ -6,12 +6,13 @@ from pydantic import BaseSettings, PostgresDsn, RedisDsn
 
 
 class Settings(BaseSettings):
-    """ Base settings. """
+    """Base settings."""
+
     database_url: PostgresDsn
     cache_url: RedisDsn
-    
+
     oauth_screen_provider_url: str
-    
+
     jwt_issuer: str
 
     access_token_jwt_ttl: int
@@ -21,7 +22,7 @@ class Settings(BaseSettings):
     cft_secret: str
     cft_salt: str
     cft_max_age: int
-    
+
     proxy_url_prefix: str
     proxy_url_host: str
 

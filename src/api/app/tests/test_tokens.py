@@ -14,8 +14,13 @@ class TestAccessTokenUnit(unittest.TestCase):
         decoded_signed_token = AccessToken.decode(token.encode(), key=key)
         self.assertTrue(decoded_signed_token.signature_is_valid())
 
-        self.assertEqual(decoded_unsigned_token.get_subject(), decoded_signed_token.get_subject())
-        self.assertEqual(decoded_unsigned_token.get_session_id(), decoded_signed_token.get_session_id())
+        self.assertEqual(
+            decoded_unsigned_token.get_subject(), decoded_signed_token.get_subject()
+        )
+        self.assertEqual(
+            decoded_unsigned_token.get_session_id(),
+            decoded_signed_token.get_session_id(),
+        )
 
     def test_access_token(self):
         key = "my_secret_key"
@@ -23,5 +28,6 @@ class TestAccessTokenUnit(unittest.TestCase):
         encoded_token = token.encode()
         decoded_token = AccessToken.decode(encoded_token, key)
         self.assertEqual(
-            AccessToken.decode(encoded_token, key).get_raw_payload(), 
-            decoded_token.get_raw_payload())
+            AccessToken.decode(encoded_token, key).get_raw_payload(),
+            decoded_token.get_raw_payload(),
+        )

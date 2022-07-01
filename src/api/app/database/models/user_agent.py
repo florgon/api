@@ -3,16 +3,15 @@
 """
 
 # ORM.
-from sqlalchemy import (
-    Text, Integer, Column
-)
+from sqlalchemy import Text, Integer, Column
 
 # Core model base.
 from app.database.core import Base
 
 
 class UserAgent(Base):
-    """ Auth service client user agent string model"""
+    """Auth service client user agent string model"""
+
     __tablename__ = "user_agents"
 
     id = Column(Integer, primary_key=True, index=True, nullable=False)

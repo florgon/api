@@ -6,23 +6,23 @@
 from app.services.api.response import api_error
 
 
-from app.services.api.errors import ( 
-    ApiErrorCode, 
-    ApiErrorException
-)
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 
 async def validation_exception_handler(_, exception):
-    """ Custom validation exception handler. """
-    return api_error(ApiErrorCode.API_INVALID_REQUEST, "Invalid request!", {
-        "exc": str(exception)
-    })
+    """Custom validation exception handler."""
+    return api_error(
+        ApiErrorCode.API_INVALID_REQUEST, "Invalid request!", {"exc": str(exception)}
+    )
 
 
 async def too_many_requests_handler(_, exception):
-    return api_error(ApiErrorCode.API_TOO_MANY_REQUESTS, "Too Many Requests!", {
-        "retry-after": int(exception.headers["Retry-After"])
-    }, headers=exception.headers)
+    return api_error(
+        ApiErrorCode.API_TOO_MANY_REQUESTS,
+        "Too Many Requests!",
+        {"retry-after": int(exception.headers["Retry-After"])},
+        headers=exception.headers,
+    )
 
 
 async def api_error_exception_handler(_, e: ApiErrorException):
