@@ -2,11 +2,14 @@
     User database model serializer.
 """
 
+
 import time
+
+from app.database.models.user import User
 
 
 def serialize(
-    user,
+    user: User,
     *,
     include_email: bool = False,
     include_optional_fields: bool = False,
@@ -42,6 +45,9 @@ def serialize(
         serialized_user["states"] = {
             "is_active": user.is_active,
         }
+        if user.is_admin:
+            serialized_user["states"]["is_admin"] = user.is_admin
+        
         if include_private_fields:
             serialized_user["states"]["is_confirmed"] = user.is_verified
 

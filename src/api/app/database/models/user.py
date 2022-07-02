@@ -40,7 +40,7 @@ class User(Base):
     is_verified = Column(Boolean, nullable=False, default=False)
     is_admin = Column(Boolean, nullable=False, default=False)
 
-    # Privacy
+    # Privacy.
     privacy_profile_public = Column(Boolean, nullable=False, default=True)
     privacy_profile_require_auth = Column(Boolean, nullable=False, default=False)
 
