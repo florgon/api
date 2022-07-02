@@ -45,7 +45,8 @@ def serialize(
         serialized_user["states"] = {"is_active": user.is_active, "is_vip": user.is_vip}
 
         if include_private_fields:
-            serialized_user["states"]["is_admin"] = user.is_admin
+            if user.is_admin:
+                serialized_user["states"]["is_admin"] = user.is_admin
             serialized_user["states"]["is_confirmed"] = user.is_verified
 
     return {"user": serialized_user}
