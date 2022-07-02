@@ -52,13 +52,8 @@ async def method_session_signup(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
-
-    # Validate request for fields.
-    is_valid, validation_error = validate_signup_fields(db, username, email, password)
-    if not is_valid:
-        return validation_error
-
-    await RateLimiter(times=2, hours=24).check(req)
+    validate_signup_fields(db, username, email, password)
+    await RateLimiter(times=5, minutes=5).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
     session_user_agent = user_agent
@@ -69,6 +64,7 @@ async def method_session_signup(
     token = SessionToken(
         settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id
     )
+    await RateLimiter(times=2, hours=24).check(req)
     return api_success(
         {
             **serialize_user(user),
