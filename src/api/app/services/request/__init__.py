@@ -115,6 +115,13 @@ def query_auth_data_from_request(
     )
 
 
+def _get_host_from_request(request):
+    header_x_forwarded_for = request.headers.get("X-Forwarded-For")
+    if header_x_forwarded_for:
+        return header_x_forwarded_for.split(",")[0]
+    return request.client.host
+
+
 def _get_token_from_request(req: Request, only_session_token: bool) -> str:
     """
     Returns token from request.
@@ -203,7 +210,7 @@ def _query_session_from_sid(
             "Session closed (Token invalid due to session deactivation)!",
         )
     if request is not None:
-        if request.client.host != session.ip_address:
+        if _get_host_from_request(request) != session.ip_address:
             raise ApiErrorException(
                 ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
             )
