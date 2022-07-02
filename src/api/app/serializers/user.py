@@ -42,9 +42,7 @@ def serialize(
 
     if include_optional_fields:
         serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
-        serialized_user["states"] = {
-            "is_active": user.is_active,
-        }
+        serialized_user["states"] = {"is_active": user.is_active, "is_vip": user.is_vip}
         if user.is_admin:
             serialized_user["states"]["is_admin"] = user.is_admin
 

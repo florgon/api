@@ -39,6 +39,7 @@ class User(Base):
     is_active = Column(Boolean, nullable=False, default=True)
     is_verified = Column(Boolean, nullable=False, default=False)
     is_admin = Column(Boolean, nullable=False, default=False)
+    is_vip = Column(Boolean, nullable=False, default=False)
 
     # Privacy.
     privacy_profile_public = Column(Boolean, nullable=False, default=True)
