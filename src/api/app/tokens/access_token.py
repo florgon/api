@@ -2,10 +2,10 @@
     Florgon API access token implementation.
 """
 
-from ._token import _Token
+from .base_token import BaseToken
 
 
-class AccessToken(_Token):
+class AccessToken(BaseToken):
     """
     Access token JWT implementation.
 

@@ -4,23 +4,22 @@
 
 from app.services.permissions import Permissions, parse_permissions_from_scope
 
+from app.tokens.base_token import BaseToken
+
 from app.database.models.user import User
 from app.database.models.user_session import UserSession
-
-from . import TokenType
-
 
 class AuthData(object):
     """DTO for authenticated request."""
 
     user: User
-    token: TokenType
+    token: BaseToken
     session: UserSession
     permissions: Permissions | None
 
     def __init__(
         self,
-        token: TokenType,
+        token: BaseToken,
         session: UserSession,
         user: User | None = None,
         permissions: Permissions | None = None,
