@@ -13,44 +13,13 @@ from app.database import crud
 from app.services.permissions import Permissions, parse_permissions_from_scope
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
+from app.tokens.base_token import BaseToken
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
-from app.database.models.user import User
 from app.database.models.user_session import UserSession
 
-TokenType = SessionToken | AccessToken
-
-
-class AuthData(object):
-    """DTO for authenticated request."""
-
-    user: User
-    token: TokenType
-    session: UserSession
-    permissions: Permissions | None
-
-    def __init__(
-        self,
-        token: TokenType,
-        session: UserSession,
-        user: User | None = None,
-        permissions: Permissions | None = None,
-    ) -> None:
-        """
-        :param user: User database model object.
-        :param token: Session or access token object.
-        :param session: User session database model object.
-        """
-        self.user = user
-        self.token = token
-        self.session = session
-
-        # Parse permission once.
-        self.permissions = (
-            permissions
-            if permissions is not None
-            else parse_permissions_from_scope(token.get_scope())
-        )
+from .utils import get_client_host_from_request
+from .auth_data import AuthData
 
 
 def query_auth_data_from_token(
@@ -73,7 +42,7 @@ def query_auth_data_from_token(
     """
 
     # Decode external token and query auth data from it.
-    token_type = SessionToken if only_session_token else AccessToken
+    token_type: Type[BaseToken] = SessionToken if only_session_token else AccessToken
     auth_data = _decode_token(
         token,
         token_type,
@@ -115,13 +84,6 @@ def query_auth_data_from_request(
     )
 
 
-def _get_host_from_request(request):
-    header_x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if header_x_forwarded_for:
-        return header_x_forwarded_for.split(",")[0]
-    return request.client.host
-
-
 def _get_token_from_request(req: Request, only_session_token: bool) -> str:
     """
     Returns token from request.
@@ -137,7 +99,7 @@ def _get_token_from_request(req: Request, only_session_token: bool) -> str:
 
 def _decode_token(
     token: str,
-    token_type: Type[AccessToken | SessionToken],
+    token_type: Type[BaseToken],
     db: Session,
     required_permissions: Permissions | None = None,
     request: Request | None = None,
@@ -150,8 +112,10 @@ def _decode_token(
     :param required_permissions: If passed, will require permission from token.
     """
 
-    if token_type.get_type() not in ("access", "session"):
-        raise ValueError("Unexpected type of the token type inside _decode_token!")
+    if token_type is not AccessToken and token_type is not SessionToken:
+        raise ValueError(
+            "Unexpected type of the token type inside _decode_token! Should be access or session!"
+        )
 
     unsigned_token = token_type.decode_unsigned(token)
     session = _query_session_from_sid(unsigned_token.get_session_id(), db, request)
@@ -210,7 +174,7 @@ def _query_session_from_sid(
             "Session closed (Token invalid due to session deactivation)!",
         )
     if request is not None:
-        if _get_host_from_request(request) != session.ip_address:
+        if get_client_host_from_request(request) != session.ip_address:
             raise ApiErrorException(
                 ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
             )

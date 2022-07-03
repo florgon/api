@@ -2,10 +2,10 @@
     Florgon API session token implementation.
 """
 
-from ._token import _Token
+from .base_token import BaseToken
 
 
-class SessionToken(_Token):
+class SessionToken(BaseToken):
     """
     Session token JWT implementation.
 

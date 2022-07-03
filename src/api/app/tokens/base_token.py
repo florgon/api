@@ -11,7 +11,7 @@ import time  # Utils for expiration dates.
 from . import exceptions
 
 
-class _Token(object):
+class BaseToken(object):
     """
     Florgon API token implementation.
 

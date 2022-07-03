@@ -3,10 +3,10 @@
 """
 
 
-from ._token import _Token
+from .base_token import BaseToken
 
 
-class EmailToken(_Token):
+class EmailToken(BaseToken):
     """
     Email token JWT implementation.
 

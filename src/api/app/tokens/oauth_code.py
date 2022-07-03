@@ -2,10 +2,10 @@
     Florgon API oauth code (token) implementation.
 """
 
-from ._token import _Token
+from .base_token import BaseToken
 
 
-class OAuthCode(_Token):
+class OAuthCode(BaseToken):
     """
     Access token JWT implementation.
 
