@@ -31,7 +31,7 @@ async def method_ext_social_auth_github_signin() -> JSONResponse:
 
 
 @router.get("/extSocialAuthYandex.signin")
-async def method_ext_social_auth_github_signin() -> JSONResponse:
+async def method_ext_social_auth_yandex_signin() -> JSONResponse:
     """OAuth with social Yandex provider."""
 
     return api_error(
