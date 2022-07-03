@@ -15,42 +15,12 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
-from app.database.models.user import User
 from app.database.models.user_session import UserSession
 
+from .utils import get_client_host_from_request
+from .auth_data import AuthData
+
 TokenType = SessionToken | AccessToken
-
-
-class AuthData(object):
-    """DTO for authenticated request."""
-
-    user: User
-    token: TokenType
-    session: UserSession
-    permissions: Permissions | None
-
-    def __init__(
-        self,
-        token: TokenType,
-        session: UserSession,
-        user: User | None = None,
-        permissions: Permissions | None = None,
-    ) -> None:
-        """
-        :param user: User database model object.
-        :param token: Session or access token object.
-        :param session: User session database model object.
-        """
-        self.user = user
-        self.token = token
-        self.session = session
-
-        # Parse permission once.
-        self.permissions = (
-            permissions
-            if permissions is not None
-            else parse_permissions_from_scope(token.get_scope())
-        )
 
 
 def query_auth_data_from_token(
@@ -113,13 +83,6 @@ def query_auth_data_from_request(
         allow_deactivated=allow_deactivated,
         request=req,
     )
-
-
-def _get_host_from_request(request):
-    header_x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if header_x_forwarded_for:
-        return header_x_forwarded_for.split(",")[0]
-    return request.client.host
 
 
 def _get_token_from_request(req: Request, only_session_token: bool) -> str:
@@ -210,7 +173,7 @@ def _query_session_from_sid(
             "Session closed (Token invalid due to session deactivation)!",
         )
     if request is not None:
-        if _get_host_from_request(request) != session.ip_address:
+        if get_client_host_from_request(request) != session.ip_address:
             raise ApiErrorException(
                 ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
             )

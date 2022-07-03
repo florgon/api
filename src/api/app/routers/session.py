@@ -22,16 +22,10 @@ from app.serializers.session import serialize_sessions
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
+from app.services.request.utils import get_client_host_from_request
+
 
 router = APIRouter()
-
-
-def _get_host_from_request(request):
-    """Internal function, IK that should be not here!"""
-    header_x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if header_x_forwarded_for:
-        return header_x_forwarded_for.split(",")[0]
-    return request.client.host
 
 
 @router.get("/_session._getUserInfo")
@@ -64,9 +58,8 @@ async def method_session_signup(
     await RateLimiter(times=5, minutes=5).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
-
     session_user_agent = user_agent
-    session_client_host = _get_host_from_request(req)
+    session_client_host = get_client_host_from_request(req)
     session = crud.user_session.get_or_create_new(
         db, user.id, session_client_host, session_user_agent
     )
@@ -146,7 +139,7 @@ async def method_session_signin(
     await RateLimiter(times=2, seconds=15).check(req)
 
     session_user_agent = user_agent
-    session_client_host = _get_host_from_request(req)
+    session_client_host = get_client_host_from_request(req)
     session = crud.user_session.get_or_create_new(
         db, user.id, session_client_host, session_user_agent
     )
