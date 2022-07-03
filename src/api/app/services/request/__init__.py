@@ -113,7 +113,9 @@ def _decode_token(
     """
 
     if token_type is not AccessToken and token_type is not SessionToken:
-        raise ValueError("Unexpected type of the token type inside _decode_token! Should be access or session!")
+        raise ValueError(
+            "Unexpected type of the token type inside _decode_token! Should be access or session!"
+        )
 
     unsigned_token = token_type.decode_unsigned(token)
     session = _query_session_from_sid(unsigned_token.get_session_id(), db, request)

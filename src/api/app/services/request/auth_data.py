@@ -9,6 +9,7 @@ from app.tokens.base_token import BaseToken
 from app.database.models.user import User
 from app.database.models.user_session import UserSession
 
+
 class AuthData(object):
     """DTO for authenticated request."""
 
