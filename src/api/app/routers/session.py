@@ -64,7 +64,6 @@ async def method_session_signup(
     await RateLimiter(times=5, minutes=5).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)
 
-
     session_user_agent = user_agent
     session_client_host = _get_host_from_request(req)
     session = crud.user_session.get_or_create_new(
