@@ -2,7 +2,7 @@
     Config environment variables reader.
 """
 
-from pydantic import BaseSettings, PostgresDsn, RedisDsn
+from pydantic import BaseSettings, PostgresDsn, RedisDsn, AmqpDsn
 
 
 class Settings(BaseSettings):
@@ -10,7 +10,8 @@ class Settings(BaseSettings):
 
     database_url: PostgresDsn
     cache_url: RedisDsn
-
+    amqp_url: AmqpDsn
+    
     oauth_screen_provider_url: str
 
     jwt_issuer: str

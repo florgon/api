@@ -1,4 +1,7 @@
 db
 cache
+rabbitmq
+
+
 *.pyc
 .idea
