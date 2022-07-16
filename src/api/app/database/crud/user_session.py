@@ -40,6 +40,18 @@ def get_by_ip_address_and_user_agent(
     )
 
 
+def get_active_count(
+    db: Session
+) -> int:
+    return db.query(UserSession).filter(UserSession.is_active == True).count()
+
+
+def get_active_count_grouped(
+    db: Session
+) -> int:
+    return db.query(UserSession).filter(UserSession.is_active == True).group_by(UserSession.owner_id).count()
+
+
 def get_or_create_new(
     db: Session, owner_id: int, client_host: str, client_user_agent: str
 ) -> UserSession:
