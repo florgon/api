@@ -3,7 +3,7 @@
 [![Unit tests](https://github.com/florgon/api/actions/workflows/unittests.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/unittests.yml)
 [![Deploy in production](https://github.com/florgon/api/actions/workflows/deploy.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy.yml) \
 [![Linters](https://github.com/florgon/api/actions/workflows/linters.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/linters.yml)
-[![CodeQL](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml) \
+[![CodeQL](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml)
 
 ### Description.
 API server for Florgon services (Florgon API). 
