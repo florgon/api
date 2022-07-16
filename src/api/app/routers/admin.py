@@ -32,7 +32,7 @@ async def method_admin_get_sessions_counters(
     return api_success(
         {
             "sessions": {
-                "time_last_created": crud.user_session.get_last(db).time_created,
+                "time_last_created": str(crud.user_session.get_last(db).time_created),
                 "all": crud.user_session.get_count(db),
                 "inactive": {
                     "count": crud.user_session.get_inactive_count(db),
@@ -62,7 +62,7 @@ async def method_admin_get_oauth_clients_counters(
     return api_success(
         {
             "oauth_clients": {
-                "time_last_created": crud.oauth_client.get_last(db).time_created,
+                "time_last_created": str(crud.oauth_client.get_last(db).time_created),
                 "all": crud.oauth_client.get_count(db),
                 "inactive": crud.oauth_client.get_inactive_count(db),
                 "active": crud.oauth_client.get_active_count(db),
@@ -86,7 +86,7 @@ async def method_admin_get_users_counters(
     return api_success(
         {
             "users": {
-                "time_last_created": crud.user.get_last(db).time_created,
+                "time_last_created": str(crud.user.get_last(db).time_created),
                 "all": crud.user.get_count(db),
                 "inactive": crud.user.get_inactive_count(db),
                 "active": crud.user.get_active_count(db),

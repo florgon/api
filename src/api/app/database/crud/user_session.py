@@ -50,7 +50,7 @@ def get_active_count(db: Session) -> int:
 
 def get_active_count_grouped(db: Session) -> int:
     return (
-        db.query(UserSession)
+        db.query(UserSession.owner_id)
         .filter(UserSession.is_active == True)
         .group_by(UserSession.owner_id)
         .count()
@@ -63,7 +63,7 @@ def get_inactive_count(db: Session) -> int:
 
 def get_inactive_count_grouped(db: Session) -> int:
     return (
-        db.query(UserSession)
+        db.query(UserSession.owner_id)
         .filter(UserSession.is_active == False)
         .group_by(UserSession.owner_id)
         .count()
