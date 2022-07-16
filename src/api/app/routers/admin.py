@@ -38,6 +38,7 @@ async def method_admin_get_sessions_counters(
         }
     )
 
+
 @router.get("/admin.getOauthClientsCounters")
 async def method_admin_get_oauth_clients_counters(
     req: Request, db: Session = Depends(get_db)
@@ -51,6 +52,26 @@ async def method_admin_get_oauth_clients_counters(
                 "all": crud.oauth_client.get_count(db),
                 "inactive": crud.oauth_client.get_inactive_count(db),
                 "active": crud.oauth_client.get_active_count(db),
+            }
+        }
+    )
+
+
+@router.get("/admin.getUsersCounters")
+async def method_admin_get_users_counters(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Returns users counters."""
+    query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    return api_success(
+        {
+            "users": {
+                "time_last_created": crud.user.get_last(db).time_created,
+                "all": crud.user.get_count(db),
+                "inactive": crud.user.get_inactive_count(db),
+                "active": crud.user.get_active_count(db),
+                "vip": crud.user.get_vip_count(db),
+                "verified": crud.user.get_verified_count(db)
             }
         }
     )
