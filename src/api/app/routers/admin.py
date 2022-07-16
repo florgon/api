@@ -16,14 +16,19 @@ from app.database.dependencies import get_db, Session
 
 router = APIRouter()
 
+
 @router.get("/_admin.getSessionsCounters")
 async def method_admin_get_sessions_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns sessions counters."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.admin]
+    )
     if not auth_data.user.is_admin:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied.")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
+        )
     return api_success(
         {
             "sessions": {
@@ -36,7 +41,7 @@ async def method_admin_get_sessions_counters(
                 "active": {
                     "count": crud.user_session.get_active_count(db),
                     "grouped": crud.user_session.get_active_count_grouped(db),
-                }
+                },
             }
         }
     )
@@ -47,9 +52,13 @@ async def method_admin_get_oauth_clients_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns OAuth clients counters."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.admin]
+    )
     if not auth_data.user.is_admin:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied.")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
+        )
     return api_success(
         {
             "oauth_clients": {
@@ -67,9 +76,13 @@ async def method_admin_get_users_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns users counters."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.admin]
+    )
     if not auth_data.user.is_admin:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied.")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
+        )
     return api_success(
         {
             "users": {
@@ -78,7 +91,7 @@ async def method_admin_get_users_counters(
                 "inactive": crud.user.get_inactive_count(db),
                 "active": crud.user.get_active_count(db),
                 "vip": crud.user.get_vip_count(db),
-                "verified": crud.user.get_verified_count(db)
+                "verified": crud.user.get_verified_count(db),
             }
         }
     )

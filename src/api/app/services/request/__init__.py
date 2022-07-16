@@ -10,7 +10,11 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 
 from app.database import crud
-from app.services.permissions import Permissions, Permission, parse_permissions_from_scope
+from app.services.permissions import (
+    Permissions,
+    Permission,
+    parse_permissions_from_scope,
+)
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 from app.tokens.base_token import BaseToken
