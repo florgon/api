@@ -15,11 +15,11 @@ from app.database.dependencies import get_db, Session
 
 router = APIRouter()
 
-@router.get("/admin.getSessionCounters")
-async def method_admin_get_sessions(
+@router.get("/admin.getSessionsCounters")
+async def method_admin_get_sessions_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
-    """Returns session counters."""
+    """Returns sessions counters."""
     query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
     return api_success(
         {
@@ -34,6 +34,23 @@ async def method_admin_get_sessions(
                     "count": crud.user_session.get_active_count(db),
                     "grouped": crud.user_session.get_active_count_grouped(db),
                 }
+            }
+        }
+    )
+
+@router.get("/admin.getOauthClientsCounters")
+async def method_admin_get_oauth_clients_counters(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Returns OAuth clients counters."""
+    query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    return api_success(
+        {
+            "oauth_clients": {
+                "time_last_created": crud.oauth_client.get_last(db).time_created,
+                "all": crud.oauth_client.get_count(db),
+                "inactive": crud.oauth_client.get_inactive_count(db),
+                "active": crud.oauth_client.get_active_count(db),
             }
         }
     )
