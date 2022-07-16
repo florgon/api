@@ -24,8 +24,16 @@ async def method_admin_get_sessions(
     return api_success(
         {
             "sessions": {
-                "active": crud.user_session.get_active_count(db),
-                "active_grouped": crud.user_session.get_active_count_grouped(db)
+                "time_last_created": crud.user_session.get_last(db).time_created,
+                "all": crud.user_session.get_count(db),
+                "inactive": {
+                    "count": crud.user_session.get_inactive_count(db),
+                    "grouped": crud.user_session.get_inactive_count_grouped(db),
+                },
+                "active": {
+                    "count": crud.user_session.get_active_count(db),
+                    "grouped": crud.user_session.get_active_count_grouped(db),
+                }
             }
         }
     )
