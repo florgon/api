@@ -8,7 +8,8 @@ from fastapi.responses import JSONResponse
 
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
-from app.services.api.response import api_success
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorCode
 from app.database import crud
 
 from app.database.dependencies import get_db, Session
@@ -20,7 +21,9 @@ async def method_admin_get_sessions_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns sessions counters."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    if not auth_data.user.is_admin:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied.")
     return api_success(
         {
             "sessions": {
@@ -44,7 +47,9 @@ async def method_admin_get_oauth_clients_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns OAuth clients counters."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    if not auth_data.user.is_admin:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied.")
     return api_success(
         {
             "oauth_clients": {
@@ -62,7 +67,9 @@ async def method_admin_get_users_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns users counters."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    if not auth_data.user.is_admin:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied.")
     return api_success(
         {
             "users": {
