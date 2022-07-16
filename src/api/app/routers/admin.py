@@ -16,7 +16,7 @@ from app.database.dependencies import get_db, Session
 
 router = APIRouter()
 
-@router.get("/admin.getSessionsCounters")
+@router.get("/_admin.getSessionsCounters")
 async def method_admin_get_sessions_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -42,7 +42,7 @@ async def method_admin_get_sessions_counters(
     )
 
 
-@router.get("/admin.getOauthClientsCounters")
+@router.get("/_admin.getOauthClientsCounters")
 async def method_admin_get_oauth_clients_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -62,7 +62,7 @@ async def method_admin_get_oauth_clients_counters(
     )
 
 
-@router.get("/admin.getUsersCounters")
+@router.get("/_admin.getUsersCounters")
 async def method_admin_get_users_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
