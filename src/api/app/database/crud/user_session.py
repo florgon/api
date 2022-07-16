@@ -41,7 +41,7 @@ def get_by_ip_address_and_user_agent(
 
 
 def get_count(db: Session) -> int:
-    return db.query(UserSession).all().count()
+    return db.query(UserSession).count()
 
 
 def get_active_count(db: Session) -> int:

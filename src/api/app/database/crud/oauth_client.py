@@ -54,7 +54,7 @@ def create(db: Session, owner_id: int, display_name: str) -> OAuthClient:
 
 
 def get_count(db: Session) -> int:
-    return db.query(OAuthClient).all().count()
+    return db.query(OAuthClient).count()
 
 
 def get_active_count(db: Session) -> int:

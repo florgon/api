@@ -64,7 +64,7 @@ def create(db: Session, username: str, email: str, password: str) -> User:
 
 
 def get_count(db: Session) -> int:
-    return db.query(User).all().count()
+    return db.query(User).count()
 
 
 def get_active_count(db: Session) -> int:
