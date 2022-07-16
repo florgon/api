@@ -2,11 +2,17 @@ from enum import Enum
 
 
 class Permission(Enum):
-    oauth_clients = "oauth_clients"
-    email = "email"
+    # Other.
     noexpire = "noexpire"
+
+    # Profile.
     edit = "edit"
     sessions = "sessions"
+    oauth_clients = "oauth_clients"
+    email = "email"
+
+    # Private.
+    admin = "admin"
 
     # Services.
     gatey = "gatey"
@@ -48,6 +54,7 @@ SCOPE_ALLOWED_PERMISSIONS = list(
             Permission.oauth_clients,
             Permission.email,
             Permission.noexpire,
+            Permission.admin,
             Permission.edit,
             Permission.gatey,
             Permission.notes,

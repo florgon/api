@@ -10,7 +10,11 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 
 from app.database import crud
-from app.services.permissions import Permissions, parse_permissions_from_scope
+from app.services.permissions import (
+    Permissions,
+    Permission,
+    parse_permissions_from_scope,
+)
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 from app.tokens.base_token import BaseToken
@@ -141,6 +145,8 @@ def _query_scope_permissions(
     permissions = parse_permissions_from_scope(scope)
 
     if required_permissions:
+        if isinstance(required_permissions, Permission):
+            required_permissions = [required_permissions]
         for required_permission in required_permissions:
             if required_permission not in permissions:
                 raise ApiErrorException(
