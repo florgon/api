@@ -320,7 +320,7 @@ def _grant_type_authorization_code(
 
     if oauth_client.secret != client_secret:
         return api_error(
-            ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret!"
+            ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret! Please review secret, or generate new secret."
         )
 
     # Query user.
