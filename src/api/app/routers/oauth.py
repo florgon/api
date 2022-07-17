@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from app.services.permissions import (
     normalize_scope,
     parse_permissions_from_scope,
+    permissions_get_ttl,
     Permission,
 )
 from app.services.api.errors import ApiErrorCode
@@ -224,11 +225,8 @@ async def method_oauth_allow_client(
         # Encoding access token.
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
         access_token_permissions = parse_permissions_from_scope(scope)
-        access_token_ttl = (
-            0
-            if Permission.noexpire in access_token_permissions
-            else settings.access_token_jwt_ttl
-        )
+        access_token_ttl = permissions_get_ttl(access_token_permissions, default_ttl=settings.access_token_jwt_ttl)
+
         access_token = AccessToken(
             settings.jwt_issuer,
             access_token_ttl,
@@ -337,12 +335,10 @@ def _grant_type_authorization_code(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!"
         )
 
+    # Access token have infinity TTL, if there is scope permission given for no expiration date.
     access_token_permissions = parse_permissions_from_scope(code_signed.get_scope())
-    access_token_ttl = (
-        0
-        if Permission.noexpire in access_token_permissions
-        else settings.access_token_jwt_ttl
-    )
+    access_token_ttl = permissions_get_ttl(access_token_permissions, default_ttl=settings.access_token_jwt_ttl)
+
     access_token = AccessToken(
         settings.jwt_issuer,
         access_token_ttl,
