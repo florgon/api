@@ -206,6 +206,9 @@ async def method_oauth_allow_client(
 
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
+        
+        # Log statistics.
+        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
 
         return api_success(
             {
@@ -251,6 +254,9 @@ async def method_oauth_allow_client(
             f"&state={state}"
             f"&expires_in={access_token_ttl}{redirect_to_email_param}"
         )
+
+        # Log statistics.
+        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
 
         return api_success(
             {
