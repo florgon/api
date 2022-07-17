@@ -38,7 +38,7 @@ def permissions_get_ttl(permissions: Permissions, default_ttl: int) -> int:
 def parse_permissions_from_scope(scope: str) -> Permissions:
     assert isinstance(scope, str)
     if SCOPE_PERMISSION_GRANT_ALL_TAG in scope:
-        return SCOPE_ALLOWED_PERMISSIONS
+        return SCOPE_ALL_PERMISSIONS
     return list(
         set(
             [
