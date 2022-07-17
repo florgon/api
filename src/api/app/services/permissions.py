@@ -28,10 +28,12 @@ def normalize_scope(scope: str) -> str:
         [permission.value for permission in parse_permissions_from_scope(scope)]
     )
 
+
 def permissions_get_ttl(permissions: Permissions, default_ttl: int) -> int:
     if Permission.noexpire in permissions:
         return 0
     return default_ttl
+
 
 def parse_permissions_from_scope(scope: str) -> Permissions:
     assert isinstance(scope, str)
@@ -42,13 +44,11 @@ def parse_permissions_from_scope(scope: str) -> Permissions:
             [
                 Permission(permission)
                 for permission in scope.split(SCOPE_PERMISSION_SEPARATOR)
-                if (
-                    permission
-                    and permission in SCOPE_ALLOWED_PERMISSIONS
-                )
+                if (permission and permission in SCOPE_ALLOWED_PERMISSIONS)
             ]
         )
     )
+
 
 SCOPE_PERMISSION_GRANT_ALL_TAG = "*"
 SCOPE_PERMISSION_SEPARATOR = ","
