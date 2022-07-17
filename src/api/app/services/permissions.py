@@ -61,7 +61,7 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.sessions,
     Permission.gatey,
     Permission.notes,
-    Permission.habits
+    Permission.habits,
 ]
 SCOPE_ALLOWED_PERMISSIONS = list(
     map(
