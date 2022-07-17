@@ -36,7 +36,13 @@ async def method_session_get_user_info(
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     return api_success(
         {
-            **serialize_user(auth_data.user),
+            **serialize_user(
+                auth_data.user,
+                include_email=False,
+                include_optional_fields=True,
+                include_private_fields=True,
+                include_profile_fields=False,
+            ),
             "siat": auth_data.token.get_issued_at(),
             "sexp": auth_data.token.get_expires_at(),
         }
