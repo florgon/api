@@ -55,7 +55,7 @@ async def method_email_confirmation_confirm(
     except TokenWrongTypeError:
         return api_error(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Expected confirmation to be a confirmation token, not another type of token.",
+            "Expected token to be a confirmation token, not another type of token.",
         )
 
     # Query user.

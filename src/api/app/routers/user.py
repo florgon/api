@@ -207,6 +207,7 @@ async def method_user_set_info(
                 **{
                     "include_email": False,
                     "include_optional_fields": False,
+                    "include_profile_fields": True,
                     "include_private_fields": True,
                 },
             ),
