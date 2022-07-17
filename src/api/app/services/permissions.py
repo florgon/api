@@ -52,19 +52,20 @@ def parse_permissions_from_scope(scope: str) -> Permissions:
 
 SCOPE_PERMISSION_GRANT_ALL_TAG = "*"
 SCOPE_PERMISSION_SEPARATOR = ","
+SCOPE_ALL_PERMISSIONS = [
+    Permission.oauth_clients,
+    Permission.email,
+    Permission.noexpire,
+    Permission.admin,
+    Permission.edit,
+    Permission.sessions,
+    Permission.gatey,
+    Permission.notes,
+    Permission.habits
+]
 SCOPE_ALLOWED_PERMISSIONS = list(
     map(
         lambda p: p.value,
-        (
-            Permission.oauth_clients,
-            Permission.email,
-            Permission.noexpire,
-            Permission.admin,
-            Permission.edit,
-            Permission.sessions,
-            Permission.gatey,
-            Permission.notes,
-            Permission.habits,
-        ),
+        SCOPE_ALL_PERMISSIONS,
     )
 )

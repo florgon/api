@@ -26,3 +26,4 @@ class TestPermissionsUnit(unittest.TestCase):
             parse_permissions_from_scope("email,  email"), [Permission.email]
         )
         self.assertEqual(parse_permissions_from_scope("\nemail, \remail"), [])
+        self.assertTrue(Permission.email in parse_permissions_from_scope("*"))
