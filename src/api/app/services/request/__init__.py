@@ -121,6 +121,9 @@ def _decode_token(
             "Unexpected type of the token type inside _decode_token! Should be access or session!"
         )
 
+    if not token:
+        raise ApiErrorException(ApiErrorCode.AUTH_REQUIRED, "Authentication required!")
+
     unsigned_token = token_type.decode_unsigned(token)
     session = _query_session_from_sid(unsigned_token.get_session_id(), db, request)
     signed_token = token_type.decode(token, key=session.token_secret)
