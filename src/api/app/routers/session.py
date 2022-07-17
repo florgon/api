@@ -32,7 +32,7 @@ router = APIRouter()
 async def method_session_get_user_info(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
-    """Returns user account information."""
+    """Returns user account information by session token, and additonal information about token."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     return api_success(
         {
