@@ -15,3 +15,20 @@ def create(db: Session, user_id: int, client_id: int) -> OAauthClientUse:
     db.commit()
     db.refresh(oauth_client_use)
     return oauth_client_use
+
+
+def get_unique_users(db: Session, client_id: int) -> int:
+    return (
+        db.query(OAauthClientUse.user_id)
+        .filter(OAauthClientUse.client_id == client_id)
+        .group_by(OAauthClientUse.user_id)
+        .count()
+    )
+
+
+def get_uses(db: Session, client_id: int) -> int:
+    return (
+        db.query(OAauthClientUse)
+        .filter(OAauthClientUse.client_id == client_id)
+        .count()
+    )
