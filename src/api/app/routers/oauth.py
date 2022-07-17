@@ -225,7 +225,9 @@ async def method_oauth_allow_client(
         # Encoding access token.
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
         access_token_permissions = parse_permissions_from_scope(scope)
-        access_token_ttl = permissions_get_ttl(access_token_permissions, default_ttl=settings.access_token_jwt_ttl)
+        access_token_ttl = permissions_get_ttl(
+            access_token_permissions, default_ttl=settings.access_token_jwt_ttl
+        )
 
         access_token = AccessToken(
             settings.jwt_issuer,
@@ -320,7 +322,8 @@ def _grant_type_authorization_code(
 
     if oauth_client.secret != client_secret:
         return api_error(
-            ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret! Please review secret, or generate new secret."
+            ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH,
+            "Invalid client_secret! Please review secret, or generate new secret.",
         )
 
     # Query user.
@@ -337,7 +340,9 @@ def _grant_type_authorization_code(
 
     # Access token have infinity TTL, if there is scope permission given for no expiration date.
     access_token_permissions = parse_permissions_from_scope(code_signed.get_scope())
-    access_token_ttl = permissions_get_ttl(access_token_permissions, default_ttl=settings.access_token_jwt_ttl)
+    access_token_ttl = permissions_get_ttl(
+        access_token_permissions, default_ttl=settings.access_token_jwt_ttl
+    )
 
     access_token = AccessToken(
         settings.jwt_issuer,

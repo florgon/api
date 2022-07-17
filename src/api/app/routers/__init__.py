@@ -7,7 +7,17 @@ from fastapi import FastAPI
 
 from app.config import get_settings
 
-from . import email, oauth_client, secure, oauth, session, user, utils, ext_social_auth, admin
+from . import (
+    email,
+    oauth_client,
+    secure,
+    oauth,
+    session,
+    user,
+    utils,
+    ext_social_auth,
+    admin,
+)
 
 
 def register_routers(app: FastAPI) -> None:
