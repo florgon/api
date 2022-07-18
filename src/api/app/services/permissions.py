@@ -15,9 +15,13 @@ class Permission(Enum):
     admin = "admin"
 
     # Services.
+    konkursnik="konkursnik"
     gatey = "gatey"
     notes = "notes"
     habits = "habits"
+    ads = "ads"
+    cc = "cc"
+
 
 
 Permissions = list[Permission]  # Type hint (alias).
@@ -62,6 +66,9 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.gatey,
     Permission.notes,
     Permission.habits,
+    Permission.ads,
+    Permission.cc,
+    Permission.konkursnik,
 ]
 SCOPE_ALLOWED_PERMISSIONS = list(
     map(
