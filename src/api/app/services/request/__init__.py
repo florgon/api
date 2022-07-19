@@ -127,7 +127,7 @@ def _decode_token(
     unsigned_token = token_type.decode_unsigned(token)
 
     # Checks for token allowance.
-    scope = signed_token.get_scope() if token_type.get_type() == "access" else ""
+    scope = unsigned_token.get_scope() if token_type.get_type() == "access" else ""
     permissions = _query_scope_permissions(scope, required_permissions)
 
     # Query session, decode with valid signature.
