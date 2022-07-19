@@ -33,6 +33,7 @@ async def send_verification_email(email: str, username: str, confirmation_link: 
         f"Link: {confirmation_link}",
     )
 
+
 async def send_verification_end_email(email: str, username: str):
     """Send verification end email to user."""
 
