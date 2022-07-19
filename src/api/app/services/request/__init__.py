@@ -11,7 +11,6 @@ from fastapi import Request
 
 from app.database import crud
 from app.services.permissions import (
-    Permissions,
     Permission,
     parse_permissions_from_scope,
 )
@@ -31,7 +30,7 @@ def query_auth_data_from_token(
     db: Session,
     *,
     only_session_token: bool = False,
-    required_permissions: Permissions | None = None,
+    required_permissions: list[Permission] | None = None,
     allow_deactivated: bool = False,
     request: Request | None = None,
 ) -> AuthData:
@@ -64,7 +63,7 @@ def query_auth_data_from_request(
     db: Session,
     *,
     only_session_token: bool = False,
-    required_permissions: Permissions | None = None,
+    required_permissions: list[Permission] | None = None,
     allow_deactivated: bool = False,
 ) -> AuthData:
     """
@@ -105,7 +104,7 @@ def _decode_token(
     token: str,
     token_type: Type[BaseToken],
     db: Session,
-    required_permissions: Permissions | None = None,
+    required_permissions: list[Permission] | None = None,
     request: Request | None = None,
 ) -> AuthData:
     """
@@ -138,8 +137,8 @@ def _decode_token(
 
 
 def _query_scope_permissions(
-    scope: str, required_permissions: Permissions | None
-) -> Permissions:
+    scope: str, required_permissions: list[Permission] | None
+) -> list[Permission]:
     """
     Queries scope permissions with checking required permission.
     :param scope: Scope string (From request).

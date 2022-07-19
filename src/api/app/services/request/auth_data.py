@@ -2,7 +2,7 @@
     DTO for authentication request.
 """
 
-from app.services.permissions import Permissions, parse_permissions_from_scope
+from app.services.permissions import Permission, parse_permissions_from_scope
 
 from app.tokens.base_token import BaseToken
 
@@ -16,14 +16,14 @@ class AuthData(object):
     user: User
     token: BaseToken
     session: UserSession
-    permissions: Permissions | None
+    permissions: list[Permission] | None
 
     def __init__(
         self,
         token: BaseToken,
         session: UserSession,
         user: User | None = None,
-        permissions: Permissions | None = None,
+        permissions: list[Permission] | None = None,
     ) -> None:
         """
         :param user: User database model object.
