@@ -32,3 +32,14 @@ async def send_verification_email(email: str, username: str, confirmation_link: 
         f"Welcome to Florgon! "
         f"Link: {confirmation_link}",
     )
+
+async def send_verification_end_email(email: str, username: str):
+    """Send verification end email to user."""
+
+    # Send email.
+    await send(
+        email,
+        "Email verified on Florgon!",
+        f"Hello, {username}! Your Florgon account email address was verified!"
+        f"Welcome to Florgon! "
+    )
