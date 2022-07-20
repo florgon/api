@@ -1,3 +1,8 @@
+"""
+    Permission service, works with scope, permissions.
+    OAuth permissions.
+    Read more at docs: https://dev.florgon.space/apis/auth
+"""
 from enum import Enum
 
 
@@ -29,9 +34,12 @@ def __scope_to_permission_code(scope: str):
     """
     assert isinstance(scope, str)
     permissions = parse_permissions_from_scope(scope)
-    return "".join([
-        "1" if permission in permissions else "0" for permission in __CODE_PERMISSIONS_ORDER
-    ])
+    return "".join(
+        [
+            "1" if permission in permissions else "0"
+            for permission in __CODE_PERMISSIONS_ORDER
+        ]
+    )
 
 
 def __parse_permissions_from_code(code: str) -> list[Permission]:
@@ -118,7 +126,7 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.notes,
     Permission.habits,
     Permission.ads,
-    Permission.cc
+    Permission.cc,
 ]
 
 # Allowed permission, as string list.

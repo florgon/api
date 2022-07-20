@@ -21,7 +21,7 @@ class OAauthClientUse(Base):
     # Use data.
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     client_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    
+
     # Time.
     time_created = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

@@ -130,12 +130,18 @@ def _decode_token(
     permissions = _query_scope_permissions(scope, required_permissions)
 
     # Query session, decode with valid signature.
-    session = _query_session_from_sid(unsigned_token.get_session_id(), db, request, 
-        allow_external_clients=Permission.noexpire in permissions
+    session = _query_session_from_sid(
+        unsigned_token.get_session_id(),
+        db,
+        request,
+        allow_external_clients=Permission.noexpire in permissions,
     )
     signed_token = token_type.decode(token, key=session.token_secret)
     if not signed_token.signature_is_valid():
-        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid! (Signature validation failed)")
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN,
+            "Token invalid! (Signature validation failed)",
+        )
 
     # Return DTO.
     return AuthData(token=signed_token, session=session, permissions=permissions)
@@ -166,7 +172,9 @@ def _query_scope_permissions(
 
 
 def _query_session_from_sid(
-    session_id: int | None, db: Session, request: Request | None = None,
+    session_id: int | None,
+    db: Session,
+    request: Request | None = None,
     allow_external_clients: bool = False,
 ) -> UserSession:
     """
@@ -188,7 +196,7 @@ def _query_session_from_sid(
             "Session closed (Token invalid due to session deactivation)!",
         )
     if request is not None and not allow_external_clients:
-       session_check_client_by_request(db, session, request)
+        session_check_client_by_request(db, session, request)
     return session
 
 

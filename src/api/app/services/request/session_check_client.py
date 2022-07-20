@@ -12,7 +12,9 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.request.get_client_host import get_client_host_from_request
 
 
-def session_check_client_by_request(db: Session, session: UserSession, request: Request) -> None:
+def session_check_client_by_request(
+    db: Session, session: UserSession, request: Request
+) -> None:
     """
     Raises API exception if session was opened from another client.
     """

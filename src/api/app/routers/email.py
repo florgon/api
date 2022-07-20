@@ -73,9 +73,7 @@ async def method_email_confirmation_confirm(
         )
 
     crud.user.email_confirm(db, user)
-    await messages.send_verification_end_email(
-        user.email, user.username
-    )
+    await messages.send_verification_end_email(user.email, user.username)
     return api_success({"email": user.email, "confirmed": True})
 
 

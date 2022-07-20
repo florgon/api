@@ -1,3 +1,8 @@
+"""
+    Mail library configuration settings.
+"""
+
+
 # Libraries.
 from fastapi_mail import ConnectionConfig
 
