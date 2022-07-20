@@ -9,7 +9,7 @@ from fastapi import Request
 from app.database import crud
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.request.utils import get_client_host_from_request
+from app.services.request.get_client_host import get_client_host_from_request
 
 
 def session_check_client_by_request(db: Session, session: UserSession, request: Request) -> None:
