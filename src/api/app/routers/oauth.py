@@ -21,7 +21,7 @@ from app.tokens.oauth_code import OAuthCode
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
 from app.database.dependencies import get_db, Session
-from app.services.session_check_client import session_check_client_by_request
+from app.services.request.session_check_client import session_check_client_by_request
 from app.database import crud
 from app.config import Settings, get_settings
 
