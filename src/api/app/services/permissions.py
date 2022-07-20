@@ -97,7 +97,7 @@ __CODE_PERMISSIONS_ORDER = [
     Permission.gatey,
     Permission.notes,
     Permission.ads,
-    Permission.cc
+    Permission.cc,
     Permission.habits,
 ]
 
