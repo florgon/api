@@ -20,7 +20,7 @@ from app.tokens.base_token import BaseToken
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
 from app.database.models.user_session import UserSession
-
+from app.services.session_check_client import session_check_client_by_request
 from .utils import get_client_host_from_request
 from .auth_data import AuthData
 
@@ -190,16 +190,7 @@ def _query_session_from_sid(
             "Session closed (Token invalid due to session deactivation)!",
         )
     if request is not None and not allow_external_clients:
-        if get_client_host_from_request(request) != session.ip_address:
-            raise ApiErrorException(
-                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
-            )
-        user_agent_string = request.headers.get("User-Agent")
-        user_agent = crud.user_agent.get_by_string(db, user_agent_string)
-        if user_agent is None or user_agent.id != session.user_agent_id:
-            raise ApiErrorException(
-                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
-            )
+       session_check_client_by_request(db, session, request)
     return session
 
 
