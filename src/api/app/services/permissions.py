@@ -16,7 +16,6 @@ class Permission(Enum):
     admin = "admin"
 
     # Services.
-    konkursnik="konkursnik"
     gatey = "gatey"
     notes = "notes"
     habits = "habits"
@@ -98,8 +97,7 @@ __CODE_PERMISSIONS_ORDER = [
     Permission.gatey,
     Permission.notes,
     Permission.ads,
-    Permission.cc,
-    Permission.konkursnik,
+    Permission.cc
     Permission.habits,
 ]
 
@@ -120,8 +118,7 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.notes,
     Permission.habits,
     Permission.ads,
-    Permission.cc,
-    Permission.konkursnik,
+    Permission.cc
 ]
 
 # Allowed permission, as string list.

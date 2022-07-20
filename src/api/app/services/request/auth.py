@@ -137,7 +137,6 @@ def _decode_token(
     if not signed_token.signature_is_valid():
         raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid! (Signature validation failed)")
 
-
     # Return DTO.
     return AuthData(token=signed_token, session=session, permissions=permissions)
 
