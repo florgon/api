@@ -42,5 +42,5 @@ async def send_verification_end_email(email: str, username: str):
         email,
         "Email verified on Florgon!",
         f"Hello, {username}! Your Florgon account email address was verified!"
-        f"Welcome to Florgon! "
+        f"Welcome to Florgon! ",
     )

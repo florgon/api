@@ -8,8 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
-from app.services.api.response import api_success, api_error, ApiErrorCode
-from app.serializers.user import serialize_user
+from app.services.api.response import api_error, ApiErrorCode
 
 from app.database.dependencies import get_db, Session
 
@@ -21,8 +20,13 @@ async def method_security_user_enable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Enables TFA for the current user."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.security])
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Security not implemented yet (2FA not implemented).")
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.security]
+    )
+    return api_error(
+        ApiErrorCode.API_NOT_IMPLEMENTED,
+        "Security not implemented yet (2FA not implemented).",
+    )
 
 
 @router.get("/security.userDisableTfa")
@@ -30,8 +34,13 @@ async def method_security_user_disable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Disables TFA for the current user."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.security])
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Security not implemented yet (2FA not implemented).")
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.security]
+    )
+    return api_error(
+        ApiErrorCode.API_NOT_IMPLEMENTED,
+        "Security not implemented yet (2FA not implemented).",
+    )
 
 
 @router.get("/security.userRequestChangePassword")
@@ -39,8 +48,13 @@ async def method_security_user_request_change_password(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Requests change password for the current user."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.security])
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Security not implemented yet (Password change not implemented).")
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.security]
+    )
+    return api_error(
+        ApiErrorCode.API_NOT_IMPLEMENTED,
+        "Security not implemented yet (Password change not implemented).",
+    )
 
 
 @router.get("/security.userAcceptChangePassword")
@@ -48,5 +62,10 @@ async def method_security_user_accept_change_password(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Accepts change password for the current user."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.security])
-    return api_error(ApiErrorCode.API_NOT_IMPLEMENTED, "Security not implemented yet (Password change not implemented).")
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.security]
+    )
+    return api_error(
+        ApiErrorCode.API_NOT_IMPLEMENTED,
+        "Security not implemented yet (Password change not implemented).",
+    )

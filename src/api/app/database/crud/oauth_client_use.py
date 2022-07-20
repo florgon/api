@@ -28,7 +28,5 @@ def get_unique_users(db: Session, client_id: int) -> int:
 
 def get_uses(db: Session, client_id: int) -> int:
     return (
-        db.query(OAauthClientUse)
-        .filter(OAauthClientUse.client_id == client_id)
-        .count()
+        db.query(OAauthClientUse).filter(OAauthClientUse.client_id == client_id).count()
     )

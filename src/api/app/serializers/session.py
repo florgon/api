@@ -1,3 +1,8 @@
+"""
+    User session database model serializer.
+"""
+
+
 import time
 
 from app.database.dependencies import Session

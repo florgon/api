@@ -162,12 +162,12 @@ async def method_oauth_client_stats(
             "You are not owner of this OAuth client!",
         )
 
-    return api_success({
-        **serialize_oauth_client(
-            oauth_client, 
-            display_secret=False
-        ),
-        "uses": crud.oauth_client_use.get_uses(db, client_id=client_id),
-        "unique_users": crud.oauth_client_use.get_unique_users(db, client_id=client_id)
-    })
-
+    return api_success(
+        {
+            **serialize_oauth_client(oauth_client, display_secret=False),
+            "uses": crud.oauth_client_use.get_uses(db, client_id=client_id),
+            "unique_users": crud.oauth_client_use.get_unique_users(
+                db, client_id=client_id
+            ),
+        }
+    )

@@ -35,6 +35,6 @@ def register_routers(app: FastAPI) -> None:
         secure.router,
         ext_social_auth.router,
         admin.router,
-        security.router
+        security.router,
     ]:
         app.include_router(router, prefix=get_settings().proxy_url_prefix)

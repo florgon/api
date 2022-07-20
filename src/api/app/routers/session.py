@@ -4,11 +4,11 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from app.services.permissions import Permission
 
-from app.services.request import query_auth_data_from_request, Request
+from app.services.request import query_auth_data_from_request
 from app.services.validators.user import validate_signup_fields
 from app.services.passwords import check_password
 
@@ -22,7 +22,7 @@ from app.serializers.session import serialize_sessions
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
-from app.services.request.utils import get_client_host_from_request
+from app.services.request import get_client_host_from_request
 
 
 router = APIRouter()

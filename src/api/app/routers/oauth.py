@@ -21,6 +21,7 @@ from app.tokens.oauth_code import OAuthCode
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
 from app.database.dependencies import get_db, Session
+from app.services.request.session_check_client import session_check_client_by_request
 from app.database import crud
 from app.config import Settings, get_settings
 
@@ -121,6 +122,7 @@ async def method_oauth_access_token(
 
 @router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(
+    req: Request,
     session_token: str,
     client_id: int,
     state: str,
@@ -158,6 +160,7 @@ async def method_oauth_allow_client(
         return api_error(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"
         )
+    session_check_client_by_request(db, session, req)
 
     session_token_signed = SessionToken.decode(session_token, key=session.token_secret)
 
@@ -206,7 +209,7 @@ async def method_oauth_allow_client(
 
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
-        
+
         # Log statistics.
         crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
 

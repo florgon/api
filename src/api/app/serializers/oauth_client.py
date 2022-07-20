@@ -1,3 +1,8 @@
+"""
+    OAuth client database model serializer.
+"""
+
+
 import time
 
 
