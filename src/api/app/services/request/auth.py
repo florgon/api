@@ -7,7 +7,7 @@
 from typing import Type
 
 from sqlalchemy.orm import Session
-from fastapi import Request
+from fastapi.requests import Request
 
 from app.database import crud
 from app.services.permissions import (
