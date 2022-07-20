@@ -21,7 +21,6 @@ from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
 from app.database.models.user_session import UserSession
 from app.services.session_check_client import session_check_client_by_request
-from .utils import get_client_host_from_request
 from .auth_data import AuthData
 
 
