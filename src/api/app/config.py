@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     """Base settings."""
 
     database_url: PostgresDsn
+    database_pool_size: int = 20  # Pool size (or 0 for no pool limit).
     cache_url: RedisDsn
 
     oauth_screen_provider_url: str

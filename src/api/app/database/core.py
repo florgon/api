@@ -13,10 +13,11 @@ from sqlalchemy.pool import QueuePool
 from app.config import Settings
 
 # Database engine.
-engine = create_engine(url=Settings().database_url,
-                       pool_size=20, 
-                       max_overflow=0, 
-                       pool_recycle=3600, 
+settings = Settings()
+engine = create_engine(url=settings.database_url,
+                       pool_size=settings.database_pool_size, 
+                       max_overflow=settings.database_pool_size * 2, 
+                       pool_recycle=-1, 
                        poolclass=QueuePool
 )
 metadata = MetaData(bind=engine)
