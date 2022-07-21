@@ -21,7 +21,7 @@ router = APIRouter()
 
 @router.get("/user.getInfo")
 async def method_user_get_info(
-    req: Request, db: Session = Depends(get_db)
+    req: Request, db: AsyncSession = Depends(get_db)
 ) -> JSONResponse:
     """Returns user account information."""
     auth_data = query_auth_data_from_request(req, db)
@@ -46,7 +46,7 @@ async def method_user_get_profile_info(
     req: Request,
     user_id: int | None = None,
     username: str | None = None,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """Returns user account profile information."""
     user = None
@@ -107,7 +107,7 @@ async def method_user_get_profile_info(
 
 @router.get("/user.getCounters")
 async def method_user_get_counter(
-    req: Request, db: Session = Depends(get_db)
+    req: Request, db: AsyncSession = Depends(get_db)
 ) -> JSONResponse:
     """Returns user account counters (Count of different items, like for badges)."""
     auth_data = query_auth_data_from_request(req, db)
@@ -134,7 +134,7 @@ async def method_user_set_info(
     profile_social_username_gh: str | None = None,
     profile_social_username_vk: str | None = None,
     profile_social_username_tg: str | None = None,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ) -> JSONResponse:
     """Updates user account information."""
 
