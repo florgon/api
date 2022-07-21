@@ -16,11 +16,11 @@ router = APIRouter()
 
 
 @router.get("/upload.getAvatarUploadServer")
-async def method_user_get_info(
+async def method_upload_get_avatar_upload_server(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
-    """Returns user account information."""
-    await RateLimiter(times=2, seconds=15)
+    """Returns upload url for uploading avatar image."""
+    await RateLimiter.check(times=2, seconds=15)
     auth_data = query_auth_data_from_request(req, db, required_permissions=None)
     user_id = auth_data.user.id
     return api_success({
