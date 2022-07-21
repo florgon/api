@@ -25,7 +25,7 @@ jobs:
       working-directory: ./src
       run: docker ps -a
     - name: Ping web server.
-      run: http://localhost/utils.getServerTime
+      run: curl http://localhost/utils.getServerTime
     - name: Pytest
       working-directory: ./src/api/app
       run: docker exec florgon-api_server_1 pytest .
