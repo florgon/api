@@ -10,7 +10,7 @@ from app.database.models.user_session import UserSession
 from app.database.crud.user_agent import get_by_id as get_user_agent_by_id
 
 
-def serialize(session: UserSession, db: Session, in_list: bool = False):
+def serialize(session: UserSession, db: AsyncSession, in_list: bool = False):
     """Returns dict object for API response with serialized session data."""
 
     serialized_session = {
@@ -29,7 +29,7 @@ def serialize(session: UserSession, db: Session, in_list: bool = False):
 
 
 def serialize_list(
-    sessions: list[UserSession], db: Session, *, include_deactivated: bool = False
+    sessions: list[UserSession], db: AsyncSession, *, include_deactivated: bool = False
 ) -> dict:
     return {
         "sessions": [

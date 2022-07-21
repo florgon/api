@@ -61,7 +61,7 @@ def _construct_app() -> FastAPI:
     )
 
     # Initialising database connection and all ORM stuff.
-    database.core.create_all()
+    database.core.create_all_sync()
 
     # Register all internal stuff as routers/handlers/middlewares etc.
     add_event_handlers(app_instance)

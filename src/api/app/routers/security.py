@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/security.userEnableTfa")
 async def method_security_user_enable_tfa(
-    req: Request, db: Session = Depends(get_db)
+    req: Request, db: AsyncSession = Depends(get_db)
 ) -> JSONResponse:
     """Enables TFA for the current user."""
     auth_data = query_auth_data_from_request(
@@ -31,7 +31,7 @@ async def method_security_user_enable_tfa(
 
 @router.get("/security.userDisableTfa")
 async def method_security_user_disable_tfa(
-    req: Request, db: Session = Depends(get_db)
+    req: Request, db: AsyncSession = Depends(get_db)
 ) -> JSONResponse:
     """Disables TFA for the current user."""
     auth_data = query_auth_data_from_request(
@@ -45,7 +45,7 @@ async def method_security_user_disable_tfa(
 
 @router.get("/security.userRequestChangePassword")
 async def method_security_user_request_change_password(
-    req: Request, db: Session = Depends(get_db)
+    req: Request, db: AsyncSession = Depends(get_db)
 ) -> JSONResponse:
     """Requests change password for the current user."""
     auth_data = query_auth_data_from_request(
@@ -59,7 +59,7 @@ async def method_security_user_request_change_password(
 
 @router.get("/security.userAcceptChangePassword")
 async def method_security_user_accept_change_password(
-    req: Request, db: Session = Depends(get_db)
+    req: Request, db: AsyncSession = Depends(get_db)
 ) -> JSONResponse:
     """Accepts change password for the current user."""
     auth_data = query_auth_data_from_request(
