@@ -13,12 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build the docker-compose stack
+    - name: Build containers (Docker-Compose)
       working-directory: ./src
       run: docker-compose up -d
     - name: Check docker containers
       working-directory: ./src
       run: docker ps -a
+    - name: Wait for start, Ping web server.
+      run: sleep 5 && curl http://localhost/utils.getServerTime
+
     - name: Pytest
       working-directory: ./src/api/app
       run: docker exec florgon-api_server_1 pytest .
