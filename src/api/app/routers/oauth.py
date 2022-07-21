@@ -35,7 +35,7 @@ async def method_oauth_authorize(
     redirect_uri: str,
     scope: str,
     response_type: str,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse | RedirectResponse:
     """Redirects to authorization screen."""
@@ -84,7 +84,7 @@ async def method_oauth_access_token(
     client_id: int,
     client_secret: str,
     grant_type: str | None = None,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Resolves grant to access token."""
@@ -129,7 +129,7 @@ async def method_oauth_allow_client(
     redirect_uri: str,
     scope: str,
     response_type: str,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """
@@ -278,7 +278,7 @@ async def method_oauth_allow_client(
 
 
 def _grant_type_authorization_code(
-    req: Request, client_id: int, client_secret: str, db: AsyncSession, settings: Settings
+    req: Request, client_id: int, client_secret: str, db: Session, settings: Settings
 ) -> JSONResponse:
     """OAuth authorization code grant type."""
     code = req.query_params.get("code", None)

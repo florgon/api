@@ -30,7 +30,7 @@ router = APIRouter()
 
 @router.get("/_session._getUserInfo")
 async def method_session_get_user_info(
-    req: Request, db: AsyncSession = Depends(get_db)
+    req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns user account information by session token, and additonal information about token."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
@@ -56,7 +56,7 @@ async def method_session_signup(
     email: str,
     password: str,
     user_agent: str = Header(""),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
@@ -84,7 +84,7 @@ async def method_session_signup(
 
 @router.get("/_session._logout")
 async def method_session_logout(
-    req: Request, revoke_all: bool = False, db: AsyncSession = Depends(get_db)
+    req: Request, revoke_all: bool = False, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Logout user over all session."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
@@ -105,7 +105,7 @@ async def method_session_logout(
 
 @router.get("/_session._list")
 async def method_session_list(
-    req: Request, db: AsyncSession = Depends(get_db)
+    req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns list of all active sessions."""
     # This is weird, _session method allowed with only access token,
@@ -130,7 +130,7 @@ async def method_session_signin(
     login: str,
     password: str,
     user_agent: str = Header(""),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""

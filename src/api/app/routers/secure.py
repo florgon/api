@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("/secure.checkAccessToken")
 async def method_secure_check_token(
-    token: str, scope: str = "", db: AsyncSession = Depends(get_db)
+    token: str, scope: str = "", db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns access token information."""
     required_permissions = parse_permissions_from_scope(scope)

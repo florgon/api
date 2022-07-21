@@ -26,7 +26,7 @@ from app.services.request.auth_data import AuthData
 
 def query_auth_data_from_token(
     token: str,
-    db: AsyncSession,
+    db: Session,
     *,
     only_session_token: bool = False,
     required_permissions: list[Permission] | None = None,
@@ -59,7 +59,7 @@ def query_auth_data_from_token(
 
 def query_auth_data_from_request(
     req: Request,
-    db: AsyncSession,
+    db: Session,
     *,
     only_session_token: bool = False,
     required_permissions: list[Permission] | None = None,
@@ -102,7 +102,7 @@ def _get_token_from_request(req: Request, only_session_token: bool) -> str:
 def _decode_token(
     token: str,
     token_type: Type[BaseToken],
-    db: AsyncSession,
+    db: Session,
     required_permissions: list[Permission] | None = None,
     request: Request | None = None,
 ) -> AuthData:
@@ -173,7 +173,7 @@ def _query_scope_permissions(
 
 def _query_session_from_sid(
     session_id: int | None,
-    db: AsyncSession,
+    db: Session,
     request: Request | None = None,
     allow_external_clients: bool = False,
 ) -> UserSession:
@@ -201,7 +201,7 @@ def _query_session_from_sid(
 
 
 def _query_auth_data(
-    auth_data: AuthData, db: AsyncSession, allow_deactivated: bool
+    auth_data: AuthData, db: Session, allow_deactivated: bool
 ) -> AuthData:
     """
     Finalizes query of  authentication data.

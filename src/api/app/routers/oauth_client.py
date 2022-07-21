@@ -3,7 +3,7 @@
 """
 
 # Libraries.
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -26,7 +26,7 @@ router = APIRouter()
 
 @router.get("/oauthClient.new")
 async def method_oauth_client_new(
-    display_name: str, req: Request, db: AsyncSession = Depends(get_db)
+    display_name: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Creates new OAuth client"""
     auth_data = query_auth_data_from_request(
@@ -47,7 +47,7 @@ async def method_oauth_client_new(
 
 @router.get("/oauthClient.list")
 async def method_oauth_client_list(
-    req: Request, db: AsyncSession = Depends(get_db)
+    req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns list of user owned OAuth clients."""
     auth_data = query_auth_data_from_request(
@@ -61,7 +61,7 @@ async def method_oauth_client_list(
 
 @router.get("/oauthClient.get")
 async def method_oauth_client_get(
-    client_id: int, db: AsyncSession = Depends(get_db)
+    client_id: int, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client data."""
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
@@ -76,7 +76,7 @@ async def method_oauth_client_get(
 
 @router.get("/oauthClient.expireSecret")
 async def method_oauth_client_expire_secret(
-    client_id: int, req: Request, db: AsyncSession = Depends(get_db)
+    client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for expiring client secret."""
     auth_data = query_auth_data_from_request(
@@ -101,7 +101,7 @@ async def method_oauth_client_expire_secret(
 
 @router.get("/oauthClient.edit")
 async def method_oauth_client_update(
-    client_id: int, req: Request, db: AsyncSession = Depends(get_db)
+    client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for updating client information."""
     auth_data = query_auth_data_from_request(
@@ -144,7 +144,7 @@ async def method_oauth_client_update(
 
 @router.get("/oauthClient.stats")
 async def method_oauth_client_stats(
-    client_id: int, req: Request, db: AsyncSession = Depends(get_db)
+    client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client usage data."""
     auth_data = query_auth_data_from_request(

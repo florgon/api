@@ -3,7 +3,7 @@
     (Session opened from another client).
 """
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from fastapi import Request
 
 from app.database import crud
@@ -13,7 +13,7 @@ from app.services.request.get_client_host import get_client_host_from_request
 
 
 def session_check_client_by_request(
-    db: AsyncSession, session: UserSession, request: Request
+    db: Session, session: UserSession, request: Request
 ) -> None:
     """
     Raises API exception if session was opened from another client.
