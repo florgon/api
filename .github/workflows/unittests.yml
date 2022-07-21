@@ -19,8 +19,9 @@ jobs:
     - name: Check docker containers
       working-directory: ./src
       run: docker ps -a
-    - name: Ping web server.
-      run: curl --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 40 127.0.0.1:80/utils.getServerTime
+    - name: Wait for start, Ping web server.
+      run: sleep 5 && curl http://localhost/utils.getServerTime
+
     - name: Pytest
       working-directory: ./src/api/app
       run: docker exec florgon-api_server_1 pytest .
