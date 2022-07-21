@@ -17,7 +17,7 @@ engine = create_engine(url=Settings().database_url,
                        pool_size=20, 
                        max_overflow=0, 
                        pool_recycle=3600, 
-                       poll_class=QueuePool
+                       poolclass=QueuePool
 )
 metadata = MetaData(bind=engine)
 
