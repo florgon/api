@@ -18,7 +18,7 @@ router = APIRouter()
 
 
 @router.get("/upload.getPhotoUploadServer")
-async def method_upload_get_avatar_upload_server(
+async def method_upload_get_photo_upload_server(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns upload url for uploading photo (image) and then save for using as user avatar or OAuth client avatar."""
@@ -34,7 +34,7 @@ async def method_upload_get_avatar_upload_server(
 
 
 @router.get("/upload.saveOauthClientAvatar")
-async def method_upload_save_user_avatar(
+async def method_upload_save_oauth_client_avatar(
     photo: str, client_id: int,
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
