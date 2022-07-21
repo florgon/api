@@ -12,7 +12,8 @@ from sqlalchemy.orm import sessionmaker
 from app.config import Settings
 
 # Database engine.
-engine = create_engine(Settings().database_url)
+engine = create_engine(url=Settings().database_url,
+                       pool_size=20, max_overflow=0)
 metadata = MetaData(bind=engine)
 
 # Base, session from core.
