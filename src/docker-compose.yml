@@ -2,7 +2,9 @@ version: "3"
 
 volumes:
   db:
-      driver: local
+    driver: local
+  rabbitmq_data:
+    driver: local
 
 services:
   database:
@@ -24,6 +26,22 @@ services:
       - ../cache:/data
     networks:
       - florgon-api
+  amqp:
+    image: docker.io/bitnami/rabbitmq:3.10
+    hostname: florgon-api
+    restart: always
+    volumes:
+      - ../rabbitmq:/bitnami/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_SECURE_PASSWORD=yes
+      - RABBITMQ_USERNAME=florgon
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_LOGS=-
+    networks:
+      - florgon-api
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   server:
     hostname: florgon-api
     restart: always
@@ -36,9 +54,11 @@ services:
     depends_on:
       - database
       - cache
+      - amqp
     links:
       - database
       - cache
+      - amqp
     networks:
       - florgon-api
     build: .
