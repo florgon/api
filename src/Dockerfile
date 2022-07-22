@@ -17,4 +17,4 @@ RUN pip install --upgrade --quiet --no-cache-dir -r requirements.txt
 COPY . /srv/www/florgon/api/
 
 # Run project.
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "app.app:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers"]
+CMD ["gunicorn", "app.app:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:80"]
