@@ -16,7 +16,11 @@ API server for Florgon services (Florgon API).
 API deployed and used in production [here](https://api.florgon.space/) (API endpoint).
 
 ### Technologies.
-Docker (Docker-Compose), Python (FastAPI), PostgreSQL and JWT standard.
+- Python (FastAPI, SQLAlchemy).
+- PostgreSQL (with pgBouncer)
+- Docker (with Docker-Compose), 
+- Uvicorn (with Gunicorn)
+- PyTest (GitHub workflows)
 
 # Docs.
 
