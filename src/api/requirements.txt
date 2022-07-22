@@ -4,6 +4,7 @@ fastapi_mail==1.0.9
 
 # Server.
 uvicorn==0.18.2
+gunicorn==20.1.0
 
 # Database.
 sqlalchemy==1.4.39
