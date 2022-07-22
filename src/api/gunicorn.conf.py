@@ -3,6 +3,7 @@
 """
 
 # TODO: `.env` support?
+# TODO: Automatically limit workers to cpu count. (from multiprocessing import cpu_count)
 
 proc_name = "florgon-api"
 
