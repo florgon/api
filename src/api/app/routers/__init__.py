@@ -18,6 +18,7 @@ from . import (
     ext_social_auth,
     admin,
     security,
+    upload,
 )
 
 
@@ -36,5 +37,6 @@ def register_routers(app: FastAPI) -> None:
         ext_social_auth.router,
         admin.router,
         security.router,
+        upload.router,
     ]:
         app.include_router(router, prefix=get_settings().proxy_url_prefix)
