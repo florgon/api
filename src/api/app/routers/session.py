@@ -4,11 +4,11 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from app.services.permissions import Permission
 
-from app.services.request import query_auth_data_from_request, Request
+from app.services.request import query_auth_data_from_request
 from app.services.validators.user import validate_signup_fields
 from app.services.passwords import check_password
 
@@ -22,7 +22,7 @@ from app.serializers.session import serialize_sessions
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
-from app.services.request.utils import get_client_host_from_request
+from app.services.request import get_client_host_from_request
 
 
 router = APIRouter()
@@ -32,11 +32,17 @@ router = APIRouter()
 async def method_session_get_user_info(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
-    """Returns user account information."""
+    """Returns user account information by session token, and additonal information about token."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     return api_success(
         {
-            **serialize_user(auth_data.user),
+            **serialize_user(
+                auth_data.user,
+                include_email=False,
+                include_optional_fields=True,
+                include_private_fields=True,
+                include_profile_fields=False,
+            ),
             "siat": auth_data.token.get_issued_at(),
             "sexp": auth_data.token.get_expires_at(),
         }

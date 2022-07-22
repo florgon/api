@@ -9,8 +9,11 @@ class Settings(BaseSettings):
     """Base settings."""
 
     database_url: PostgresDsn
+    database_pool_size: int = 20  # Pool size (or 0 for no pool limit).
     cache_url: RedisDsn
 
+    upload_server_domain: str = "cdnus0.florgon.space"
+    
     oauth_screen_provider_url: str
 
     jwt_issuer: str

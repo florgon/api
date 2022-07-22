@@ -7,12 +7,19 @@ from sqlalchemy import MetaData
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 
 # Settings.
 from app.config import Settings
 
 # Database engine.
-engine = create_engine(Settings().database_url)
+settings = Settings()
+engine = create_engine(url=settings.database_url,
+                       pool_size=settings.database_pool_size, 
+                       max_overflow=settings.database_pool_size * 2, 
+                       pool_recycle=-1, 
+                       poolclass=QueuePool
+)
 metadata = MetaData(bind=engine)
 
 # Base, session from core.

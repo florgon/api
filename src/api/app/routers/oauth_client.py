@@ -140,3 +140,34 @@ async def method_oauth_client_update(
             "updated": is_updated,
         }
     )
+
+
+@router.get("/oauthClient.stats")
+async def method_oauth_client_stats(
+    client_id: int, req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """OAUTH API endpoint for getting oauth authorization client usage data."""
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.oauth_clients]
+    )
+    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+    if not oauth_client or not oauth_client.is_active:
+        return api_error(
+            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
+            "OAuth client not found or deactivated!",
+        )
+    if oauth_client.owner_id != auth_data.user.id:
+        return api_error(
+            ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
+            "You are not owner of this OAuth client!",
+        )
+
+    return api_success(
+        {
+            **serialize_oauth_client(oauth_client, display_secret=False),
+            "uses": crud.oauth_client_use.get_uses(db, client_id=client_id),
+            "unique_users": crud.oauth_client_use.get_unique_users(
+                db, client_id=client_id
+            ),
+        }
+    )

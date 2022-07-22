@@ -1,3 +1,8 @@
+"""
+    Returns real client host from the request.
+    As server mostly runs over proxy server, docker,
+    and real IP may be hidden.
+"""
 from fastapi.requests import Request
 
 

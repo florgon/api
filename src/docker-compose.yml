@@ -15,6 +15,12 @@ services:
       - .database.env
     networks:
       - florgon-api
+  database-poller:
+    image: edoburu/pgbouncer
+    env_file: 
+      - .database.env
+    depends_on:
+      - database
   cache:
     image: redis:7-alpine
     hostname: florgon-api
@@ -35,6 +41,7 @@ services:
       - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
       - database
+      - database-poller
       - cache
     links:
       - database

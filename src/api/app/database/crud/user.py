@@ -61,3 +61,27 @@ def create(db: Session, username: str, email: str, password: str) -> User:
     db.refresh(user)
 
     return user
+
+
+def get_count(db: Session) -> int:
+    return db.query(User).count()
+
+
+def get_active_count(db: Session) -> int:
+    return db.query(User).filter(User.is_active == True).count()
+
+
+def get_inactive_count(db: Session) -> int:
+    return db.query(User).filter(User.is_active == False).count()
+
+
+def get_last(db: Session) -> User:
+    return db.query(User).order_by(User.time_created.desc()).limit(1).first()
+
+
+def get_vip_count(db: Session) -> int:
+    return db.query(User).filter(User.is_vip == True).count()
+
+
+def get_verified_count(db: Session) -> int:
+    return db.query(User).filter(User.is_verified == True).count()

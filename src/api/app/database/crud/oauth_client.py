@@ -51,3 +51,21 @@ def create(db: Session, owner_id: int, display_name: str) -> OAuthClient:
     db.refresh(oauth_client)
 
     return oauth_client
+
+
+def get_count(db: Session) -> int:
+    return db.query(OAuthClient).count()
+
+
+def get_active_count(db: Session) -> int:
+    return db.query(OAuthClient).filter(OAuthClient.is_active == True).count()
+
+
+def get_inactive_count(db: Session) -> int:
+    return db.query(OAuthClient).filter(OAuthClient.is_active == False).count()
+
+
+def get_last(db: Session) -> OAuthClient:
+    return (
+        db.query(OAuthClient).order_by(OAuthClient.time_created.desc()).limit(1).first()
+    )

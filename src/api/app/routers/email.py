@@ -55,7 +55,7 @@ async def method_email_confirmation_confirm(
     except TokenWrongTypeError:
         return api_error(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Expected confirmation to be a confirmation token, not another type of token.",
+            "Expected token to be a confirmation token, not another type of token.",
         )
 
     # Query user.
@@ -73,6 +73,7 @@ async def method_email_confirmation_confirm(
         )
 
     crud.user.email_confirm(db, user)
+    await messages.send_verification_end_email(user.email, user.username)
     return api_success({"email": user.email, "confirmed": True})
 
 

@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from app.services.permissions import (
     normalize_scope,
     parse_permissions_from_scope,
+    permissions_get_ttl,
     Permission,
 )
 from app.services.api.errors import ApiErrorCode
@@ -20,6 +21,7 @@ from app.tokens.oauth_code import OAuthCode
 from app.tokens.access_token import AccessToken
 from app.tokens.session_token import SessionToken
 from app.database.dependencies import get_db, Session
+from app.services.request.session_check_client import session_check_client_by_request
 from app.database import crud
 from app.config import Settings, get_settings
 
@@ -120,6 +122,7 @@ async def method_oauth_access_token(
 
 @router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(
+    req: Request,
     session_token: str,
     client_id: int,
     state: str,
@@ -157,6 +160,7 @@ async def method_oauth_allow_client(
         return api_error(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"
         )
+    session_check_client_by_request(db, session, req)
 
     session_token_signed = SessionToken.decode(session_token, key=session.token_secret)
 
@@ -206,6 +210,9 @@ async def method_oauth_allow_client(
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
 
+        # Log statistics.
+        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
+
         return api_success(
             {
                 # Stores URL where to redirect, after allowing specified client,
@@ -224,11 +231,10 @@ async def method_oauth_allow_client(
         # Encoding access token.
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
         access_token_permissions = parse_permissions_from_scope(scope)
-        access_token_ttl = (
-            0
-            if Permission.noexpire in access_token_permissions
-            else settings.access_token_jwt_ttl
+        access_token_ttl = permissions_get_ttl(
+            access_token_permissions, default_ttl=settings.access_token_jwt_ttl
         )
+
         access_token = AccessToken(
             settings.jwt_issuer,
             access_token_ttl,
@@ -251,6 +257,9 @@ async def method_oauth_allow_client(
             f"&state={state}"
             f"&expires_in={access_token_ttl}{redirect_to_email_param}"
         )
+
+        # Log statistics.
+        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
 
         return api_success(
             {
@@ -322,7 +331,8 @@ def _grant_type_authorization_code(
 
     if oauth_client.secret != client_secret:
         return api_error(
-            ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH, "Invalid client_secret!"
+            ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH,
+            "Invalid client_secret! Please review secret, or generate new secret.",
         )
 
     # Query user.
@@ -337,12 +347,12 @@ def _grant_type_authorization_code(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!"
         )
 
+    # Access token have infinity TTL, if there is scope permission given for no expiration date.
     access_token_permissions = parse_permissions_from_scope(code_signed.get_scope())
-    access_token_ttl = (
-        0
-        if Permission.noexpire in access_token_permissions
-        else settings.access_token_jwt_ttl
+    access_token_ttl = permissions_get_ttl(
+        access_token_permissions, default_ttl=settings.access_token_jwt_ttl
     )
+
     access_token = AccessToken(
         settings.jwt_issuer,
         access_token_ttl,
