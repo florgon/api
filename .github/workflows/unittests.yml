@@ -20,7 +20,7 @@ jobs:
       working-directory: ./src
       run: docker ps -a
     - name: Wait for start
-      run: sleep 10
+      run: sleep 3
     - name: Check docker containers (After wait for start)
       working-directory: ./src
       run: docker ps -a
