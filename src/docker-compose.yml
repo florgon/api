@@ -30,6 +30,8 @@ services:
       - .database.env
     depends_on:
       - database
+    networks:
+      - florgon-api
   cache:
     image: redis:7-alpine
     hostname: florgon-api
