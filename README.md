@@ -18,6 +18,7 @@ API deployed and used in production [here](https://api.florgon.space/) (API endp
 ### Technologies.
 - Python (FastAPI, SQLAlchemy).
 - PostgreSQL (with pgBouncer)
+- Redis (Handle requests limit)
 - Docker (with Docker-Compose), 
 - Uvicorn (with Gunicorn)
 - PyTest (GitHub workflows)
