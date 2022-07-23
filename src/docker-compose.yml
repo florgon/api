@@ -2,7 +2,10 @@ version: "3"
 
 volumes:
   db:
-      driver: local
+    driver: local
+# TODO: Database config should be:
+# - "postgres" - "-c" "-config-file=/etc/postgresql/postgresql.conf"
+# With volume on Docker.
 
 services:
   database:
@@ -15,6 +18,12 @@ services:
       - .database.env
     networks:
       - florgon-api
+    command:
+      - "postgres"
+      - "-c"  # Max connection limit for database.
+      - "max_connections=1000"  # SHOW max_connections;
+      - "-c" # Buffer size for database bufferization.
+      - "shared_buffers=128MB"  # SHOW shared_buffers;
   database-poller:
     image: edoburu/pgbouncer
     env_file: 
