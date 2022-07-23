@@ -23,4 +23,6 @@ jobs:
           port: ${{ secrets.DEPLOY_SSH_PORT }}
           script: |
             cd /srv/www/api
-            ./deploy_callback.sh
+            git pull
+            cd src
+            docker-compose up -d --build
