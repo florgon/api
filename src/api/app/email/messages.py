@@ -4,12 +4,13 @@
 
 # Libraries.
 from fastapi_mail import FastMail, MessageSchema
+from fastapi import BackgroundTasks
 
 # Core.
 from .config import config
 
 
-async def send(email: str, subject: str, body: str):
+async def _send_email(email: str, subject: str, body: str):
     """Sends message to single recipient email."""
 
     if not config:
@@ -23,24 +24,13 @@ async def send(email: str, subject: str, body: str):
 
 async def send_verification_email(email: str, username: str, confirmation_link: str):
     """Send verification email to user."""
-
-    # Send email.
-    await send(
-        email,
-        "Sign-up on Florgon",
-        f"Hello, {username}! Please confirm your Florgon account email address by clicking link below! "
-        f"Welcome to Florgon! "
-        f"Link: {confirmation_link}",
-    )
+    subject = "Sign-up on Florgon!"
+    message = f"Hello, {username}! Please confirm your Florgon account email address by clicking link below! Link: {confirmation_link}"
+    BackgroundTasks.add_task(_send_email, email, subject, message)
 
 
 async def send_verification_end_email(email: str, username: str):
-    """Send verification end email to user."""
-
-    # Send email.
-    await send(
-        email,
-        "Email verified on Florgon!",
-        f"Hello, {username}! Your Florgon account email address was verified!"
-        f"Welcome to Florgon! ",
-    )
+    """Send verification end email to the user."""
+    subject = "Email verified on Florgon!"
+    message = f"Hello, {username}! Your Florgon account email address was verified! Welcome to Florgon!"
+    BackgroundTasks.add_task(_send_email, email, subject, message)
