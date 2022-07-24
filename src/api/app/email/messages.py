@@ -22,15 +22,15 @@ async def _send_email(email: str, subject: str, body: str):
     )
 
 
-async def send_verification_email(email: str, username: str, confirmation_link: str):
+async def send_verification_email(email: str, mention: str, confirmation_link: str):
     """Send verification email to user."""
     subject = "Sign-up on Florgon!"
-    message = f"Hello, {username}! Please confirm your Florgon account email address by clicking link below! Link: {confirmation_link}"
+    message = f"Hello, {mention}! Please confirm your Florgon account email address by clicking link below! Link: {confirmation_link}"
     BackgroundTasks.add_task(_send_email, email, subject, message)
 
 
-async def send_verification_end_email(email: str, username: str):
+async def send_verification_end_email(email: str, mention: str):
     """Send verification end email to the user."""
     subject = "Email verified on Florgon!"
-    message = f"Hello, {username}! Your Florgon account email address was verified! Welcome to Florgon!"
+    message = f"Hello, {mention}! Your Florgon account email address was verified! Welcome to Florgon!"
     BackgroundTasks.add_task(_send_email, email, subject, message)
