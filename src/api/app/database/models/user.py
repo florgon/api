@@ -61,3 +61,8 @@ class User(Base):
 
     def is_female(self) -> bool:
         return self.sex is False
+
+    def get_mention(self) -> str:
+        if self.first_name:
+            return f"{self.first_name}"
+        return f"@{self.username}"
