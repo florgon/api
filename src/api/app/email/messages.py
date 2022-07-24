@@ -3,20 +3,18 @@
 """
 
 # Libraries.
-from fastapi_mail import FastMail, MessageSchema
+from fastapi_mail import MessageSchema
 from fastapi import BackgroundTasks
 
 # Core.
-from .config import config
+from .config import fastmail
 
 
 async def _send_email(email: str, subject: str, body: str):
     """Sends message to single recipient email."""
-
-    if not config:
+    if not fastmail:
         return  # Mail disabled.
-
-    fastmail = FastMail(config)
+        
     await fastmail.send_message(
         MessageSchema(subject=subject, recipients=[email], body=body, subtype="plain")
     )

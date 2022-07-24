@@ -3,7 +3,7 @@
 """
 
 # Libraries.
-from fastapi_mail import ConnectionConfig
+from fastapi_mail import ConnectionConfig, FastMail
 
 # Settings for configuring mail connection.
 from app.config import Settings
@@ -29,6 +29,14 @@ def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
         VALIDATE_CERTS=True,
     )
 
-# Config for mail.
-settings = Settings()
-config = _build_connection_config(settings)
+
+def _build_fastmail(settings: Settings) -> None:
+    """Returns configured FastMail system."""
+    config = _build_connection_config(settings=settings)
+    if config is None:
+        return None
+    return FastMail(config=config)
+
+
+# Core.
+fastmail = _build_fastmail(settings=Settings())
