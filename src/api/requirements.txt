@@ -1,6 +1,6 @@
 # FastAPI.
 fastapi==0.79.0
-fastapi_mail==1.0.9
+fastapi_mail==1.1.4
 
 # Server.
 uvicorn==0.18.2
