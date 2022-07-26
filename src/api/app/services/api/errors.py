@@ -51,6 +51,11 @@ class ApiErrorCode(Enum):
     USER_PROFILE_PRIVATE = 103, 403
     USER_PROFILE_AUTH_REQUIRED = 104, 401
 
+    # Gifts.
+    GIFT_EXPIRED = 700, 400
+    GIFT_USED = 701, 400
+    GIFT_CANNOT_ACCEPTED = 702, 400
+
 
 class ApiErrorException(Exception):
     def __init__(
