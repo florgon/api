@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 import urllib.parse
 
-
 from app.tokens.email_token import EmailToken
 from app.tokens.exceptions import (
     TokenExpiredError,
