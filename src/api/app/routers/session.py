@@ -60,6 +60,9 @@ async def method_session_signup(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
+    if not settings.users_open_registration:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "User signup closed (Registration forbidden by server administrator)")
+
     validate_signup_fields(db, username, email, password)
     await RateLimiter(times=5, minutes=5).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)

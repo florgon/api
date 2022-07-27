@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     upload_server_domain: str = "cdnus0.florgon.space"
     
-    oauth_screen_provider_url: str
+    oauth_screen_provider_url: str = "oauth.florgon.space"
 
     jwt_issuer: str
 
@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     mail_host_username: str
 
     # Not documented yet.
+    users_open_registration: bool = True
     cors_enabled: bool = True
     fastapi_debug: bool = False
     fastapi_title: str = "Florgon API"
