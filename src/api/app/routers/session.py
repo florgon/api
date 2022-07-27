@@ -106,7 +106,9 @@ async def method_session_logout(
     return api_success({"sid": session.id})
 
 
-@router.get("/_session._list")
+@router.get(
+    "/_session._list", dependencies=[Depends(RateLimiter(times=2, seconds=3))]
+)
 async def method_session_list(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -127,7 +129,9 @@ async def method_session_list(
     )
 
 
-@router.get("/_session._signin")
+@router.get(
+    "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
+)
 async def method_session_signin(
     req: Request,
     login: str,
@@ -145,7 +149,6 @@ async def method_session_signin(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
             "Invalid credentials for authentication (password or login).",
         )
-    await RateLimiter(times=2, seconds=15).check(req)
 
     session_user_agent = user_agent
     session_client_host = get_client_host_from_request(req)
