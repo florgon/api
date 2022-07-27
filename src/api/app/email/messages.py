@@ -14,7 +14,7 @@ async def _send_email(email: str, subject: str, body: str):
     """Sends message to single recipient email."""
     if not fastmail:
         return  # Mail disabled.
-        
+
     await fastmail.send_message(
         MessageSchema(subject=subject, recipients=[email], body=body, subtype="plain")
     )

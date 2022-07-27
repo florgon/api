@@ -28,15 +28,12 @@ async def method_upload_get_photo_upload_server(
 
     settings = get_settings()
     upload_server_domain = settings.upload_server_domain
-    return api_success({
-        "upload_url": f"http://{upload_server_domain}/upload"
-    })
+    return api_success({"upload_url": f"http://{upload_server_domain}/upload"})
 
 
 @router.get("/upload.saveOauthClientAvatar")
 async def method_upload_save_oauth_client_avatar(
-    photo: str, client_id: int,
-    req: Request, db: Session = Depends(get_db)
+    photo: str, client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Updates OAuth client avatar with photo uploaded in photo upload server ."""
     await RateLimiter(times=2, minutes=30).check(req)
@@ -50,15 +47,15 @@ async def method_upload_save_oauth_client_avatar(
     if not oauth_client:
         return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found.")
     if oauth_client.owner_id != auth_data.user.id:
-        return api_error(ApiErrorCode.OAUTH_CLIENT_FORBIDDEN, "You are not owner of this OAuth client.")
-    
+        return api_error(
+            ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
+            "You are not owner of this OAuth client.",
+        )
+
     is_updated = False
     if oauth_client.display_avatar != photo:
         oauth_client.display_avatar = photo
         db.add(oauth_client)
         db.commit()
 
-    return api_success({
-        "photo_url": photo,
-        "updated": is_updated
-    })
+    return api_success({"photo_url": photo, "updated": is_updated})

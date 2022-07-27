@@ -27,6 +27,4 @@ def get_unique_uses(db: Session, gift_id: int) -> int:
 
 
 def get_uses(db: Session, gift_id: int) -> int:
-    return (
-        db.query(GiftUse).filter(GiftUse.gift_id == gift_id).count()
-    )
+    return db.query(GiftUse).filter(GiftUse.gift_id == gift_id).count()

@@ -14,11 +14,12 @@ from app.config import Settings
 
 # Database engine.
 settings = Settings()
-engine = create_engine(url=settings.database_url,
-                       pool_size=settings.database_pool_size, 
-                       max_overflow=settings.database_pool_size * 2, 
-                       pool_recycle=-1, 
-                       poolclass=QueuePool
+engine = create_engine(
+    url=settings.database_url,
+    pool_size=settings.database_pool_size,
+    max_overflow=settings.database_pool_size * 2,
+    pool_recycle=-1,
+    poolclass=QueuePool,
 )
 metadata = MetaData(bind=engine)
 
