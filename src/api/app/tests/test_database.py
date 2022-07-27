@@ -11,7 +11,7 @@ def client():
         yield c
 
 
-def test_read_utils_get_server_time(_):
+def test_database_sql_select(_):
     db = get_db()
     expected = 32
     with db.begin() as session:
