@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     cache_url: RedisDsn
 
     upload_server_domain: str = "cdnus0.florgon.space"
-    
+
     oauth_screen_provider_url: str = "oauth.florgon.space"
 
     jwt_issuer: str

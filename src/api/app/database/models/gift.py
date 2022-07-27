@@ -21,7 +21,7 @@ class Gift(Base):
 
     # Code to accept gift.
     promocode = Column(String, nullable=False, unique=True)
-    
+
     max_uses = Column(Integer, nullable=False)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
 

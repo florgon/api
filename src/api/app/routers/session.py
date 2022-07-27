@@ -61,7 +61,10 @@ async def method_session_signup(
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
     if not settings.users_open_registration:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "User signup closed (Registration forbidden by server administrator)")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN,
+            "User signup closed (Registration forbidden by server administrator)",
+        )
 
     validate_signup_fields(db, username, email, password)
     await RateLimiter(times=5, minutes=5).check(req)
@@ -106,9 +109,7 @@ async def method_session_logout(
     return api_success({"sid": session.id})
 
 
-@router.get(
-    "/_session._list", dependencies=[Depends(RateLimiter(times=2, seconds=3))]
-)
+@router.get("/_session._list", dependencies=[Depends(RateLimiter(times=2, seconds=3))])
 async def method_session_list(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
