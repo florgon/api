@@ -12,5 +12,5 @@ def client():
 
 def test_database_sql_select(client):
     expected = 32
-    with SessionLocal as session:
+    with SessionLocal() as session:
         assert session.execute(f"SELECT {expected};") == expected
