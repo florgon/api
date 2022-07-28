@@ -5,6 +5,7 @@
 # Libraries.
 from datetime import datetime
 from sqlalchemy.orm import Session
+from pyotp import random_base32
 
 # Services.
 from app.database.models.user import User
@@ -37,10 +38,13 @@ def get_by_login(db: Session, login: str) -> User:
 
 def email_confirm(db: Session, user: User):
     """Confirms user email."""
-    settings = get_settings()
     user.is_verified = True
     user.time_verified = datetime.now()
-    user.security_tfa_enabled = settings.user_enable_email_tfa_by_default
+
+    settings = get_settings()
+    if settings.user_enable_email_tfa_by_default:
+        user.security_tfa_enabled = True
+        user.security_tfa_secret_key = random_base32()
     db.commit()
 
 

@@ -57,7 +57,8 @@ class ApiErrorCode(Enum):
     GIFT_CANNOT_ACCEPTED = 702, 400
 
     # 2FA.
-    AUTH_TFA_CODE_REQUIRED = 800, 403
+    AUTH_TFA_OTP_REQUIRED = 800, 401
+    AUTH_TFA_OTP_INVALID = 801, 400
 
 
 class ApiErrorException(Exception):

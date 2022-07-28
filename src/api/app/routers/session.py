@@ -4,8 +4,12 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
+from pyotp import TOTP
+
 from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import JSONResponse
+
+
 from app.services.permissions import Permission
 
 from app.services.request import query_auth_data_from_request
@@ -23,7 +27,7 @@ from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 from app.services.request import get_client_host_from_request
-
+from app.email import messages as email_messages
 
 router = APIRouter()
 
@@ -131,6 +135,35 @@ async def method_session_list(
 
 
 @router.get(
+    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=2, minutes=10))]
+)
+async def method_session_request_tfa_otp(
+    login: str,
+    password: str,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Requests 2FA OTP to be send (if configured, or skip if not required)."""
+
+    # Check credentials.
+    user = crud.user.get_by_login(db=db, login=login)
+    if not user or not check_password(password=password, hashed_password=user.password):
+        return api_error(
+            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
+            "Invalid credentials for authentication (password or login).",
+        )
+
+    if not user.security_tfa_enabled:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "2FA not enabled for this account.")
+
+    totp = TOTP(s=user.security_tfa_secret_key)
+    tfa_otp = totp.now()
+    email_messages.send_tfa_otp_email(user.email, user.get_mention(), tfa_otp)
+    return api_success({
+        "tfa_device": "email"
+    })
+
+
+@router.get(
     "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
 )
 async def method_session_signin(
@@ -152,9 +185,15 @@ async def method_session_signin(
         )
 
     if user.security_tfa_enabled:
+        totp = TOTP(s=user.security_tfa_secret_key)
         tfa_otp = req.query_params.get("tfa_otp")
+        if not totp.verify(tfa_otp):
+            return api_error(
+                ApiErrorCode.AUTH_TFA_OTP_INVALID,
+                "2FA authentication one time password expired or invalid!"
+            )
         return api_error(
-            ApiErrorCode.AUTH_TFA_CODE_REQUIRED,
+            ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
             "2FA authentication one time password required!"
         )
     
