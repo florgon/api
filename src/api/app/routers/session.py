@@ -157,7 +157,7 @@ async def method_session_request_tfa_otp(
 
     totp = TOTP(s=user.security_tfa_secret_key)
     tfa_otp = totp.now()
-    email_messages.send_tfa_otp_email(user.email, user.get_mention(), tfa_otp)
+    await email_messages.send_tfa_otp_email(user.email, user.get_mention(), tfa_otp)
     return api_success({
         "tfa_device": "email"
     })
