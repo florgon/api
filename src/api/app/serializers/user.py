@@ -35,6 +35,10 @@ def serialize(
                 "tg": user.profile_social_username_tg,
                 "gh": user.profile_social_username_gh,
             },
+            "privacy": {
+                "is_public": user.privacy_profile_public,
+                "auth_required": user.privacy_profile_require_auth
+            }
         }
 
     if include_email and include_private_fields:
