@@ -45,6 +45,9 @@ class User(Base):
     privacy_profile_public = Column(Boolean, nullable=False, default=True)
     privacy_profile_require_auth = Column(Boolean, nullable=False, default=False)
 
+    # Security.
+    security_tfa_enabled = Column(Boolean, nullable=False, default=False)
+
     # Public profile.
     profile_bio = Column(Text, nullable=True)
     profile_website = Column(String, nullable=True)
@@ -60,9 +63,11 @@ class User(Base):
     time_verified = Column(DateTime(timezone=True), nullable=True)
 
     def is_female(self) -> bool:
+        """Returns is current user female of not."""
         return self.sex is False
 
     def get_mention(self) -> str:
+        """Returns user mention for email."""
         if self.first_name:
             return f"{self.first_name}"
         return f"@{self.username}"

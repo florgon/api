@@ -151,6 +151,13 @@ async def method_session_signin(
             "Invalid credentials for authentication (password or login).",
         )
 
+    if user.security_tfa_enabled:
+        tfa_otp = req.query_params.get("tfa_otp")
+        return api_error(
+            ApiErrorCode.AUTH_TFA_CODE_REQUIRED,
+            "2FA authentication one time password required!"
+        )
+    
     session_user_agent = user_agent
     session_client_host = get_client_host_from_request(req)
     session = crud.user_session.get_or_create_new(

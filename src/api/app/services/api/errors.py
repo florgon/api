@@ -56,6 +56,9 @@ class ApiErrorCode(Enum):
     GIFT_USED = 701, 400
     GIFT_CANNOT_ACCEPTED = 702, 400
 
+    # 2FA.
+    AUTH_TFA_CODE_REQUIRED = 800, 403
+
 
 class ApiErrorException(Exception):
     def __init__(
