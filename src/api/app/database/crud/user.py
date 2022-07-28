@@ -3,12 +3,14 @@
 """
 
 # Libraries.
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 # Services.
 from app.database.models.user import User
 from app.services.passwords import get_hashed_password
 from app.config import get_settings
+
 
 def get_by_id(db: Session, user_id: int) -> User:
     """Returns user by it`s ID."""
@@ -37,6 +39,7 @@ def email_confirm(db: Session, user: User):
     """Confirms user email."""
     settings = get_settings()
     user.is_verified = True
+    user.time_verified = datetime.now()
     user.security_tfa_enabled = settings.user_enable_email_tfa_by_default
     db.commit()
 
