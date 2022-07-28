@@ -31,6 +31,7 @@ def query_auth_data_from_token(
     only_session_token: bool = False,
     required_permissions: list[Permission] | None = None,
     allow_deactivated: bool = False,
+    allow_external_clients: bool = False,
     request: Request | None = None,
 ) -> AuthData:
     """
@@ -50,6 +51,7 @@ def query_auth_data_from_token(
         token_type,
         db,
         required_permissions=required_permissions,
+        allow_external_clients=allow_external_clients,
         request=request,
     )
     if only_session_token:
@@ -64,6 +66,7 @@ def query_auth_data_from_request(
     only_session_token: bool = False,
     required_permissions: list[Permission] | None = None,
     allow_deactivated: bool = False,
+    allow_external_clients: bool = False
 ) -> AuthData:
     """
     Queries authentication data from request (from request token).
@@ -82,6 +85,7 @@ def query_auth_data_from_request(
         only_session_token=only_session_token,
         required_permissions=required_permissions,
         allow_deactivated=allow_deactivated,
+        allow_external_clients=allow_external_clients,
         request=req,
     )
 
@@ -105,6 +109,7 @@ def _decode_token(
     db: Session,
     required_permissions: list[Permission] | None = None,
     request: Request | None = None,
+    allow_external_clients: bool = False,
 ) -> AuthData:
     """
     Decodes given token, to payload and session.
@@ -130,11 +135,12 @@ def _decode_token(
     permissions = _query_scope_permissions(scope, required_permissions)
 
     # Query session, decode with valid signature.
+    allow_external_clients = (Permission.noexpire in permissions) if not allow_external_clients else True
     session = _query_session_from_sid(
         unsigned_token.get_session_id(),
         db,
         request,
-        allow_external_clients=Permission.noexpire in permissions,
+        allow_external_clients=allow_external_clients,
     )
     signed_token = token_type.decode(token, key=session.token_secret)
     if not signed_token.signature_is_valid():

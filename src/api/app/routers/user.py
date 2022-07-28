@@ -80,7 +80,7 @@ async def method_user_get_profile_info(
     # Privacy.
     if not user.privacy_profile_public:
         try:
-            auth_data = query_auth_data_from_request(req, db)
+            auth_data = query_auth_data_from_request(req, db, allow_external_clients=True)
             if auth_data.user.id != user.id:
                 raise ApiErrorException
         except ApiErrorException:
@@ -91,7 +91,7 @@ async def method_user_get_profile_info(
 
     if user.privacy_profile_require_auth:
         try:
-            query_auth_data_from_request(req, db)
+            query_auth_data_from_request(req, db, allow_external_clients=True)
         except ApiErrorException:
             return api_error(
                 ApiErrorCode.USER_PROFILE_AUTH_REQUIRED,
