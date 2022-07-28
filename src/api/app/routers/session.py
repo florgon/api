@@ -135,7 +135,7 @@ async def method_session_list(
 
 
 @router.get(
-    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=2, minutes=10))]
+    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=2, minutes=5))]
 )
 async def method_session_request_tfa_otp(
     login: str,
