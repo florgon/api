@@ -32,3 +32,10 @@ async def send_verification_end_email(email: str, mention: str):
     subject = "Email verified on Florgon!"
     message = f"Hello, {mention}! Your Florgon account email address was verified! Welcome to Florgon!"
     BackgroundTasks.add_task(_send_email, email, subject, message)
+
+
+async def send_tfa_otp_email(email: str, mention: str, otp: str):
+    """Send 2FA one time password email to the user."""
+    subject = "Florgon Sign-In code!"
+    message = f"Hello, {mention}! Use code below to sign-in in to your Florgon account! Code: {otp}"
+    BackgroundTasks.add_task(_send_email, email, subject, message)
