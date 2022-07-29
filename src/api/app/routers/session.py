@@ -157,15 +157,35 @@ async def method_session_request_tfa_otp(
     if not user.security_tfa_enabled:
         return api_error(ApiErrorCode.AUTH_TFA_NOT_ENABLED, "2FA not enabled for this account.")
 
-    otp_secret_key = user.security_tfa_secret_key
-    otp_interval = settings.tfa_otp_email_inteval
+    tfa_device = "email"  # Device type.
+    tfa_otp_is_sent = False  # If false, OTP was not sent due no need.
 
-    totp = TOTP(s=otp_secret_key, interval=otp_interval)
+    if tfa_device == "email":
+        # Email 2FA device.
+        # Send 2FA OTP to email address.
 
-    tfa_otp = totp.now()
-    await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
+        # Get generator.
+        otp_secret_key = user.security_tfa_secret_key
+        otp_interval = settings.tfa_otp_email_inteval
+        totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
+        # Get OTP.
+        tfa_otp = totp.now()
+
+        # Send OTP.
+        await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
+        tfa_otp_is_sent = True
+    elif tfa_device == "mobile":
+        # Mobile 2FA device.
+        # No need to send 2FA OTP.
+        # As mobile will automatically generate a new TOTP itself.
+        tfa_otp_is_sent = False
+    else:
+        return api_error(ApiErrorCode.API_UNKNOWN_ERROR, "Unknown 2FA device!")
+    
     return api_success({
-        "tfa_device": "email"
+        "tfa_device": tfa_device,
+        "tfa_otp_is_sent": tfa_otp_is_sent
     })
 
 
@@ -191,16 +211,27 @@ async def method_session_signin(
         )
 
     if user.security_tfa_enabled:
+        # If user has enabled 2FA.
+
+        # Request 2FA OTP, raise error with continue information.
         tfa_otp = req.query_params.get("tfa_otp")
         if not tfa_otp:
             return api_error(
                 ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
-                "2FA authentication one time password required!"
+                "2FA authentication one time password required!",
+                {
+                    "tfa_otp_required": True
+                }
             )
 
+        tfa_device = "email"  # Device type.
+
+        # Get OTP generator.
         otp_secret_key = user.security_tfa_secret_key
-        otp_interval = settings.tfa_otp_email_inteval
+        otp_interval = settings.tfa_otp_email_inteval if tfa_device == "email" else settings.tfa_otp_mobile_inteval
         totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
+        # If OTP is not valid, raise error.
         if not totp.verify(tfa_otp):
             return api_error(
                 ApiErrorCode.AUTH_TFA_OTP_INVALID,

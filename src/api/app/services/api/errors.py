@@ -31,6 +31,7 @@ class ApiErrorCode(Enum):
     API_METHOD_NOT_FOUND = 43, 404
     API_TOO_MANY_REQUESTS = 44, 429
     API_FORBIDDEN = 45, 403
+    API_UNKNOWN_ERROR = 46, 400
 
     # Email confirmation.
     EMAIL_CONFIRMATION_TOKEN_INVALID = 50, 400
