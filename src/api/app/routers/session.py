@@ -142,6 +142,7 @@ async def method_session_request_tfa_otp(
     password: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
@@ -156,7 +157,11 @@ async def method_session_request_tfa_otp(
     if not user.security_tfa_enabled:
         return api_error(ApiErrorCode.AUTH_TFA_NOT_ENABLED, "2FA not enabled for this account.")
 
-    totp = TOTP(s=user.security_tfa_secret_key, interval=60*5)
+    otp_secret_key = user.security_tfa_secret_key
+    otp_interval = settings.tfa_otp_email_inteval
+
+    totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
     tfa_otp = totp.now()
     await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
     return api_success({
@@ -193,7 +198,9 @@ async def method_session_signin(
                 "2FA authentication one time password required!"
             )
 
-        totp = TOTP(s=user.security_tfa_secret_key, interval=60*5)
+        otp_secret_key = user.security_tfa_secret_key
+        otp_interval = settings.tfa_otp_email_inteval
+        totp = TOTP(s=otp_secret_key, interval=otp_interval)
         if not totp.verify(tfa_otp):
             return api_error(
                 ApiErrorCode.AUTH_TFA_OTP_INVALID,
