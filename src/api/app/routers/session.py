@@ -154,7 +154,7 @@ async def method_session_request_tfa_otp(
         )
 
     if not user.security_tfa_enabled:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "2FA not enabled for this account.")
+        return api_error(ApiErrorCode.AUTH_TFA_NOT_ENABLED, "2FA not enabled for this account.")
 
     totp = TOTP(s=user.security_tfa_secret_key, interval=60*5)
     tfa_otp = totp.now()

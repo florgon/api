@@ -59,6 +59,7 @@ class ApiErrorCode(Enum):
     # 2FA.
     AUTH_TFA_OTP_REQUIRED = 800, 401
     AUTH_TFA_OTP_INVALID = 801, 400
+    AUTH_TFA_NOT_ENABLED = 802, 400
 
 
 class ApiErrorException(Exception):
