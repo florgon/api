@@ -135,7 +135,7 @@ async def method_session_list(
 
 
 @router.get(
-    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=2, minutes=5))]
+    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=1, minutes=1))]
 )
 async def method_session_request_tfa_otp(
     login: str,
@@ -156,7 +156,7 @@ async def method_session_request_tfa_otp(
     if not user.security_tfa_enabled:
         return api_error(ApiErrorCode.API_FORBIDDEN, "2FA not enabled for this account.")
 
-    totp = TOTP(s=user.security_tfa_secret_key)
+    totp = TOTP(s=user.security_tfa_secret_key, interval=60*5)
     tfa_otp = totp.now()
     await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
     return api_success({
@@ -186,17 +186,19 @@ async def method_session_signin(
         )
 
     if user.security_tfa_enabled:
-        totp = TOTP(s=user.security_tfa_secret_key)
         tfa_otp = req.query_params.get("tfa_otp")
+        if not tfa_otp:
+            return api_error(
+                ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
+                "2FA authentication one time password required!"
+            )
+
+        totp = TOTP(s=user.security_tfa_secret_key, interval=60*5)
         if not totp.verify(tfa_otp):
             return api_error(
                 ApiErrorCode.AUTH_TFA_OTP_INVALID,
                 "2FA authentication one time password expired or invalid!"
             )
-        return api_error(
-            ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
-            "2FA authentication one time password required!"
-        )
     
     session_user_agent = user_agent
     session_client_host = get_client_host_from_request(req)
