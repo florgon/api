@@ -3,7 +3,7 @@
     Provides API methods (routes) for working with email confirmation.
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 import urllib.parse
 
@@ -34,7 +34,10 @@ router = APIRouter()
 
 @router.get("/_emailConfirmation.confirm")
 async def method_email_confirmation_confirm(
-    cft: str, db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+    cft: str, 
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db), 
+    settings: Settings = Depends(get_settings)
 ) -> JSONResponse:
     """Confirms email from given CFT (Confirmation token)."""
 
@@ -72,13 +75,17 @@ async def method_email_confirmation_confirm(
         )
 
     crud.user.email_confirm(db, user)
-    await messages.send_verification_end_email(user.email, user.get_mention())
+    await messages.send_verification_end_email(
+        background_tasks,
+        user.email, user.get_mention()
+    )
     return api_success({"email": user.email, "confirmed": True})
 
 
 @router.get("/_emailConfirmation.resend")
 async def method_email_confirmation_resend(
     req: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
@@ -104,6 +111,7 @@ async def method_email_confirmation_resend(
     )
     email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
     await messages.send_verification_email(
+        background_tasks,
         email, user.get_mention(), email_confirmation_link
     )
 

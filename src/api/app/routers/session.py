@@ -6,7 +6,7 @@
 
 from pyotp import TOTP
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 
 
@@ -140,6 +140,7 @@ async def method_session_list(
 async def method_session_request_tfa_otp(
     login: str,
     password: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
@@ -157,7 +158,7 @@ async def method_session_request_tfa_otp(
 
     totp = TOTP(s=user.security_tfa_secret_key)
     tfa_otp = totp.now()
-    await email_messages.send_tfa_otp_email(user.email, user.get_mention(), tfa_otp)
+    await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
     return api_success({
         "tfa_device": "email"
     })
