@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     mail_host_username: str
 
     # Not documented yet.
-    user_enable_email_tfa_by_default: bool = True
+    user_enable_email_tfa_by_default: bool = False
     users_open_registration: bool = True
     cors_enabled: bool = True
     fastapi_debug: bool = False
