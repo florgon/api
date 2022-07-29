@@ -31,6 +31,7 @@ class ApiErrorCode(Enum):
     API_METHOD_NOT_FOUND = 43, 404
     API_TOO_MANY_REQUESTS = 44, 429
     API_FORBIDDEN = 45, 403
+    API_UNKNOWN_ERROR = 46, 400
 
     # Email confirmation.
     EMAIL_CONFIRMATION_TOKEN_INVALID = 50, 400
@@ -55,6 +56,11 @@ class ApiErrorCode(Enum):
     GIFT_EXPIRED = 700, 400
     GIFT_USED = 701, 400
     GIFT_CANNOT_ACCEPTED = 702, 400
+
+    # 2FA.
+    AUTH_TFA_OTP_REQUIRED = 800, 401
+    AUTH_TFA_OTP_INVALID = 801, 400
+    AUTH_TFA_NOT_ENABLED = 802, 400
 
 
 class ApiErrorException(Exception):

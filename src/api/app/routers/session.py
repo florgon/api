@@ -4,8 +4,12 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
-from fastapi import APIRouter, Depends, Header, Request
+from pyotp import TOTP
+
+from fastapi import APIRouter, Depends, Header, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
+
+
 from app.services.permissions import Permission
 
 from app.services.request import query_auth_data_from_request
@@ -23,7 +27,7 @@ from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 from app.services.request import get_client_host_from_request
-
+from app.email import messages as email_messages
 
 router = APIRouter()
 
@@ -131,6 +135,61 @@ async def method_session_list(
 
 
 @router.get(
+    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=1, minutes=1))]
+)
+async def method_session_request_tfa_otp(
+    login: str,
+    password: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Requests 2FA OTP to be send (if configured, or skip if not required)."""
+
+    # Check credentials.
+    user = crud.user.get_by_login(db=db, login=login)
+    if not user or not check_password(password=password, hashed_password=user.password):
+        return api_error(
+            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
+            "Invalid credentials for authentication (password or login).",
+        )
+
+    if not user.security_tfa_enabled:
+        return api_error(ApiErrorCode.AUTH_TFA_NOT_ENABLED, "2FA not enabled for this account.")
+
+    tfa_device = "email"  # Device type.
+    tfa_otp_is_sent = False  # If false, OTP was not sent due no need.
+
+    if tfa_device == "email":
+        # Email 2FA device.
+        # Send 2FA OTP to email address.
+
+        # Get generator.
+        otp_secret_key = user.security_tfa_secret_key
+        otp_interval = settings.tfa_otp_email_inteval
+        totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
+        # Get OTP.
+        tfa_otp = totp.now()
+
+        # Send OTP.
+        await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
+        tfa_otp_is_sent = True
+    elif tfa_device == "mobile":
+        # Mobile 2FA device.
+        # No need to send 2FA OTP.
+        # As mobile will automatically generate a new TOTP itself.
+        tfa_otp_is_sent = False
+    else:
+        return api_error(ApiErrorCode.API_UNKNOWN_ERROR, "Unknown 2FA device!")
+    
+    return api_success({
+        "tfa_device": tfa_device,
+        "tfa_otp_is_sent": tfa_otp_is_sent
+    })
+
+
+@router.get(
     "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
 )
 async def method_session_signin(
@@ -151,6 +210,34 @@ async def method_session_signin(
             "Invalid credentials for authentication (password or login).",
         )
 
+    if user.security_tfa_enabled:
+        # If user has enabled 2FA.
+
+        # Request 2FA OTP, raise error with continue information.
+        tfa_otp = req.query_params.get("tfa_otp")
+        if not tfa_otp:
+            return api_error(
+                ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
+                "2FA authentication one time password required!",
+                {
+                    "tfa_otp_required": True
+                }
+            )
+
+        tfa_device = "email"  # Device type.
+
+        # Get OTP generator.
+        otp_secret_key = user.security_tfa_secret_key
+        otp_interval = settings.tfa_otp_email_inteval if tfa_device == "email" else settings.tfa_otp_mobile_inteval
+        totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
+        # If OTP is not valid, raise error.
+        if not totp.verify(tfa_otp):
+            return api_error(
+                ApiErrorCode.AUTH_TFA_OTP_INVALID,
+                "2FA authentication one time password expired or invalid!"
+            )
+    
     session_user_agent = user_agent
     session_client_host = get_client_host_from_request(req)
     session = crud.user_session.get_or_create_new(
