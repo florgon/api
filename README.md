@@ -9,8 +9,15 @@
 API server for Florgon services (Florgon API). 
 
 ### Features.
-- OAuth (SSO, Permissions, Applications)
-- Users (Public, Private).
+- Authentication (OAuth, Permissions, 2FA)
+- Accounts (Public profile, Private accounts).
+- Administrators stuff.
+- Email verification system.
+- Promocode system for VIP.
+- VIP system.
+- Upload system (With upload server).
+- Session system.
+- WIP External OAuth (GitHub and etc.)
 
 ### See in action.
 API deployed and used in production [here](https://api.florgon.space/) (API endpoint).
