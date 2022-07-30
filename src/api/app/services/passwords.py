@@ -6,7 +6,9 @@ import hashlib
 
 def get_hashed_password(password: str) -> str:
     """Returns hashed password."""
-    assert isinstance(password, str)
+    if not isinstance(password, str):
+        raise TypeError("Password must be a string!")
+
     return hashlib.sha256(password.encode()).hexdigest()
 
 

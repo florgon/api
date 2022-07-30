@@ -8,11 +8,33 @@ from fastapi.responses import JSONResponse
 
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
-from app.services.api.response import api_error, ApiErrorCode
+from app.services.api.response import api_error, api_success, ApiErrorCode
 
 from app.database.dependencies import get_db, Session
 
 router = APIRouter()
+
+
+@router.get("/security.getInfo")
+async def method_security_get_inof(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Returns secutity information about current user."""
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.security]
+    )
+    user = auth_data.user
+    return api_success(
+        {
+            "security": {
+                "tfa": {
+                    "enabled": user.security_tfa_enabled,
+                    "can_enabled": user.is_verified,
+                    "device_type": "email",
+                }
+            }
+        }
+    )
 
 
 @router.get("/security.userEnableTfa")

@@ -37,8 +37,8 @@ def serialize(
             },
             "privacy": {
                 "is_public": user.privacy_profile_public,
-                "auth_required": user.privacy_profile_require_auth
-            }
+                "auth_required": user.privacy_profile_require_auth,
+            },
         }
 
     if include_email and include_private_fields:

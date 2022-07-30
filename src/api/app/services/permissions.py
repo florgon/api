@@ -32,7 +32,8 @@ def __scope_to_permission_code(scope: str):
     """
     TBD. Not documented and not used.
     """
-    assert isinstance(scope, str)
+    if not isinstance(scope, str):
+        raise TypeError("Scope must be a string!")
     permissions = parse_permissions_from_scope(scope)
     return "".join(
         [
@@ -46,7 +47,8 @@ def __parse_permissions_from_code(code: str) -> list[Permission]:
     """
     TBD. Not documented and not used.
     """
-    assert isinstance(code, str)
+    if not isinstance(code, str):
+        raise TypeError("Code must be a string!")
     permissions = []
     for code_bit_index, code_bit in enumerate(code):
         if code_bit != "1":
@@ -60,7 +62,8 @@ def normalize_scope(scope: str) -> str:
     """
     Returns normalized scope from scope, means there is no repeated scopes and maybe some unused symbols.
     """
-    assert isinstance(scope, str)
+    if not isinstance(scope, str):
+        raise TypeError("Scope must be a string!")
     return SCOPE_PERMISSION_SEPARATOR.join(
         [permission.value for permission in parse_permissions_from_scope(scope)]
     )
@@ -70,7 +73,8 @@ def parse_permissions_from_scope(scope: str) -> list[Permission]:
     """
     Returns list of permissions from scope, by parsing it.
     """
-    assert isinstance(scope, str)
+    if not isinstance(scope, str):
+        raise TypeError("Scope must be a string!")
     if SCOPE_PERMISSION_GRANT_ALL_TAG in scope:
         return SCOPE_ALL_PERMISSIONS
     return list(
