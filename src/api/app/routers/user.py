@@ -72,10 +72,17 @@ async def method_user_get_profile_info(
             f"User with requested {'username' if user_id is None else 'id'} was not found!",
         )
     if not user.is_active:
-        return api_error(
-            ApiErrorCode.USER_DEACTIVATED,
-            "Unable to get user, due to user account deactivation!",
-        )
+        try:
+            auth_data = query_auth_data_from_request(
+                req, db, allow_external_clients=True
+            )
+            if not auth_data.user.is_admin:
+                raise Exception
+        except ApiErrorException:
+            return api_error(
+                ApiErrorCode.USER_DEACTIVATED,
+                "Unable to get user, due to user account deactivation!",
+            )
 
     # Privacy.
     if not user.privacy_profile_public:
