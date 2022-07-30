@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 # Etc.
 from app.services.api.response import api_error, api_success, ApiErrorCode
 from app.services.request import query_auth_data_from_request
+from app.services.permissions import Permission
 from app.serializers.blog_post import serialize as serialize_post
 from app.serializers.blog_post import serialize_list as serialize_posts
 
@@ -23,7 +24,10 @@ router = APIRouter()
 async def method_blog_create(title: str, content: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Creates new blog post."""
-    auth_data = query_auth_data_from_request(req, db)
+    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+
+    if not auth_data.user.is_admin:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator, and forbidden to create a new blog post!")
 
     post = crud.blog_post.create(db, author_id=auth_data.user.id, title=title, content=content)
     if post:
