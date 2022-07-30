@@ -45,7 +45,7 @@ async def method_blog_get(
             posts = crud.blog_post.get_all(db)
         return api_success(serialize_posts(posts=posts))
 
-    post = crud.blog_post.get_by_id(post_id)
+    post = crud.blog_post.get_by_id(db, post_id)
     if post is None:
         return api_error(ApiErrorCode.API_ITEM_NOT_FOUND, "Post with given ID not found!")
     
