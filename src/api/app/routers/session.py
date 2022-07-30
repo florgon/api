@@ -133,7 +133,6 @@ async def method_session_list(
     return api_success(
         {
             **serialize_sessions(sessions, db=db, include_deactivated=False),
-            "count": len(sessions),
             "current_id": current_session.id,
         }
     )
