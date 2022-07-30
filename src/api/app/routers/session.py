@@ -94,11 +94,10 @@ async def method_session_signup(
 
 @router.get("/_session._logout")
 async def method_session_logout(
-    req: Request, revoke_all: bool = False, db: Session = Depends(get_db)
+    req: Request, revoke_all: bool = False, sid: int = 0, db: Session = Depends(get_db)
 ) -> JSONResponse:
-    """Logout user over all session."""
+    """Logout user over session (or over all sessions, or specific sessions)."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
-    session = auth_data.session
     await RateLimiter(times=1, seconds=15).check(req)
 
     if revoke_all:
@@ -107,7 +106,13 @@ async def method_session_logout(
             _session.is_active = False
         db.commit()
         return api_success({"sids": [_session.id for _session in sessions]})
-
+    if sid:
+        session = crud.user_session.get_by_id(db, sid)
+        if not session or not session.is_active:
+            return api_error(ApiErrorCode.API_ITEM_NOT_FOUND, "Session not found or already closed!")
+    else: 
+        session = auth_data.session
+        
     session.is_active = False
     db.commit()
     return api_success({"sid": session.id})
