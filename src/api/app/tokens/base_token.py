@@ -82,9 +82,8 @@ class BaseToken(object):
 
     def set_key(self, key: str | None) -> None:
         """Sets secret key or removes it."""
-        assert isinstance(
-            key, str | None
-        ), "Key must be a string or None for clearing the key"
+        if not isinstance(key, str | None):
+            raise TypeError("Key must be a string or None for clearing the key")
         self._key = key
 
     def get_raw_payload(self) -> dict | None:
@@ -133,22 +132,22 @@ class BaseToken(object):
         # Setter for key.
         if self._key is None:
             if key is None:
-                assert (
-                    False
-                ), "You must specify either field `key` or pass a `key` param when encoding token!"
+                raise ValueError("You must specify either field `key` or pass a `key` param when encoding token!")
             self._key = key
 
         # Type should be set to custom token type.
         if not self._type:
-            assert (
-                False
-            ), "For encoding you supposed to specify custom token type inside inherited class"
+            raise ValueError("For encoding you supposed to specify custom token type inside inherited class")
 
         # Arguments.
-        assert isinstance(self._key, str), "Key should be a string"
-        assert isinstance(self._subject, int), "Unexpected subject data type!"
-        assert isinstance(self._issuer, str), "Unexpected issuer data type!"
-        assert self._ttl >= 0, "Token TTL must be unsigned integer >= 0!"
+        if not isinstance(self._key, str):
+            raise TypeError("Key should be a string")
+        if not isinstance(self._subject, str):
+            raise TypeError("Unexpected subject data type!")
+        if not isinstance(self._issuer, str):
+            raise TypeError("Unexpected issuer data type!")
+        if not self._ttl >= 0 :
+            raise ValueError("Token TTL must be unsigned integer >= 0!")
 
         # Get current time as time, when token was issued,
         # for IAT field and calculating EXP field with TTL.
@@ -260,7 +259,8 @@ class BaseToken(object):
         ) or _always_verify_signature  # Do not verify the signature if key is None.
         decode_options = {"verify_signature": verify_signature}
 
-        assert isinstance(token, str)
+        if not isinstance(token, str):
+            raise TypeError("Token should be a string!")
         try:
             payload = jwt.decode(
                 jwt=token,
@@ -309,15 +309,15 @@ class BaseToken(object):
         :params: Read fields in base class.
         """
 
-        # Assertions for expected types
-        assert isinstance(
-            payload, dict
-        ), "Payload must be a dict (To serialize into JSON)!"
-        assert isinstance(issuer, str), "Issuer must be a string (Hostname)"
-        assert isinstance(ttl, int | float), "Token TTL must be an number (in seconds)!"
-        assert isinstance(
-            subject, int
-        ), "Token subject must be an integer (ID of the object)"
+        # Arguments.
+        if not isinstance(payload, dict):
+            raise TypeError("Payload must be a dict (To serialize into JSON)!")
+        if not isinstance(issuer, str):
+            raise TypeError("Issuer must be a string (Hostname)")
+        if not isinstance(ttl, int | float):
+            raise TypeError("Token TTL must be an number (in seconds)!")
+        if not isinstance(subject, int):
+            raise TypeError("Token subject must be an integer (ID of the object)")
 
         # Payload base.
         self.custom_payload = payload if payload is not None else {}

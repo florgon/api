@@ -55,7 +55,8 @@ def query_auth_data_from_token(
         request=request,
     )
     if only_session_token:
-        assert auth_data.token.get_type() == SessionToken.get_type()
+        if auth_data.token.get_type() != SessionToken.get_type():
+            raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Got unexpected token type after decoding! Mostly due to token / server side error!")
     return _query_auth_data(auth_data, db, allow_deactivated)
 
 
