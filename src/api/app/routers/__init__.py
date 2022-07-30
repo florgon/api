@@ -20,6 +20,7 @@ from . import (
     security,
     upload,
     gift,
+    blog,
 )
 
 
@@ -40,5 +41,6 @@ def register_routers(app: FastAPI) -> None:
         security.router,
         upload.router,
         gift.router,
+        blog.router,
     ]:
         app.include_router(router, prefix=get_settings().proxy_url_prefix)
