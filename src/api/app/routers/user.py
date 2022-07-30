@@ -84,7 +84,8 @@ async def method_user_get_profile_info(
                 req, db, allow_external_clients=True
             )
             if auth_data.user.id != user.id:
-                raise ApiErrorException
+                if not auth_data.user.is_admin:
+                    raise Exception
         except ApiErrorException:
             return api_error(
                 ApiErrorCode.USER_PROFILE_PRIVATE,
