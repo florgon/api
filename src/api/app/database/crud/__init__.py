@@ -12,3 +12,5 @@ from . import oauth_client_use as oauth_client_use
 
 from . import gift as gift
 from . import gift_use as gift_use
+
+from . import blog_post as blog_post
