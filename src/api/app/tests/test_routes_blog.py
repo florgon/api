@@ -21,9 +21,10 @@ def test_read_blog_get(client):
     assert "posts" in json["success"]
 
     response = client.get("/blog.get?post_id=1")
-    assert response.status_code == 200
-
     json = response.json()
-    assert "success" in json
+    assert "error" in json
     assert "v" in json
-    assert "post" in json["success"]
+    assert "code" in json["error"]
+    assert "status" in json["error"]
+    error_status = json["error"]["status"]
+    assert error_status == 404
