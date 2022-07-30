@@ -24,15 +24,18 @@ async def method_security_get_inof(
         req, db, required_permissions=[Permission.security]
     )
     user = auth_data.user
-    return api_success({
-        "security": {
-            "tfa": {
-                "enabled": user.security_tfa_enabled,
-                "can_enabled": user.is_verified,
-                "device_type": "email"
+    return api_success(
+        {
+            "security": {
+                "tfa": {
+                    "enabled": user.security_tfa_enabled,
+                    "can_enabled": user.is_verified,
+                    "device_type": "email",
+                }
             }
         }
-    })
+    )
+
 
 @router.get("/security.userEnableTfa")
 async def method_security_user_enable_tfa(

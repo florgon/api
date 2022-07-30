@@ -132,12 +132,16 @@ class BaseToken(object):
         # Setter for key.
         if self._key is None:
             if key is None:
-                raise ValueError("You must specify either field `key` or pass a `key` param when encoding token!")
+                raise ValueError(
+                    "You must specify either field `key` or pass a `key` param when encoding token!"
+                )
             self._key = key
 
         # Type should be set to custom token type.
         if not self._type:
-            raise ValueError("For encoding you supposed to specify custom token type inside inherited class")
+            raise ValueError(
+                "For encoding you supposed to specify custom token type inside inherited class"
+            )
 
         # Arguments.
         if not isinstance(self._key, str):
@@ -146,7 +150,7 @@ class BaseToken(object):
             raise TypeError("Unexpected subject data type!")
         if not isinstance(self._issuer, str):
             raise TypeError("Unexpected issuer data type!")
-        if not self._ttl >= 0 :
+        if not self._ttl >= 0:
             raise ValueError("Token TTL must be unsigned integer >= 0!")
 
         # Get current time as time, when token was issued,

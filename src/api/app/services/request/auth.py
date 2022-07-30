@@ -56,7 +56,10 @@ def query_auth_data_from_token(
     )
     if only_session_token:
         if auth_data.token.get_type() != SessionToken.get_type():
-            raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "Got unexpected token type after decoding! Mostly due to token / server side error!")
+            raise ApiErrorException(
+                ApiErrorCode.AUTH_INVALID_TOKEN,
+                "Got unexpected token type after decoding! Mostly due to token / server side error!",
+            )
     return _query_auth_data(auth_data, db, allow_deactivated)
 
 
@@ -67,7 +70,7 @@ def query_auth_data_from_request(
     only_session_token: bool = False,
     required_permissions: list[Permission] | None = None,
     allow_deactivated: bool = False,
-    allow_external_clients: bool = False
+    allow_external_clients: bool = False,
 ) -> AuthData:
     """
     Queries authentication data from request (from request token).
@@ -136,7 +139,9 @@ def _decode_token(
     permissions = _query_scope_permissions(scope, required_permissions)
 
     # Query session, decode with valid signature.
-    allow_external_clients = (Permission.noexpire in permissions) if not allow_external_clients else True
+    allow_external_clients = (
+        (Permission.noexpire in permissions) if not allow_external_clients else True
+    )
     session = _query_session_from_sid(
         unsigned_token.get_session_id(),
         db,

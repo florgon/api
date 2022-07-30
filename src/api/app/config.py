@@ -37,7 +37,7 @@ class Settings(BaseSettings):
 
     tfa_otp_email_inteval: int = 60 * 5
     tfa_otp_mobile_inteval: int = 30
-    
+
     # Not documented yet.
     user_enable_email_tfa_by_default: bool = False
     users_open_registration: bool = True

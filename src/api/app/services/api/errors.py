@@ -33,7 +33,7 @@ class ApiErrorCode(Enum):
     API_FORBIDDEN = 45, 403
     API_UNKNOWN_ERROR = 46, 400
     API_ITEM_NOT_FOUND = 47, 404
-    
+
     # Email confirmation.
     EMAIL_CONFIRMATION_TOKEN_INVALID = 50, 400
     EMAIL_CONFIRMATION_USER_NOT_FOUND = 51, 404

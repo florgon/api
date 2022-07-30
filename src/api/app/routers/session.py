@@ -109,10 +109,12 @@ async def method_session_logout(
     if sid:
         session = crud.user_session.get_by_id(db, sid)
         if not session or not session.is_active:
-            return api_error(ApiErrorCode.API_ITEM_NOT_FOUND, "Session not found or already closed!")
-    else: 
+            return api_error(
+                ApiErrorCode.API_ITEM_NOT_FOUND, "Session not found or already closed!"
+            )
+    else:
         session = auth_data.session
-        
+
     session.is_active = False
     db.commit()
     return api_success({"sid": session.id})
@@ -159,7 +161,9 @@ async def method_session_request_tfa_otp(
         )
 
     if not user.security_tfa_enabled:
-        return api_error(ApiErrorCode.AUTH_TFA_NOT_ENABLED, "2FA not enabled for this account.")
+        return api_error(
+            ApiErrorCode.AUTH_TFA_NOT_ENABLED, "2FA not enabled for this account."
+        )
 
     tfa_device = "email"  # Device type.
     tfa_otp_is_sent = False  # If false, OTP was not sent due no need.
@@ -177,7 +181,9 @@ async def method_session_request_tfa_otp(
         tfa_otp = totp.now()
 
         # Send OTP.
-        await email_messages.send_tfa_otp_email(background_tasks, user.email, user.get_mention(), tfa_otp)
+        await email_messages.send_tfa_otp_email(
+            background_tasks, user.email, user.get_mention(), tfa_otp
+        )
         tfa_otp_is_sent = True
     elif tfa_device == "mobile":
         # Mobile 2FA device.
@@ -186,11 +192,8 @@ async def method_session_request_tfa_otp(
         tfa_otp_is_sent = False
     else:
         return api_error(ApiErrorCode.API_UNKNOWN_ERROR, "Unknown 2FA device!")
-    
-    return api_success({
-        "tfa_device": tfa_device,
-        "tfa_otp_is_sent": tfa_otp_is_sent
-    })
+
+    return api_success({"tfa_device": tfa_device, "tfa_otp_is_sent": tfa_otp_is_sent})
 
 
 @router.get(
@@ -223,25 +226,27 @@ async def method_session_signin(
             return api_error(
                 ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
                 "2FA authentication one time password required!",
-                {
-                    "tfa_otp_required": True
-                }
+                {"tfa_otp_required": True},
             )
 
         tfa_device = "email"  # Device type.
 
         # Get OTP generator.
         otp_secret_key = user.security_tfa_secret_key
-        otp_interval = settings.tfa_otp_email_inteval if tfa_device == "email" else settings.tfa_otp_mobile_inteval
+        otp_interval = (
+            settings.tfa_otp_email_inteval
+            if tfa_device == "email"
+            else settings.tfa_otp_mobile_inteval
+        )
         totp = TOTP(s=otp_secret_key, interval=otp_interval)
 
         # If OTP is not valid, raise error.
         if not totp.verify(tfa_otp):
             return api_error(
                 ApiErrorCode.AUTH_TFA_OTP_INVALID,
-                "2FA authentication one time password expired or invalid!"
+                "2FA authentication one time password expired or invalid!",
             )
-    
+
     session_user_agent = user_agent
     session_client_host = get_client_host_from_request(req)
     session = crud.user_session.get_or_create_new(
