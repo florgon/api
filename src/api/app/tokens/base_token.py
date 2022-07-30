@@ -146,7 +146,7 @@ class BaseToken(object):
         # Arguments.
         if not isinstance(self._key, str):
             raise TypeError("Key should be a string")
-        if not isinstance(self._subject, str):
+        if not isinstance(self._subject, int):
             raise TypeError("Unexpected subject data type!")
         if not isinstance(self._issuer, str):
             raise TypeError("Unexpected issuer data type!")
