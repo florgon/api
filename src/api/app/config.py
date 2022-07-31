@@ -117,11 +117,6 @@ class Settings(BaseSettings):
     # If true will enable 2FA with email when user verifies email.
     auth_enable_tfa_on_email_verification: bool = True
 
-    # API.
-
-    # Version that will be returned with the response.
-    api_version: str = "0.0.0"
-
     # Proxy (Server content with prefix or domain (Proxy server)).
 
     # Will be added to all methods.
