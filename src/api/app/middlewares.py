@@ -36,5 +36,5 @@ def _add_cors_middleware(app: FastAPI) -> None:
         allow_origins=settings.cors_allow_origins,
         allow_methods=settings.cors_allow_methods,
         allow_headers=settings.cors_allow_headers,
-        max_age=settings.cors_max_age
+        max_age=settings.cors_max_age,
     )

@@ -33,7 +33,8 @@ router = APIRouter()
 
 
 @router.get(
-    "/_emailConfirmation.confirm", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
+    "/_emailConfirmation.confirm",
+    dependencies=[Depends(RateLimiter(times=3, seconds=1))],
 )
 async def method_email_confirmation_confirm(
     cft: str,

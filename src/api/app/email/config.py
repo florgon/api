@@ -27,8 +27,9 @@ def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
         MAIL_SSL=settings.mail_ssl,
         USE_CREDENTIALS=settings.mail_use_credentials,
         VALIDATE_CERTS=settings.mail_validate_certs,
-        SUPPRESS_SEND=0  # TODO 07.31.22: Check this settings out.
+        SUPPRESS_SEND=0,  # TODO 07.31.22: Check this settings out.
     )
+
 
 def _build_fastmail(settings: Settings) -> None:
     """Returns configured FastMail system."""

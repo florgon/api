@@ -91,6 +91,7 @@ def get_last(db: Session) -> User:
 def get_vip_count(db: Session) -> int:
     return db.query(User).filter(User.is_vip == True).count()
 
+
 def get_admin_count(db: Session) -> int:
     return db.query(User).filter(User.is_admin == True).count()
 

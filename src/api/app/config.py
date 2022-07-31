@@ -6,9 +6,7 @@
 
 # Pydantic abstract class with data types.
 from pydantic import BaseSettings
-from pydantic import (
-    PostgresDsn, RedisDsn, conint, EmailStr
-)
+from pydantic import PostgresDsn, RedisDsn, conint, EmailStr
 
 
 class Settings(BaseSettings):
@@ -79,7 +77,7 @@ class Settings(BaseSettings):
     requests_limiter_enabled: bool = True
 
     # OpenAPI.
-    
+
     # If false, will disable OpenAPI.
     openapi_enabled: bool = False
     openapi_url: str = "/openapi.json"

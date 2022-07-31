@@ -80,7 +80,10 @@ async def method_session_signup(
         db, user.id, session_client_host, session_user_agent
     )
     token = SessionToken(
-        settings.security_tokens_issuer, settings.security_session_tokens_ttl, user.id, session.id
+        settings.security_tokens_issuer,
+        settings.security_session_tokens_ttl,
+        user.id,
+        session.id,
     )
     await RateLimiter(times=2, hours=24).check(req)
     return api_success(
@@ -253,7 +256,10 @@ async def method_session_signin(
         db, user.id, session_client_host, session_user_agent
     )
     token = SessionToken(
-        settings.security_tokens_issuer, settings.security_session_tokens_ttl, user.id, session.id
+        settings.security_tokens_issuer,
+        settings.security_session_tokens_ttl,
+        user.id,
+        session.id,
     )
     return api_success(
         {
