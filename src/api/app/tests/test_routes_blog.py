@@ -20,7 +20,6 @@ def test_read_blog_get(client):
     assert "v" in json
     assert "posts" in json["success"]
 
-
     response = client.get("/blog.get?post_id=1")
     json = response.json()
     assert "error" in json

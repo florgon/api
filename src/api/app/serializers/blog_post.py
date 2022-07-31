@@ -24,9 +24,7 @@ def serialize_list(posts: list[BlogPost]) -> dict:
     """Returns dict object for API response with serialized blog post list data."""
 
     serialized_posts = [serialize(post) for post in posts]
-    return {
-        "posts": serialized_posts
-    }
+    return {"posts": serialized_posts}
 
 
 serialized_posts = serialize_list

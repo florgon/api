@@ -33,7 +33,8 @@ router = APIRouter()
 
 
 @router.get(
-    "/_emailConfirmation.confirm", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
+    "/_emailConfirmation.confirm",
+    dependencies=[Depends(RateLimiter(times=3, seconds=1))],
 )
 async def method_email_confirmation_confirm(
     cft: str,
@@ -90,7 +91,7 @@ async def method_email_confirmation_resend(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """Resends email confirmation to user email address."""
+    """Resents email confirmation to user email address."""
     auth_data = query_auth_data_from_request(req, db)
     user = auth_data.user
 

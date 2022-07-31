@@ -63,7 +63,7 @@ def _construct_app() -> FastAPI:
         root_path_in_servers=True,
     )
 
-    # Initialising database connection and all ORM stuff.
+    # Initializing database connection and all ORM stuff.
     if settings.database_create_all:
         database.core.create_all()
 

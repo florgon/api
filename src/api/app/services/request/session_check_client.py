@@ -12,6 +12,7 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.request.get_client_host import get_client_host_from_request
 from app.config import get_settings
 
+
 def session_check_client_by_request(
     db: Session, session: UserSession, request: Request
 ) -> None:

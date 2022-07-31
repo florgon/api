@@ -25,7 +25,9 @@ engine = create_engine(
 metadata = MetaData(bind=engine)
 
 # Base, session from core.
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=True, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, expire_on_commit=True, bind=engine
+)
 Base = declarative_base(metadata=metadata)
 
 

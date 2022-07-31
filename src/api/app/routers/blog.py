@@ -21,28 +21,34 @@ from app.services.limiter.depends import RateLimiter
 router = APIRouter()
 
 
-@router.get(
-    "/blog.create", dependencies=[Depends(RateLimiter(times=2, minutes=5))]
-)
-async def method_blog_create(title: str, content: str, req: Request, db: Session = Depends(get_db)
+@router.get("/blog.create", dependencies=[Depends(RateLimiter(times=2, minutes=5))])
+async def method_blog_create(
+    title: str, content: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Creates new blog post."""
-    auth_data = query_auth_data_from_request(req, db, required_permissions=[Permission.admin])
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=[Permission.admin]
+    )
 
     if not auth_data.user.is_admin:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "You are not an administrator, and forbidden to create a new blog post!")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN,
+            "You are not an administrator, and forbidden to create a new blog post!",
+        )
 
-    post = crud.blog_post.create(db, author_id=auth_data.user.id, title=title, content=content)
+    post = crud.blog_post.create(
+        db, author_id=auth_data.user.id, title=title, content=content
+    )
     if post:
         return api_success(serialize_post(post, in_list=False))
     return api_error(ApiErrorCode.API_UNKNOWN_ERROR, "Failed to create post.")
 
 
-@router.get(
-    "/blog.get", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
-)
+@router.get("/blog.get", dependencies=[Depends(RateLimiter(times=3, seconds=1))])
 async def method_blog_get(
-    post_id: int | None = None, author_id: int | None = None, db: Session = Depends(get_db)
+    post_id: int | None = None,
+    author_id: int | None = None,
+    db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Returns specific post by ID or all posts."""
 
@@ -56,6 +62,8 @@ async def method_blog_get(
 
     post = crud.blog_post.get_by_id(db, post_id)
     if post is None:
-        return api_error(ApiErrorCode.API_ITEM_NOT_FOUND, "Post with given ID not found!")
-    
+        return api_error(
+            ApiErrorCode.API_ITEM_NOT_FOUND, "Post with given ID not found!"
+        )
+
     return api_success(serialize_post(post, in_list=False))

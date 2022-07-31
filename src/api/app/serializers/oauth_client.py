@@ -5,6 +5,7 @@
 
 import time
 
+
 def serialize(oauth_client, display_secret: bool, in_list: bool = False):
     """Returns dict object for API response with serialized OAuth client data."""
     serialized_oauth_client = {

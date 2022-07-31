@@ -23,12 +23,15 @@ router = APIRouter()
 
 @router.get("/_admin.getSessionsCounters")
 async def method_admin_get_sessions_counters(
-    req: Request, db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings)
+    req: Request,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns sessions counters."""
     if settings.admin_methods_disabled:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
+        )
 
     auth_data = query_auth_data_from_request(
         req, db, required_permissions=[Permission.admin]
@@ -58,12 +61,15 @@ async def method_admin_get_sessions_counters(
 
 @router.get("/_admin.getOauthClientsCounters")
 async def method_admin_get_oauth_clients_counters(
-    req: Request, db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings)
+    req: Request,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns OAuth clients counters."""
     if settings.admin_methods_disabled:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
+        )
     auth_data = query_auth_data_from_request(
         req, db, required_permissions=[Permission.admin]
     )
@@ -86,12 +92,15 @@ async def method_admin_get_oauth_clients_counters(
 
 @router.get("/_admin.getUsersCounters")
 async def method_admin_get_users_counters(
-    req: Request, db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings)
+    req: Request,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns users counters."""
     if settings.admin_methods_disabled:
-        return api_error(ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!")
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
+        )
     auth_data = query_auth_data_from_request(
         req, db, required_permissions=[Permission.admin]
     )
@@ -103,7 +112,9 @@ async def method_admin_get_users_counters(
     return api_success(
         {
             "users": {
-                "time_last_created": time.mktime(crud.user.get_last(db).time_created.timetuple()),
+                "time_last_created": time.mktime(
+                    crud.user.get_last(db).time_created.timetuple()
+                ),
                 "all": crud.user.get_count(db),
                 "inactive": crud.user.get_inactive_count(db),
                 "active": crud.user.get_active_count(db),

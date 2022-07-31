@@ -14,19 +14,19 @@ services:
     restart: always
     volumes:
       - ../db:/var/lib/postgresql/data
-    env_file: 
+    env_file:
       - .database.env
     networks:
       - florgon-api
     command:
       - "postgres"
-      - "-c"  # Max connection limit for database.
-      - "max_connections=1000"  # SHOW max_connections;
+      - "-c" # Max connection limit for database.
+      - "max_connections=1000" # SHOW max_connections;
       - "-c" # Buffer size for database bufferization.
-      - "shared_buffers=128MB"  # SHOW shared_buffers;
+      - "shared_buffers=128MB" # SHOW shared_buffers;
   database-poller:
     image: edoburu/pgbouncer
-    env_file: 
+    env_file:
       - .database.env
     depends_on:
       - database

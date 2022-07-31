@@ -12,6 +12,7 @@ from app.database import crud
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.config import get_settings
 
+
 def validate_signup_fields(db, username: str, email: str, password: str):
     """Returns dict object for API response with serialized user data."""
 
@@ -30,7 +31,9 @@ def validate_signup_fields(db, username: str, email: str, password: str):
         )
 
     # Validate email.
-    if settings.signup_validate_email and not validate_email(email, verify=False):  # TODO.
+    if settings.signup_validate_email and not validate_email(
+        email, verify=False
+    ):  # TODO.
         raise ApiErrorException(ApiErrorCode.AUTH_EMAIL_INVALID, "Email invalid!")
 
     # Check username.
@@ -47,7 +50,7 @@ def validate_signup_fields(db, username: str, email: str, password: str):
             ApiErrorCode.AUTH_USERNAME_INVALID,
             "Username should only contain alphabet characters!",
         )
-    if settings.signup_username_reject_uppercase and  not username.islower():
+    if settings.signup_username_reject_uppercase and not username.islower():
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID,
             "Username should only contain lowercase characters!",
