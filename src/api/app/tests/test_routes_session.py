@@ -51,3 +51,13 @@ def test_read_session_signup_get_user_info(client):
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
     assert json["success"]["user"]["username"] == username
+
+    get_profile_info_response = client.get(
+        "/user.getProfileInfo", params={"username": username}
+    )
+    json = get_profile_info_response.json()
+    assert "v" in json
+    assert "success" in json
+    assert "user" in json["success"]
+    assert "username" in json["success"]["user"]
+    assert json["success"]["user"]["username"] == username
