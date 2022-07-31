@@ -38,7 +38,6 @@ def _construct_app() -> FastAPI:
 
     settings = get_settings()
     app_instance = FastAPI(
-        # FastAPI debug.
         debug=settings.fastapi_debug,
         # Custom settings.
         # By default, modified by setters (below), or empty if not used.
@@ -48,20 +47,25 @@ def _construct_app() -> FastAPI:
         dependencies=None,
         responses=None,
         callbacks=None,
+        # Event handlers.
         on_shutdown=None,
         on_startup=None,
-        # Documentation settings.
-        # Notice that documentation is disabled by default and recommended to be disabled.
-        title=settings.fastapi_title,
-        description=settings.fastapi_description,
-        # Disable any documentation.
-        openapi_url="/openapi.json" if settings.fastapi_documentation_enabled else None,
-        docs_url="/docs" if settings.fastapi_documentation_enabled else None,
-        redoc_url="/redoc" if settings.fastapi_documentation_enabled else None,
+        # Open API.
+        title=settings.openapi_title,
+        version=settings.openapi_version,
+        description=settings.openapi_description,
+        openapi_prefix=settings.openapi_prefix,
+        openapi_url=settings.openapi_url if settings.openapi_enabled else None,
+        docs_url=settings.openapi_docs_url if settings.openapi_enabled else None,
+        redoc_url=settings.openapi_redoc_url if settings.openapi_enabled else None,
+        # Other.
+        root_path=settings.fastapi_root_path,
+        root_path_in_servers=True,
     )
 
     # Initialising database connection and all ORM stuff.
-    database.core.create_all()
+    if settings.database_create_all:
+        database.core.create_all()
 
     # Register all internal stuff as routers/handlers/middlewares etc.
     add_event_handlers(app_instance)

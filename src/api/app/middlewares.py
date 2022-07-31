@@ -25,19 +25,16 @@ def _add_cors_middleware(app: FastAPI) -> None:
     as any application can be allowed to make requests.
 
     May be disabled by `cors_enabled` config setting.
-
-    ToDo (03.06.22): Add more configuration to the CORS (Custom origins and more).
     """
-    if not get_settings().cors_enabled:
+    settings = get_settings()
+    if not settings.cors_enabled:
         return
 
-    # For now,
-    # CORS middleware exposes all,
-    # later there is maybe some configuration to modify behavior.
     app.add_middleware(
         CORSMiddleware,
-        allow_credentials=True,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=settings.cors_allow_credentials,
+        allow_origins=settings.cors_allow_origins,
+        allow_methods=settings.cors_allow_methods,
+        allow_headers=settings.cors_allow_headers,
+        max_age=settings.cors_max_age
     )

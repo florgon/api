@@ -32,7 +32,9 @@ router = APIRouter()
 # TODO: Allow specify URL for email confirmation.
 
 
-@router.get("/_emailConfirmation.confirm")
+@router.get(
+    "/_emailConfirmation.confirm", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
+)
 async def method_email_confirmation_confirm(
     cft: str,
     background_tasks: BackgroundTasks,
@@ -43,7 +45,7 @@ async def method_email_confirmation_confirm(
 
     # Validating CFT, grabbing email from CFT payload.
     try:
-        email_token = EmailToken.decode(cft, key=settings.cft_secret)
+        email_token = EmailToken.decode(cft, key=settings.security_email_tokens_ttl)
     except (TokenInvalidError, TokenInvalidSignatureError):
         return api_error(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
@@ -78,7 +80,7 @@ async def method_email_confirmation_confirm(
     await messages.send_verification_end_email(
         background_tasks, user.email, user.get_mention()
     )
-    return api_success({"email": user.email, "confirmed": True})
+    return api_success({"email": user.email, "is_confirmed": True})
 
 
 @router.get("/_emailConfirmation.resend")
@@ -102,10 +104,10 @@ async def method_email_confirmation_resend(
     # TBD: Refactor this.
     email = user.email
     confirmation_token = EmailToken(
-        settings.jwt_issuer, settings.oauth_code_jwt_ttl, user.id
-    ).encode(key=settings.cft_secret)
+        settings.security_tokens_issuer, settings.security_email_tokens_ttl, user.id
+    ).encode(key=settings.security_email_tokens_secret_key)
     confirmation_link = urllib.parse.urljoin(
-        settings.proxy_url_host,
+        settings.proxy_url_domain,
         settings.proxy_url_prefix + "/_emailConfirmation.confirm",
     )
     email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"

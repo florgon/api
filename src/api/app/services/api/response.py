@@ -5,7 +5,9 @@
 from fastapi.responses import JSONResponse
 
 from .errors import ApiErrorCode
-from .version import API_VERSION
+from app.config import get_settings
+
+API_VERSION = get_settings().api_version
 
 
 def api_error(

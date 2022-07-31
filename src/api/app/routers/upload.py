@@ -27,7 +27,7 @@ async def method_upload_get_photo_upload_server(
     query_auth_data_from_request(req, db, required_permissions=None)
 
     settings = get_settings()
-    upload_server_domain = settings.upload_server_domain
+    upload_server_domain = "cdnus0.florgon.space"
     return api_success({"upload_url": f"http://{upload_server_domain}/upload"})
 
 
