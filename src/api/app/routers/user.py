@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.errors import ApiErrorCode
 from app.services.limiter.depends import RateLimiter
 from app.serializers.user import serialize_user
 from app.database import crud
@@ -78,7 +78,7 @@ async def method_user_get_profile_info(
             )
             if not auth_data.user.is_admin:
                 raise Exception
-        except ApiErrorException:
+        except:
             return api_error(
                 ApiErrorCode.USER_DEACTIVATED,
                 "Unable to get user, due to user account deactivation!",
@@ -93,7 +93,7 @@ async def method_user_get_profile_info(
             if auth_data.user.id != user.id:
                 if not auth_data.user.is_admin:
                     raise Exception
-        except ApiErrorException:
+        except:
             return api_error(
                 ApiErrorCode.USER_PROFILE_PRIVATE,
                 "Requested user preferred to keep his profile private!",
@@ -102,7 +102,7 @@ async def method_user_get_profile_info(
     if user.privacy_profile_require_auth:
         try:
             query_auth_data_from_request(req, db, allow_external_clients=True)
-        except ApiErrorException:
+        except:
             return api_error(
                 ApiErrorCode.USER_PROFILE_AUTH_REQUIRED,
                 "Requested user preferred to show his profile only for authorized users!",
