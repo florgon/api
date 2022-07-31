@@ -22,10 +22,7 @@ class Permission(Enum):
 
     # Services.
     gatey = "gatey"
-    notes = "notes"
-    habits = "habits"
     ads = "ads"
-    cc = "cc"
 
 
 def __scope_to_permission_code(scope: str):
@@ -107,10 +104,7 @@ __CODE_PERMISSIONS_ORDER = [
     Permission.admin,
     Permission.security,
     Permission.gatey,
-    Permission.notes,
     Permission.ads,
-    Permission.cc,
-    Permission.habits,
 ]
 
 # String tags, for separator and modificator that gives all permissions.
@@ -127,10 +121,7 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.security,
     Permission.sessions,
     Permission.gatey,
-    Permission.notes,
-    Permission.habits,
     Permission.ads,
-    Permission.cc,
 ]
 
 # Allowed permission, as string list.
