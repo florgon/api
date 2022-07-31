@@ -51,8 +51,15 @@ async def method_upload_save_oauth_client_avatar(
             ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
             "You are not owner of this OAuth client.",
         )
-
     await RateLimiter(times=2, minutes=30).check(req)
+
+    # TODO: Add config settings, allow only upload server subdomain.
+    if not urlsplit(photo).netloc.endswith("florgon.space"):
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN,
+            "Denied to upload user avatar from non Florgon domain!",
+        )
+
     is_updated = False
     if oauth_client.display_avatar != photo:
         oauth_client.display_avatar = photo
@@ -61,6 +68,9 @@ async def method_upload_save_oauth_client_avatar(
         is_updated = True
 
     return api_success({"photo_url": photo, "is_updated": is_updated})
+
+
+from urllib.parse import urlsplit
 
 
 @router.get("/upload.saveUserAvatar")
@@ -77,6 +87,13 @@ async def method_upload_save_user_avatar(
         req, db, required_permissions=Permission.edit
     )
     await RateLimiter(times=2, minutes=30).check(req)
+
+    # TODO: Add config settings, allow only upload server subdomain.
+    if not urlsplit(photo).netloc.endswith("florgon.space"):
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN,
+            "Denied to upload user avatar from non Florgon domain!",
+        )
 
     is_updated = False
     user = auth_data.user
