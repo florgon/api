@@ -1,24 +1,29 @@
-# FastAPI.
+# Florgon API server requirements.
+
+# Web framework (FastAPI).
 fastapi==0.79.0
+
+# Mail wrapper for FastAPI.
+# used to send email messages.
 fastapi_mail==1.1.4
 
-# Server.
+# ASGI server worker with
+# server process manager.
 uvicorn==0.18.2
 gunicorn==20.1.0
 
-# Database.
-sqlalchemy==1.4.39
-psycopg2-binary==2.9.3
-aioredis==2.0.1
+# ORM with Database engine.
+sqlalchemy==1.4.39  # ORM.
+psycopg2-binary==2.9.3  # SQL Engine (PostgreSQL engine core).
+aioredis==2.0.1  # Async Redis engine.
 
-# Utils.
-validate_email==1.3
+# Some utils libraries.
+validate_email==1.3  # Used for sign-up process.
 
-# Secure.
-pyjwt==2.4.0
-itsdangerous==2.1.2
-pyotp==2.6.0
+# Security, authentication.
+pyjwt==2.4.0  # JWTokens implementation for the base token.
+pyotp==2.6.0  # OTP for 2FA. Used for email and mobile 2FA process.
 
-# Testing.
-pytest==7.1.2
-requests==2.28.1
+# CI/CD, Testing.
+pytest==7.1.2  # Unit tests.
+requests==2.28.1  # Make requests to server.

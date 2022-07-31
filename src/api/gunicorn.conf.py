@@ -1,5 +1,5 @@
 """
-    `Gunicorn` process manager configuration file.
+    Florgon API server `Gunicorn` process manager configuration file.
     All configuration settings that may be required or changes,
     located here, only not required fields are ommited.
     You can read official `Gunicorn` documentation with
