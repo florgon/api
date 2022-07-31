@@ -49,7 +49,7 @@ async def method_user_get_profile_info(
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Returns user account profile information."""
-    user = None
+    profile_user = None
 
     if user_id is None and username is None:
         return api_error(
@@ -61,56 +61,55 @@ async def method_user_get_profile_info(
         )
 
     if user_id is not None:
-        user = crud.user.get_by_id(db, user_id)
+        profile_user = crud.user.get_by_id(db, user_id)
     elif username is not None:
-        user = crud.user.get_by_username(db, username)
+        profile_user = crud.user.get_by_username(db, username)
 
     # User.
-    if not user:
+    if not profile_user:
         return api_error(
             ApiErrorCode.USER_NOT_FOUND,
             f"User with requested {'username' if user_id is None else 'id'} was not found!",
         )
-    if not user.is_active:
+
+    is_owner = False
+    is_authenticated = False
+    is_admin = False
+    if not profile_user.privacy_profile_public or not profile_user.is_active:
+        # If not public, or deactivated (check for admin).
         try:
             auth_data = query_auth_data_from_request(
                 req, db, allow_external_clients=True
             )
-            if not auth_data.user.is_admin:
-                raise Exception
+            is_authenticated = True
+            is_owner = auth_data.user.id == profile_user.id
+            is_admin = auth_data.user.is_admin
         except:
-            return api_error(
-                ApiErrorCode.USER_DEACTIVATED,
-                "Unable to get user, due to user account deactivation!",
-            )
+            pass
+
+    # If banned, raise error if not admin.
+    if not profile_user.is_active and not is_admin:
+        return api_error(
+            ApiErrorCode.USER_DEACTIVATED,
+            "Unable to get user, due to user account deactivation!",
+        )
 
     # Privacy.
-    if not user.privacy_profile_public:
-        try:
-            auth_data = query_auth_data_from_request(
-                req, db, allow_external_clients=True
-            )
-            if auth_data.user.id != user.id:
-                if not auth_data.user.is_admin:
-                    raise Exception
-        except:
-            return api_error(
-                ApiErrorCode.USER_PROFILE_PRIVATE,
-                "Requested user preferred to keep his profile private!",
-            )
+    if not profile_user.privacy_profile_public and not is_owner:
+        return api_error(
+            ApiErrorCode.USER_PROFILE_PRIVATE,
+            "Requested user preferred to keep his profile private!",
+        )
 
-    if user.privacy_profile_require_auth:
-        try:
-            query_auth_data_from_request(req, db, allow_external_clients=True)
-        except:
-            return api_error(
-                ApiErrorCode.USER_PROFILE_AUTH_REQUIRED,
-                "Requested user preferred to show his profile only for authorized users!",
-            )
+    if profile_user.privacy_profile_require_auth and not is_authenticated:
+        return api_error(
+            ApiErrorCode.USER_PROFILE_AUTH_REQUIRED,
+            "Requested user preferred to show his profile only for authorized users!",
+        )
 
     return api_success(
         serialize_user(
-            user,
+            profile_user,
             **{
                 "include_email": False,
                 "include_optional_fields": True,
