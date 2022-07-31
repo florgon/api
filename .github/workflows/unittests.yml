@@ -2,7 +2,7 @@ name: Unit tests
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,20 +12,20 @@ jobs:
   unittests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Build containers (Docker-Compose)
-      working-directory: ./src
-      run: docker-compose up -d --build
-    - name: Check docker containers
-      working-directory: ./src
-      run: docker ps -a
-    - name: Wait for start
-      run: sleep 10
-    - name: Check docker containers (After wait for start)
-      working-directory: ./src
-      run: docker ps -a
-    - name: Ping web server.
-      run: curl http://localhost/utils.getServerTime
-    - name: Pytest
-      working-directory: ./src/api/app
-      run: docker exec florgon-api_server_1 pytest .
+      - uses: actions/checkout@v3
+      - name: Build containers (Docker-Compose)
+        working-directory: ./src
+        run: docker-compose up -d --build
+      - name: Check docker containers
+        working-directory: ./src
+        run: docker ps -a
+      - name: Wait for start
+        run: sleep 5
+      - name: Check docker containers (After wait for start)
+        working-directory: ./src
+        run: docker ps -a
+      - name: Ping web server.
+        run: curl http://localhost/utils.getServerTime
+      - name: Pytest
+        working-directory: ./src/api/app
+        run: docker exec florgon-api_server_1 pytest .
