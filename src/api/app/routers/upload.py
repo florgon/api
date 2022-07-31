@@ -13,6 +13,7 @@ from app.services.limiter.depends import RateLimiter
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings
+from app.services.permissions import Permission
 
 router = APIRouter()
 
@@ -36,7 +37,6 @@ async def method_upload_save_oauth_client_avatar(
     photo: str, client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Updates OAuth client avatar with photo uploaded in photo upload server ."""
-    await RateLimiter(times=2, minutes=30).check(req)
 
     # TODO:
     # Notice that is not clear implementation of uploading mechanism.
@@ -51,11 +51,56 @@ async def method_upload_save_oauth_client_avatar(
             ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
             "You are not owner of this OAuth client.",
         )
+    await RateLimiter(times=2, minutes=30).check(req)
+
+    # TODO: Add config settings, allow only upload server subdomain.
+    if not urlsplit(photo).netloc.endswith("florgon.space"):
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN,
+            "Denied to upload user avatar from non Florgon domain!",
+        )
 
     is_updated = False
     if oauth_client.display_avatar != photo:
         oauth_client.display_avatar = photo
         db.add(oauth_client)
         db.commit()
+        is_updated = True
 
-    return api_success({"photo_url": photo, "updated": is_updated})
+    return api_success({"photo_url": photo, "is_updated": is_updated})
+
+
+from urllib.parse import urlsplit
+
+
+@router.get("/upload.saveUserAvatar")
+async def method_upload_save_user_avatar(
+    photo: str, req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """Updates current user avatar with photo uploaded in photo upload server ."""
+
+    # TODO:
+    # Notice that is not clear implementation of uploading mechanism.
+    # As next implementation have real check that uploading is done by upload server.
+
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=Permission.edit
+    )
+    await RateLimiter(times=2, minutes=30).check(req)
+
+    # TODO: Add config settings, allow only upload server subdomain.
+    if not urlsplit(photo).netloc.endswith("florgon.space"):
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN,
+            "Denied to upload user avatar from non Florgon domain!",
+        )
+
+    is_updated = False
+    user = auth_data.user
+    if user.avatar != photo:
+        user.avatar = photo
+        db.add(user)
+        db.commit()
+        is_updated = True
+
+    return api_success({"photo_url": photo, "is_updated": is_updated})
