@@ -1,9 +1,9 @@
 """
     Florgon API server `Gunicorn` process manager configuration file.
     All configuration settings that may be required or changes,
-    located here, only not required fields are ommited.
+    located here, only not required fields are omitted.
     You can read official `Gunicorn` documentation with
-    a list of all avaliable settings:
+    a list of all available settings:
     https://docs.gunicorn.org/en/latest/settings.html
 
     Author: Kirill Zhosul (Florgon).
@@ -15,7 +15,7 @@
 # Generally in range (2-4 x ${NUM_CORES}).
 from multiprocessing import cpu_count
 
-# TODO 07.31.22: Read more abbout logs.
+# TODO 07.31.22: Read more about logs.
 # TODO 07.31.22: Proxy headers in access log format.
 # TODO 07.31.22: Environment support?
 
@@ -101,61 +101,5 @@ ca_certs = None  # (Default: None)
 
 # Hooks.
 # https://docs.gunicorn.org/en/latest/settings.html#server-hooks
-def on_starting(server):
-    pass
-
-
-def on_reload(server):
-    pass
-
-
-def when_ready(server):
-    pass
-
-
-def pre_fork(server, worker):
-    pass
-
-
-def post_fork(server, worker):
-    pass
-
-
-def post_worker_init(worker):
-    pass
-
-
-def worker_int(worker):
-    pass
-
-
-def worker_abort(worker):
-    pass
-
-
-def pre_exec(server):
-    pass
-
-
-def post_request(worker, req, environ, resp):
-    pass
-
-
-def child_exit(server, worker):
-    pass
-
-
-def worker_exit(server, worker):
-    pass
-
-
-def nworkers_changed(server, new_value, old_value):
-    pass
-
-
-def on_exit(server):
-    pass
-
-
 def pre_request(worker, req):
     worker.log.debug("%s %s" % (req.method, req.path))

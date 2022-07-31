@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # Database.
 
     # Database connection string (DSN)
-    # TODO 07.31.22: Allow to expose database connection as seperate fields.
+    # TODO 07.31.22: Allow to expose database connection as separate fields.
     database_dsn: PostgresDsn
     # If true, will create all metadata (Tables) at start of the server.
     database_create_all: bool = True
@@ -124,7 +124,7 @@ class Settings(BaseSettings):
 
     # Admin.
 
-    # If true, will dissalow access to admin methods even if admin.
+    # If true, will disallow access to admin methods even if admin.
     admin_methods_disabled: bool = False
 
     # Security.
