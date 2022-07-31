@@ -20,6 +20,7 @@ API server for Florgon services (Florgon API).
 - Upload system (With upload server).
 - Session system.
 - WIP External OAuth (GitHub and etc.)
+- Blog system.
 
 ### See in action.
 
