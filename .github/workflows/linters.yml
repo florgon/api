@@ -1,5 +1,7 @@
 name: Linters
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -31,4 +33,4 @@ jobs:
         working-directory: "src/api/"
       - name: MyPy
         working-directory: "src/api/"
-        run: mypy $(git ls-files '*.py')
+        run: mypy $(git ls-files '*.py') || true
