@@ -10,10 +10,12 @@ from app.database import crud
 
 # Services.
 from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.config import get_settings
 
-
-def validate_signup_fields(db, username, email, password):
+def validate_signup_fields(db, username: str, email: str, password: str):
     """Returns dict object for API response with serialized user data."""
+
+    settings = get_settings()
 
     # Check email is not taken.
     if crud.user.email_is_taken(db=db, email=email):
@@ -21,14 +23,14 @@ def validate_signup_fields(db, username, email, password):
             ApiErrorCode.AUTH_EMAIL_TAKEN, "Given email is already taken!"
         )
 
-    # Validate username.
+    # Check username is not taken.
     if crud.user.username_is_taken(db=db, username=username):
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_TAKEN, "Given username is already taken!"
         )
 
     # Validate email.
-    if not validate_email(email, verify=False):  # TODO.
+    if settings.signup_validate_email and not validate_email(email, verify=False):  # TODO.
         raise ApiErrorException(ApiErrorCode.AUTH_EMAIL_INVALID, "Email invalid!")
 
     # Check username.
@@ -40,10 +42,15 @@ def validate_signup_fields(db, username, email, password):
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 16!"
         )
-    if not username.isalpha() or not username.islower():
+    if settings.signup_username_reject_nonalpha and not username.isalpha():
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID,
-            "Username should only contain lowercase alphabet characters!",
+            "Username should only contain alphabet characters!",
+        )
+    if settings.signup_username_reject_uppercase and  not username.islower():
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_USERNAME_INVALID,
+            "Username should only contain lowercase characters!",
         )
 
     # Check password.

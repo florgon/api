@@ -36,6 +36,9 @@ async def default_callback(request: Request, response: Response | None, pexpire:
     :param response:
     :return:
     """
+    if not get_settings().requests_limiter_enabled:
+        return
+    
     expire = ceil(pexpire / 1000)
     raise HTTPException(
         HTTP_429_TOO_MANY_REQUESTS,
@@ -86,9 +89,13 @@ end"""
 
 
 async def on_startup():
+    settings = get_settings()
     redis = await aioredis.from_url(
-        get_settings().cache_url, encoding="utf-8", decode_responses=True
+        settings.cache_dsn, 
+        encoding=settings.cache_encoding,
+        decode_responses=True
     )
+
     await FastAPILimiter.init(redis)
 
 

@@ -4,4 +4,4 @@
     I think developer should change this in CODE, as related to code changes...
 """
 
-API_VERSION = "0.2.0-beta"
+API_VERSION = "0.0.1"

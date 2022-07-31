@@ -64,7 +64,7 @@ async def method_session_signup(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
-    if not settings.users_open_registration:
+    if not settings.signup_open_registration:
         return api_error(
             ApiErrorCode.API_FORBIDDEN,
             "User signup closed (Registration forbidden by server administrator)",
@@ -80,7 +80,7 @@ async def method_session_signup(
         db, user.id, session_client_host, session_user_agent
     )
     token = SessionToken(
-        settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id
+        settings.security_tokens_issuer, settings.security_session_tokens_ttl, user.id, session.id
     )
     await RateLimiter(times=2, hours=24).check(req)
     return api_success(
@@ -174,7 +174,7 @@ async def method_session_request_tfa_otp(
 
         # Get generator.
         otp_secret_key = user.security_tfa_secret_key
-        otp_interval = settings.tfa_otp_email_inteval
+        otp_interval = settings.security_tfa_totp_interval_email
         totp = TOTP(s=otp_secret_key, interval=otp_interval)
 
         # Get OTP.
@@ -234,9 +234,9 @@ async def method_session_signin(
         # Get OTP generator.
         otp_secret_key = user.security_tfa_secret_key
         otp_interval = (
-            settings.tfa_otp_email_inteval
+            settings.security_tfa_totp_interval_email
             if tfa_device == "email"
-            else settings.tfa_otp_mobile_inteval
+            else settings.security_tfa_totp_interval_mobile
         )
         totp = TOTP(s=otp_secret_key, interval=otp_interval)
 
@@ -253,7 +253,7 @@ async def method_session_signin(
         db, user.id, session_client_host, session_user_agent
     )
     token = SessionToken(
-        settings.jwt_issuer, settings.session_token_jwt_ttl, user.id, session.id
+        settings.security_tokens_issuer, settings.security_session_tokens_ttl, user.id, session.id
     )
     return api_success(
         {

@@ -16,11 +16,14 @@ from app.serializers.blog_post import serialize_list as serialize_posts
 # Database.
 from app.database import crud
 from app.database.dependencies import get_db, Session
+from app.services.limiter.depends import RateLimiter
 
 router = APIRouter()
 
 
-@router.get("/blog.create")
+@router.get(
+    "/blog.create", dependencies=[Depends(RateLimiter(times=2, minutes=5))]
+)
 async def method_blog_create(title: str, content: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Creates new blog post."""
@@ -35,7 +38,9 @@ async def method_blog_create(title: str, content: str, req: Request, db: Session
     return api_error(ApiErrorCode.API_UNKNOWN_ERROR, "Failed to create post.")
 
 
-@router.get("/blog.get")
+@router.get(
+    "/blog.get", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
+)
 async def method_blog_get(
     post_id: int | None = None, author_id: int | None = None, db: Session = Depends(get_db)
 ) -> JSONResponse:

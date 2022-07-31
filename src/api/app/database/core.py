@@ -15,16 +15,17 @@ from app.config import Settings
 # Database engine.
 settings = Settings()
 engine = create_engine(
-    url=settings.database_url,
+    url=settings.database_dsn,
     pool_size=settings.database_pool_size,
-    max_overflow=settings.database_pool_size * 2,
-    pool_recycle=-1,
+    max_overflow=settings.database_max_overflow,
+    pool_timeout=settings.database_pool_timeout,
+    pool_recycle=settings.database_pool_recycle,
     poolclass=QueuePool,
 )
 metadata = MetaData(bind=engine)
 
 # Base, session from core.
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=True, bind=engine)
 Base = declarative_base(metadata=metadata)
 
 

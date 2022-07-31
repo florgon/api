@@ -10,7 +10,7 @@ from app.database import crud
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.request.get_client_host import get_client_host_from_request
-
+from app.config import get_settings
 
 def session_check_client_by_request(
     db: Session, session: UserSession, request: Request
@@ -19,16 +19,21 @@ def session_check_client_by_request(
     Raises API exception if session was opened from another client.
     """
 
+    settings = get_settings()
+
     # Client host (IP) is wrong.
-    if get_client_host_from_request(request) != session.ip_address:
-        raise ApiErrorException(
-            ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
-        )
+
+    if settings.auth_reject_wrong_ip_addr:
+        if get_client_host_from_request(request) != session.ip_address:
+            raise ApiErrorException(
+                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
+            )
 
     # Client user agent is wrong.
-    user_agent_string = request.headers.get("User-Agent")
-    user_agent = crud.user_agent.get_by_string(db, user_agent_string)
-    if user_agent is None or user_agent.id != session.user_agent_id:
-        raise ApiErrorException(
-            ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
-        )
+    if settings.auth_reject_wrong_user_agent:
+        user_agent_string = request.headers.get("User-Agent")
+        user_agent = crud.user_agent.get_by_string(db, user_agent_string)
+        if user_agent is None or user_agent.id != session.user_agent_id:
+            raise ApiErrorException(
+                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
+            )

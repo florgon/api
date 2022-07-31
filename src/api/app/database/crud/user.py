@@ -42,7 +42,7 @@ def email_confirm(db: Session, user: User):
     user.time_verified = datetime.now()
 
     settings = get_settings()
-    if settings.user_enable_email_tfa_by_default:
+    if settings.auth_enable_tfa_on_email_verification:
         user.security_tfa_enabled = True
         user.security_tfa_secret_key = random_base32()
     db.commit()
@@ -90,6 +90,9 @@ def get_last(db: Session) -> User:
 
 def get_vip_count(db: Session) -> int:
     return db.query(User).filter(User.is_vip == True).count()
+
+def get_admin_count(db: Session) -> int:
+    return db.query(User).filter(User.is_admin == True).count()
 
 
 def get_verified_count(db: Session) -> int:

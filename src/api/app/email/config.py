@@ -16,19 +16,19 @@ def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
         return None
 
     return ConnectionConfig(
-        MAIL_USERNAME=settings.mail_host_username,
-        MAIL_PASSWORD=settings.mail_host_password,
-        MAIL_FROM=settings.mail_host_username,
-        MAIL_SERVER=settings.mail_host_server,
+        MAIL_USERNAME=settings.mail_username,
+        MAIL_PASSWORD=settings.mail_password,
+        MAIL_FROM=settings.mail_from,
+        MAIL_SERVER=settings.mail_server,
         MAIL_FROM_NAME=settings.mail_from_name,
-        MAIL_DEBUG=1,
-        MAIL_PORT=587,
-        MAIL_TLS=True,
-        MAIL_SSL=False,
-        USE_CREDENTIALS=True,
-        VALIDATE_CERTS=True,
+        MAIL_DEBUG=settings.mail_debug,
+        MAIL_PORT=settings.mail_port,
+        MAIL_TLS=settings.mail_tls,
+        MAIL_SSL=settings.mail_ssl,
+        USE_CREDENTIALS=settings.mail_use_credentials,
+        VALIDATE_CERTS=settings.mail_validate_certs,
+        SUPPRESS_SEND=0  # TODO 07.31.22: Check this settings out.
     )
-
 
 def _build_fastmail(settings: Settings) -> None:
     """Returns configured FastMail system."""

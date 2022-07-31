@@ -62,7 +62,7 @@ async def method_oauth_authorize(
         # Redirect to OAuth screen provider (web-interface),
         # with passing requested OAuth parameters.
         oauth_screen_request_url = (
-            f"{settings.oauth_screen_provider_url}"
+            f"{settings.auth_oauth_screen_provider_url}"
             f"?client_id={client_id}"
             f"&state={state}"
             f"&redirect_uri={redirect_uri}"
@@ -198,8 +198,8 @@ async def method_oauth_allow_client(
         # as it should be resolved to access token with default TTL immediately at server.
         scope = normalize_scope(scope)
         code = OAuthCode(
-            settings.jwt_issuer,
-            settings.oauth_code_jwt_ttl,
+            settings.security_tokens_issuer,
+            settings.security_oauth_code_tokens_ttl,
             user.id,
             session.id,
             scope,
@@ -232,11 +232,11 @@ async def method_oauth_allow_client(
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
         access_token_permissions = parse_permissions_from_scope(scope)
         access_token_ttl = permissions_get_ttl(
-            access_token_permissions, default_ttl=settings.access_token_jwt_ttl
+            access_token_permissions, default_ttl=settings.security_access_tokens_ttl
         )
 
         access_token = AccessToken(
-            settings.jwt_issuer,
+            settings.security_tokens_issuer,
             access_token_ttl,
             user.id,
             session.id,
@@ -350,11 +350,11 @@ def _grant_type_authorization_code(
     # Access token have infinity TTL, if there is scope permission given for no expiration date.
     access_token_permissions = parse_permissions_from_scope(code_signed.get_scope())
     access_token_ttl = permissions_get_ttl(
-        access_token_permissions, default_ttl=settings.access_token_jwt_ttl
+        access_token_permissions, default_ttl=settings.security_access_tokens_ttl
     )
 
     access_token = AccessToken(
-        settings.jwt_issuer,
+        settings.security_tokens_issuer,
         access_token_ttl,
         user.id,
         session.id,
