@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths:
       - "src/**"
- 
+
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
