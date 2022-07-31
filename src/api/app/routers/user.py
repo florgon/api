@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.errors import ApiErrorCode
 from app.services.limiter.depends import RateLimiter
 from app.serializers.user import serialize_user
 from app.database import crud
