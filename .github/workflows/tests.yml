@@ -1,4 +1,4 @@
-name: Tests (PyTest)
+name: Tests (PyTest, Coverage)
 
 on:
   pull_request:

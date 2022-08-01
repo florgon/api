@@ -1,4 +1,4 @@
-name: Formatters
+name: Formatters (Black, isort)
 
 on:
   pull_request:
