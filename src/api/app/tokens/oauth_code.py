@@ -23,15 +23,19 @@ class OAuthCode(BaseToken):
     _scope: str = ""
 
     def get_session_id(self) -> int:
+        """Returns session ID of the token."""
         return self._session_id
 
     def get_scope(self) -> str:
+        """Returns permissions scope of the token."""
         return self._scope
 
     def get_redirect_uri(self) -> str:
+        """Returns the redirect uri of the token that was passed when generating code."""
         return self._redirect_uri
 
     def get_client_id(self) -> int:
+        """Returns the client ID linked for code."""
         return self._client_id
 
     def __init__(

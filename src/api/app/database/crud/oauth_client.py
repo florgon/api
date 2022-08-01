@@ -54,18 +54,22 @@ def create(db: Session, owner_id: int, display_name: str) -> OAuthClient:
 
 
 def get_count(db: Session) -> int:
+    """Returns total count of clients."""
     return db.query(OAuthClient).count()
 
 
 def get_active_count(db: Session) -> int:
+    """Returns count of active clients."""
     return db.query(OAuthClient).filter(OAuthClient.is_active is True).count()
 
 
 def get_inactive_count(db: Session) -> int:
+    """Returns count of inactive clients."""
     return db.query(OAuthClient).filter(OAuthClient.is_active is False).count()
 
 
 def get_last(db: Session) -> OAuthClient:
+    """Returns last created OAuth client."""
     return (
         db.query(OAuthClient).order_by(OAuthClient.time_created.desc()).limit(1).first()
     )

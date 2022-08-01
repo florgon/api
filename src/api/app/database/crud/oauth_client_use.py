@@ -19,6 +19,7 @@ def create(db: Session, user_id: int, client_id: int) -> OAuthClientUse:
 
 
 def get_unique_users(db: Session, client_id: int) -> int:
+    """Returns count of all uses of oauth client by different users."""
     return (
         db.query(OAuthClientUse.user_id)
         .filter(OAuthClientUse.client_id == client_id)
@@ -28,6 +29,7 @@ def get_unique_users(db: Session, client_id: int) -> int:
 
 
 def get_uses(db: Session, client_id: int) -> int:
+    """Returns count of all uses of oauth client."""
     return (
         db.query(OAuthClientUse).filter(OAuthClientUse.client_id == client_id).count()
     )
