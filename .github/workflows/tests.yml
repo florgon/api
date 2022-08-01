@@ -1,4 +1,4 @@
-name: Tests (PyTest)
+name: Tests (PyTest, Coverage)
 
 on:
   pull_request:
@@ -27,6 +27,6 @@ jobs:
         run: docker ps -a
       - name: Ping web server.
         run: curl http://localhost/utils.getServerTime
-      - name: Unit tests (PyTest)
+      - name: Unit tests (PyTest, Coverage)
         working-directory: ./src/api/app
-        run: docker exec florgon-api_server_1 pytest .
+        run: docker exec florgon-api_server_1 pytest --cov=app .
