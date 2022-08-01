@@ -29,3 +29,6 @@ jobs:
       - name: Pytest
         working-directory: ./src/api/app
         run: docker exec florgon-api_server_1 pytest .
+      - name: Tests coverage
+        working-directory: ./src/api
+        run: docker exec florgon-api_server_1 pytest --cov=app
