@@ -1,0 +1,4 @@
+# Notice that there is GitHub workflow that is not rely on this file for now!
+black<=23 
+pylint==v3.0.0a3 
+mypy==v0.902

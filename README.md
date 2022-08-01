@@ -11,20 +11,24 @@ API server for Florgon services (Florgon API).
 
 ### Features.
 
-- Authentication (OAuth, Permissions, 2FA)
+- Authentication (OAuth, Permissions, 2FA, Sessions)
 - Accounts (Public profile, Private accounts).
 - Administrators stuff.
 - Email verification system.
-- Promocode system for VIP.
-- VIP system.
+- VIP system (with promocodes).
 - Upload system (With upload server).
-- Session system.
-- WIP External OAuth (GitHub and etc.)
 - Blog system.
 
 ### See in action.
 
 API deployed and used in production [here](https://api.florgon.space/) (API endpoint).
+
+### Contributing.
+
+(You may install `requirements-dev.txt`)
+There is auto check for `black` formatter, and `pylint` linter for warnings.
+Also your request should pass unit-tests (and overall smoke test).
+Before sending PR, you should do `black` formatting, and `pylint` check!
 
 ### Technologies.
 
