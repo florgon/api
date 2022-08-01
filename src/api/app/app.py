@@ -4,17 +4,6 @@
     Should be run from external process (Manual uvicorn or by default as docker).
 """
 
-if __name__ == "__main__":
-    # You are not supposed to run this directly.
-    # Raise error if tried to run from CLI directly.
-    print(
-        "ERROR: This application should be run with `Uvicorn` manually, or by Docker (Docker-Compose).\n"
-    )
-    print(
-        "ERROR: Please use methods above, or search FastAPI application inside `/app.py`"
-    )
-    exit(1)
-
 from fastapi import FastAPI
 
 # Setters for custom layers.
@@ -28,6 +17,18 @@ from .config import get_settings
 
 # ORM constructor.
 from . import database
+
+
+if __name__ == "__main__":
+    # You are not supposed to run this directly.
+    # Raise error if tried to run from CLI directly.
+    print(
+        "ERROR: This application should be run with `Uvicorn` manually, or by Docker (Docker-Compose).\n"
+    )
+    print(
+        "ERROR: Please use methods above, or search FastAPI application inside `/app.py`"
+    )
+    exit(1)
 
 
 def _construct_app() -> FastAPI:

@@ -91,6 +91,7 @@ secure_scheme_headers = {
 forwarded_allow_ips = "*"  # (Default: 127.0.0.1). Complex field. https://docs.gunicorn.org/en/latest/settings.html#forwarded-allow-ips
 proxy_allow_ips = "*"  # (Default: 127.0.0.1). Complex field. https://docs.gunicorn.org/en/latest/settings.html#proxy-allow-ips
 
+
 # SSL.
 # https://docs.gunicorn.org/en/latest/settings.html#ssl
 # Notice, that this section should be handled by your proxy (like Nginx).
@@ -102,4 +103,5 @@ ca_certs = None  # (Default: None)
 # Hooks.
 # https://docs.gunicorn.org/en/latest/settings.html#server-hooks
 def pre_request(worker, req):
+    """Logger for pre-request."""
     worker.log.debug("%s %s" % (req.method, req.path))

@@ -6,4 +6,6 @@ from ._base import ExternalSocialAuthService
 
 
 class GithubOauthService(ExternalSocialAuthService):
-    pass
+    """
+    GitHub external OAuth service.
+    """

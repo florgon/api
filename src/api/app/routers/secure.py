@@ -1,3 +1,7 @@
+"""
+    Secure API router.
+    Provides API methods (routes) for working with server-side with client apps servers.
+"""
 from fastapi import APIRouter, Depends
 
 from app.services.permissions import parse_permissions_from_scope

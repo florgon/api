@@ -10,7 +10,7 @@ from app.database.models.user import User
 from app.database.models.user_session import UserSession
 
 
-class AuthData(object):
+class AuthData:
     """DTO for authenticated request."""
 
     user: User

@@ -1,3 +1,4 @@
+# pylint: disable=all
 from typing import Callable, Optional
 
 from pydantic import conint

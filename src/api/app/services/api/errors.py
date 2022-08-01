@@ -65,9 +65,14 @@ class ApiErrorCode(Enum):
 
 
 class ApiErrorException(Exception):
+    """
+    Exception, that will be return to the user as API error response (FastAPI) handler.
+    """
+
     def __init__(
         self, api_code: ApiErrorCode, message: str = "", data: dict | None = None
     ):
+        super().__init__()
         self.api_code = api_code
         self.message = message
         self.data = data

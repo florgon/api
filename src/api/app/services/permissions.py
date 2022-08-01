@@ -7,6 +7,10 @@ from enum import Enum
 
 
 class Permission(Enum):
+    """
+    Permissions scope string enumeration.
+    """
+
     # Other.
     noexpire = "noexpire"
 
@@ -75,13 +79,11 @@ def parse_permissions_from_scope(scope: str) -> list[Permission]:
     if SCOPE_PERMISSION_GRANT_ALL_TAG in scope:
         return SCOPE_ALL_PERMISSIONS
     return list(
-        set(
-            [
-                Permission(permission)
-                for permission in scope.split(SCOPE_PERMISSION_SEPARATOR)
-                if (permission and permission in SCOPE_ALLOWED_PERMISSIONS)
-            ]
-        )
+        {
+            Permission(permission)
+            for permission in scope.split(SCOPE_PERMISSION_SEPARATOR)
+            if (permission and permission in SCOPE_ALLOWED_PERMISSIONS)
+        }
     )
 
 

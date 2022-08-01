@@ -3,6 +3,8 @@
     Provides API methods (routes) for working with uploading files.
 """
 
+from urllib.parse import urlsplit
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -12,7 +14,6 @@ from app.services.limiter.depends import RateLimiter
 
 from app.database.dependencies import get_db, Session
 from app.database import crud
-from app.config import get_settings
 from app.services.permissions import Permission
 
 router = APIRouter()
@@ -27,7 +28,6 @@ async def method_upload_get_photo_upload_server(
 
     query_auth_data_from_request(req, db, required_permissions=None)
 
-    settings = get_settings()
     upload_server_domain = "cdnus0.florgon.space"
     return api_success({"upload_url": f"http://{upload_server_domain}/upload"})
 
@@ -68,9 +68,6 @@ async def method_upload_save_oauth_client_avatar(
         is_updated = True
 
     return api_success({"photo_url": photo, "is_updated": is_updated})
-
-
-from urllib.parse import urlsplit
 
 
 @router.get("/upload.saveUserAvatar")

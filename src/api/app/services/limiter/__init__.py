@@ -1,3 +1,4 @@
+# pylint: disable=all
 """
     NOTICE FROM FLORGON.
     This code is licensed to LICENSE file.
@@ -20,6 +21,7 @@ from app.config import get_settings
 
 
 async def default_identifier(request: Request):
+    """Returns default limiter Redis identifier for unique key."""
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         ip = forwarded.split(",")[0]
@@ -28,7 +30,9 @@ async def default_identifier(request: Request):
     return ip + ":" + request.scope["path"]
 
 
-async def default_callback(request: Request, response: Response | None, pexpire: int):
+async def default_callback(
+    request: Request, response: Response | None, pexpire: int
+):  # pylint: disable=unused-argument
     """
     default callback when too many requests
     :param request:

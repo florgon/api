@@ -31,6 +31,8 @@ def serialize(session: UserSession, db: Session, in_list: bool = False):
 def serialize_list(
     sessions: list[UserSession], db: Session, *, include_deactivated: bool = False
 ) -> dict:
+    """Returns dict object for API response with serialized sessions list data."""
+
     return {
         "sessions": [
             serialize(session, db=db, in_list=True)

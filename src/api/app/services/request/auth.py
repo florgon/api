@@ -94,6 +94,40 @@ def query_auth_data_from_request(
     )
 
 
+def try_query_auth_data_from_request(
+    req: Request,
+    db: Session,
+    *,
+    only_session_token: bool = False,
+    required_permissions: list[Permission] | None = None,
+    allow_deactivated: bool = False,
+    allow_external_clients: bool = False,
+) -> tuple[bool, AuthData]:
+    """
+    Tries query authentication data from request (from request token), and returns tuple with status and auth data.
+    :param req: Request itself.
+    :param db: Database session.
+    :param only_session_token: If true, will query for session token, not access.
+    :param required_permissions: If passed, will require permission from token.
+    :param allow_deactivated: If true, allow deactivated user to authenticate.
+    """
+
+    try:
+        # Try to authenticate, and if does not fall, return OK.
+        auth_data = query_auth_data_from_request(
+            req=req,
+            db=db,
+            only_session_token=only_session_token,
+            required_permissions=required_permissions,
+            allow_deactivated=allow_deactivated,
+            allow_external_clients=allow_external_clients,
+        )
+        return True, auth_data
+    except ApiErrorException:
+        # Got exception, not authorized.
+        return False, None
+
+
 def _get_token_from_request(req: Request, only_session_token: bool) -> str:
     """
     Returns token from request.

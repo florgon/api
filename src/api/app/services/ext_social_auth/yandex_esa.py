@@ -6,4 +6,6 @@ from ._base import ExternalSocialAuthService
 
 
 class YandexOauthService(ExternalSocialAuthService):
-    pass
+    """
+    Yandex external OAuth service.
+    """

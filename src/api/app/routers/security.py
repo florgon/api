@@ -42,9 +42,7 @@ async def method_security_user_enable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Enables TFA for the current user."""
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
-    )
+    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (2FA not implemented).",
@@ -56,9 +54,7 @@ async def method_security_user_disable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Disables TFA for the current user."""
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
-    )
+    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (2FA not implemented).",
@@ -70,9 +66,7 @@ async def method_security_user_request_change_password(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Requests change password for the current user."""
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
-    )
+    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (Password change not implemented).",
@@ -84,9 +78,7 @@ async def method_security_user_accept_change_password(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Accepts change password for the current user."""
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
-    )
+    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (Password change not implemented).",

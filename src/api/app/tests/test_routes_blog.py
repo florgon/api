@@ -1,3 +1,8 @@
+"""
+    Tests blog API methods.
+"""
+
+
 import pytest
 
 from fastapi.testclient import TestClient
@@ -7,11 +12,13 @@ from app.app import app
 
 @pytest.fixture
 def client():
+    """Web server application fixture to have app initialized."""
     with TestClient(app) as c:
         yield c
 
 
-def test_read_blog_get(client):
+def test_read_blog_get(client):  # pylint: disable=redefined-outer-name
+    """Test blog public getter method."""
     response = client.get("/blog.get")
     assert response.status_code == 200
 

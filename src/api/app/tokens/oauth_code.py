@@ -23,15 +23,19 @@ class OAuthCode(BaseToken):
     _scope: str = ""
 
     def get_session_id(self) -> int:
+        """Returns session ID of the token."""
         return self._session_id
 
     def get_scope(self) -> str:
+        """Returns permissions scope of the token."""
         return self._scope
 
     def get_redirect_uri(self) -> str:
+        """Returns the redirect uri of the token that was passed when generating code."""
         return self._redirect_uri
 
     def get_client_id(self) -> int:
+        """Returns the client ID linked for code."""
         return self._client_id
 
     def __init__(
@@ -59,10 +63,16 @@ class OAuthCode(BaseToken):
         Decoding with custom payload fields.
         """
         instance = super(OAuthCode, cls).decode(token, key)
-        instance._session_id = instance._raw_payload["sid"]
-        instance._scope = instance._raw_payload["scope"]
-        instance._redirect_uri = instance._raw_payload["ruri"]
-        instance._client_id = instance._raw_payload["cid"]
+
+        session_id = instance._raw_payload["sid"]  # pylint: disable=protected-access
+        instance._session_id = session_id  # pylint: disable=protected-access
+        scope = instance._raw_payload["scope"]  # pylint: disable=protected-access
+        instance._scope = scope  # pylint: disable=protected-access
+        redirect_uri = instance._raw_payload["ruri"]  # pylint: disable=protected-access
+        instance._redirect_uri = redirect_uri  # pylint: disable=protected-access
+        client_id = instance._raw_payload["cid"]  # pylint: disable=protected-access
+        instance._client_id = client_id  # pylint: disable=protected-access
+
         return instance
 
     def encode(self, *, key: str | None = None) -> str:

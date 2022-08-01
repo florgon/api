@@ -1,10 +1,18 @@
+"""
+    Tests tokens (Access token) unit.
+"""
+
+
 import unittest
 
 from app.tokens.access_token import AccessToken
 
 
 class TestAccessTokenUnit(unittest.TestCase):
+    """Tests access token token unit."""
+
     def test_access_token_unsigned(self):
+        """Test encoding without signature (key)"""
         key = "my_secret_key"
         token = AccessToken("me", 1, 2, 3, "", key=key)
 
@@ -18,11 +26,12 @@ class TestAccessTokenUnit(unittest.TestCase):
             decoded_unsigned_token.get_subject(), decoded_signed_token.get_subject()
         )
         self.assertEqual(
-            decoded_unsigned_token.get_session_id(),
-            decoded_signed_token.get_session_id(),
+            decoded_unsigned_token.get_session_id(),  # pylint: disable=no-member
+            decoded_signed_token.get_session_id(),  # pylint: disable=no-member
         )
 
     def test_access_token(self):
+        """Test base feature."""
         key = "my_secret_key"
         token = AccessToken("me", 1, 2, 3, "", key=key)
         encoded_token = token.encode()

@@ -20,7 +20,8 @@ class SessionToken(BaseToken):
     _session_id: int = None
 
     def get_session_id(self) -> int:
-        return self._session_id
+        """Returns session ID from the session token."""
+        return self._session_id  # pylint: disable=protected-access
 
     def __init__(
         self,
@@ -33,7 +34,7 @@ class SessionToken(BaseToken):
         key: str | None = None
     ):
         super().__init__(issuer, ttl, subject=user_id, payload={}, key=key)
-        self._session_id = session_id
+        self._session_id = session_id  # pylint: disable=protected-access
 
     @classmethod
     def decode(cls, token: str, key: str | None = None):
@@ -41,7 +42,9 @@ class SessionToken(BaseToken):
         Decoding with custom payload fields.
         """
         instance = super(SessionToken, cls).decode(token, key)
-        instance._session_id = instance._raw_payload["sid"]
+
+        session_id = instance._raw_payload["sid"]  # pylint: disable=protected-access
+        instance._session_id = session_id  # pylint: disable=protected-access
         return instance
 
     def encode(self, *, key: str | None = None) -> str:

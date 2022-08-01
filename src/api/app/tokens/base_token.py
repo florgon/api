@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes
 """
     Florgon API base token class implementation.
 
@@ -5,13 +6,15 @@
     Some sort of abstract class.
 """
 
-import jwt  # Library with base JWT implementation.
+
 import time  # Utils for expiration dates.
+import jwt  # Library with base JWT implementation.
+
 
 from . import exceptions
 
 
-class BaseToken(object):
+class BaseToken:
     """
     Florgon API token implementation.
 
@@ -257,35 +260,16 @@ class BaseToken(object):
         :param _always_verify_signature: if True, will always verify signature even when key is none.
         """
 
-        # JWT decode options.
+        if not isinstance(token, str):
+            raise TypeError("Token should be a string!")
+
+        # Decode payload.
         verify_signature = (
             key is not None
         ) or _always_verify_signature  # Do not verify the signature if key is None.
-        decode_options = {"verify_signature": verify_signature}
-
-        if not isinstance(token, str):
-            raise TypeError("Token should be a string!")
-        try:
-            payload = jwt.decode(
-                jwt=token,
-                key=key,
-                options=decode_options,
-                algorithms=cls._signing_algorithm,
-            )
-        except jwt.exceptions.InvalidSignatureError:
-            # Raised when token can be decoded but the signature is invalid.
-            raise exceptions.TokenInvalidSignatureError
-        except jwt.exceptions.ExpiredSignatureError:
-            # Raised when token is expired at current time.
-            raise exceptions.TokenExpiredError
-        except jwt.exceptions.PyJWTError:
-            # Raised when there is any error during decoding (
-            #   Important notice!
-            #   PyJWT raises own error as PyJWTError too,
-            #   this means server will throw token invalid error, which is may be caused
-            #   by some server side error.
-            # )
-            raise exceptions.TokenInvalidError
+        payload = cls._decode_jwt_exception_wrapped(
+            token=token, key=key, verify_signature=verify_signature
+        )
 
         # Checking token types.
         expected_type = cls._type
@@ -297,6 +281,39 @@ class BaseToken(object):
             )
 
         return payload
+
+    @classmethod
+    def _decode_jwt_exception_wrapped(
+        cls, token: str, key: str | None = None, verify_signature: bool = True
+    ) -> dict[str, any]:
+        """
+        Decodes JWT with wrapped exceptions (library exceptions, raised as core exceptions),
+        Also provides some abstraction on JWT library decode.
+
+        :param _always_verify_signature: if True, will always verify signature even when key is none.
+        """
+        decode_options = {"verify_signature": verify_signature}
+        try:
+            return jwt.decode(
+                jwt=token,
+                key=key,
+                options=decode_options,
+                algorithms=cls._signing_algorithm,
+            )
+        except jwt.exceptions.InvalidSignatureError as invalid_signature_error:
+            # Raised when token can be decoded but the signature is invalid.
+            raise exceptions.TokenInvalidSignatureError from invalid_signature_error
+        except jwt.exceptions.ExpiredSignatureError as expired_signature_error:
+            # Raised when token is expired at current time.
+            raise exceptions.TokenExpiredError from expired_signature_error
+        except jwt.exceptions.PyJWTError as py_jwt_error:
+            # Raised when there is any error during decoding (
+            #   Important notice!
+            #   PyJWT raises own error as PyJWTError too,
+            #   this means server will throw token invalid error, which is may be caused
+            #   by some server side error.
+            # )
+            raise exceptions.TokenInvalidError from py_jwt_error
 
     def __init__(
         self,
