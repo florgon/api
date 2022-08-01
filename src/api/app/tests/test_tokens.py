@@ -26,8 +26,8 @@ class TestAccessTokenUnit(unittest.TestCase):
             decoded_unsigned_token.get_subject(), decoded_signed_token.get_subject()
         )
         self.assertEqual(
-            decoded_unsigned_token.get_session_id(),
-            decoded_signed_token.get_session_id(),
+            decoded_unsigned_token.get_session_id(),  # pylint: disable=no-member
+            decoded_signed_token.get_session_id(),  # pylint: disable=no-member
         )
 
     def test_access_token(self):

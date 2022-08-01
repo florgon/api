@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes
 """
     Florgon API base token class implementation.
 
@@ -5,13 +6,15 @@
     Some sort of abstract class.
 """
 
-import jwt  # Library with base JWT implementation.
+
 import time  # Utils for expiration dates.
+import jwt  # Library with base JWT implementation.
+
 
 from . import exceptions
 
 
-class BaseToken(object):
+class BaseToken:
     """
     Florgon API token implementation.
 

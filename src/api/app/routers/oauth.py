@@ -349,8 +349,9 @@ def _grant_type_authorization_code(
 
     # Access token have infinity TTL, if there is scope permission given for no expiration date.
     access_token_permissions = parse_permissions_from_scope(
-        code_signed.get_scope()
-    )  # pylint: disable=no-member
+        code_signed.get_scope()  # pylint: disable=no-member
+    )
+
     access_token_ttl = permissions_get_ttl(
         access_token_permissions, default_ttl=settings.security_access_tokens_ttl
     )

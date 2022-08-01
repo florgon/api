@@ -7,6 +7,10 @@ from enum import Enum
 
 
 class Permission(Enum):
+    """
+    Permissions scope string enumeration.
+    """
+
     # Other.
     noexpire = "noexpire"
 

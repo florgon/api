@@ -38,6 +38,8 @@ def serialize_list(
     include_deactivated: bool = False,
     display_secret: bool = False
 ):
+    """Returns dict object for API response with serialized oauth clients list data."""
+
     return {
         "oauth_clients": [
             serialize(oauth_client, display_secret=display_secret, in_list=True)

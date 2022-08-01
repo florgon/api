@@ -18,6 +18,7 @@ def get_by_string(db: Session, user_agent_string: str) -> UserAgent:
 
 
 def get_by_id(db: Session, user_agent_id: int) -> UserAgent | None:
+    """Returns user agent by it`s id."""
     return db.query(UserAgent).filter(UserAgent.id == user_agent_id).first()
 
 
