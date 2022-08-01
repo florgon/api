@@ -10,7 +10,6 @@ from fastapi.responses import JSONResponse
 
 from app.services.api.response import api_success
 
-
 router = APIRouter()
 
 

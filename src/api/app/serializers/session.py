@@ -5,9 +5,9 @@
 
 import time
 
+from app.database.crud.user_agent import get_by_id as get_user_agent_by_id
 from app.database.dependencies import Session
 from app.database.models.user_session import UserSession
-from app.database.crud.user_agent import get_by_id as get_user_agent_by_id
 
 
 def serialize(session: UserSession, db: Session, in_list: bool = False):

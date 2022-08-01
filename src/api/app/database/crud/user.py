@@ -4,13 +4,15 @@
 
 # Libraries.
 from datetime import datetime
-from sqlalchemy.orm import Session
+
 from pyotp import random_base32
+from sqlalchemy.orm import Session
+
+from app.config import get_settings
 
 # Services.
 from app.database.models.user import User
 from app.services.passwords import get_hashed_password
-from app.config import get_settings
 
 
 def get_by_id(db: Session, user_id: int) -> User:

@@ -3,7 +3,8 @@
 [![Unit tests](https://github.com/florgon/api/actions/workflows/unittests.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/unittests.yml)
 [![Deploy in production](https://github.com/florgon/api/actions/workflows/deploy.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy.yml) \
 [![Linters](https://github.com/florgon/api/actions/workflows/linters.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/linters.yml)
-[![CodeQL](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml)
+[![CodeQL](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/codeql-analysis.yml) \
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
 ### Description.
 

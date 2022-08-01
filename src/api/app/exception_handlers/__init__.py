@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 
 from app.services.api.errors import ApiErrorException
-
 from app.tokens.exceptions import (
     TokenExpiredError,
     TokenInvalidError,

@@ -2,24 +2,24 @@
     Oauth API auth routers.
 """
 
-# Libraries.
-from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-# Services.
-from app.services.request import query_auth_data_from_request
-from app.services.permissions import Permission
+# Libraries.
+from sqlalchemy.orm import Session
 
-from app.services.api.errors import ApiErrorCode
-from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_error, api_success
+from app.database import crud
+from app.database.dependencies import get_db
 
 # Other.
 from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
-from app.database.dependencies import get_db
-from app.database import crud
+from app.services.api.errors import ApiErrorCode
+from app.services.api.response import api_error, api_success
+from app.services.limiter.depends import RateLimiter
+from app.services.permissions import Permission
 
+# Services.
+from app.services.request import query_auth_data_from_request
 
 router = APIRouter()
 

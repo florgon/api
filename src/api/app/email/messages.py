@@ -2,9 +2,10 @@
     Stuff for sending messages.
 """
 
+from fastapi import BackgroundTasks
+
 # Libraries.
 from fastapi_mail import MessageSchema
-from fastapi import BackgroundTasks
 
 # Core.
 from .config import fastmail

@@ -6,18 +6,17 @@
 
 from fastapi import FastAPI
 
-# Setters for custom layers.
-from .middlewares import add_middlewares
-from .event_handlers import add_event_handlers
-from .routers import register_routers
-from .exception_handlers import register_handlers
-
-# Settings.
-from .config import get_settings
-
 # ORM constructor.
 from . import database
 
+# Settings.
+from .config import get_settings
+from .event_handlers import add_event_handlers
+from .exception_handlers import register_handlers
+
+# Setters for custom layers.
+from .middlewares import add_middlewares
+from .routers import register_routers
 
 if __name__ == "__main__":
     # You are not supposed to run this directly.

@@ -8,19 +8,19 @@ from fastapi import FastAPI
 from app.config import get_settings
 
 from . import (
+    admin,
+    blog,
     email,
+    ext_social_auth,
+    gift,
+    oauth,
     oauth_client,
     secure,
-    oauth,
+    security,
     session,
+    upload,
     user,
     utils,
-    ext_social_auth,
-    admin,
-    security,
-    upload,
-    gift,
-    blog,
 )
 
 

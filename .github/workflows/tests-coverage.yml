@@ -1,7 +1,7 @@
-name: Unit tests
+name: Tests coverage
 
 on:
-  pull_request:
+  push:
     branches: [main]
   workflow_dispatch:
 
@@ -9,8 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  unittests:
+  build:
     runs-on: ubuntu-latest
+    name: Coverage
     steps:
       - uses: actions/checkout@v3
       - name: Build containers (Docker-Compose)
@@ -24,8 +25,8 @@ jobs:
       - name: Check docker containers (After wait for start)
         working-directory: ./src
         run: docker ps -a
-      - name: Ping web server.
+      - name: Ping web server
         run: curl http://localhost/utils.getServerTime
-      - name: Pytest
-        working-directory: ./src/api/app
-        run: docker exec florgon-api_server_1 pytest .
+      - name: Test coverage (PyTest coverage)
+        working-directory: ./src/api
+        run: docker exec florgon-api_server_1 pytest --cov=app

@@ -6,9 +6,17 @@
 
 import urllib.parse
 
-from fastapi import APIRouter, Depends, Request, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.responses import JSONResponse
 
+from app.config import Settings, get_settings
+from app.database import crud
+from app.database.dependencies import Session, get_db
+from app.email import messages
+from app.services.api.errors import ApiErrorCode
+from app.services.api.response import api_error, api_success
+from app.services.limiter.depends import RateLimiter
+from app.services.request import query_auth_data_from_request
 from app.tokens.email_token import EmailToken
 from app.tokens.exceptions import (
     TokenExpiredError,
@@ -16,17 +24,6 @@ from app.tokens.exceptions import (
     TokenInvalidSignatureError,
     TokenWrongTypeError,
 )
-
-from app.services.request import query_auth_data_from_request
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error, api_success
-from app.services.limiter.depends import RateLimiter
-
-from app.database.dependencies import get_db, Session
-from app.database import crud
-from app.email import messages
-from app.config import get_settings, Settings
-
 
 router = APIRouter()
 

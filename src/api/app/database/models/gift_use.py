@@ -3,7 +3,7 @@
 """
 
 # ORM.
-from sqlalchemy import ForeignKey, Integer, Column, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.sql import func
 
 # Core model base.

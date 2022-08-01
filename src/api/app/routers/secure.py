@@ -4,10 +4,10 @@
 """
 from fastapi import APIRouter, Depends
 
+from app.database.dependencies import Session, get_db
+from app.services.api.response import JSONResponse, api_success
 from app.services.permissions import parse_permissions_from_scope
 from app.services.request import query_auth_data_from_token
-from app.services.api.response import api_success, JSONResponse
-from app.database.dependencies import get_db, Session
 
 router = APIRouter()
 

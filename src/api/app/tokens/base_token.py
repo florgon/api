@@ -8,8 +8,8 @@
 
 
 import time  # Utils for expiration dates.
-import jwt  # Library with base JWT implementation.
 
+import jwt  # Library with base JWT implementation.
 
 from . import exceptions
 

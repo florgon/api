@@ -2,9 +2,10 @@
     User database model.
 """
 
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
+
 # ORM.
 from sqlalchemy.sql import func
-from sqlalchemy import Integer, String, Column, Boolean, DateTime, Text
 
 # Core model base.
 from app.database.core import Base

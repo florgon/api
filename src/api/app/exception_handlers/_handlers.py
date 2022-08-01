@@ -3,10 +3,8 @@
     (FastAPI exception handlers)
 """
 
-from app.services.api.response import api_error
-
-
 from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.response import api_error
 
 
 async def validation_exception_handler(_, exception):

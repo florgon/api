@@ -6,7 +6,4 @@
     All tokens should be child classes of BaseToken class.
 """
 
-from . import access_token
-from . import session_token
-from . import email_token
-from . import oauth_code
+from . import access_token, email_token, oauth_code, session_token

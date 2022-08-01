@@ -6,12 +6,11 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-
-from app.services.api.response import api_error
 from app.services.api.errors import ApiErrorCode
-from app.services.ext_social_auth.yandex_esa import YandexOauthService
-from app.services.ext_social_auth.vk_esa import VkOauthService
+from app.services.api.response import api_error
 from app.services.ext_social_auth.github_esa import GithubOauthService
+from app.services.ext_social_auth.vk_esa import VkOauthService
+from app.services.ext_social_auth.yandex_esa import YandexOauthService
 
 router = APIRouter()
 

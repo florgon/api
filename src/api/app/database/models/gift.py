@@ -5,7 +5,7 @@
 from enum import IntEnum
 
 # ORM.
-from sqlalchemy import String, Integer, Column, DateTime, ForeignKey, Boolean
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.sql import func
 
 # Core model base.

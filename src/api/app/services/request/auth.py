@@ -6,22 +6,18 @@
 
 from typing import Type
 
-from sqlalchemy.orm import Session
 from fastapi.requests import Request
+from sqlalchemy.orm import Session
 
 from app.database import crud
-from app.services.permissions import (
-    Permission,
-    parse_permissions_from_scope,
-)
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-
-from app.tokens.base_token import BaseToken
-from app.tokens.access_token import AccessToken
-from app.tokens.session_token import SessionToken
 from app.database.models.user_session import UserSession
-from app.services.request.session_check_client import session_check_client_by_request
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.permissions import Permission, parse_permissions_from_scope
 from app.services.request.auth_data import AuthData
+from app.services.request.session_check_client import session_check_client_by_request
+from app.tokens.access_token import AccessToken
+from app.tokens.base_token import BaseToken
+from app.tokens.session_token import SessionToken
 
 
 def query_auth_data_from_token(
