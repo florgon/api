@@ -8,5 +8,5 @@
 
 from . import access_token
 from . import session_token
-from . import email_toke
+from . import email_token
 from . import oauth_code

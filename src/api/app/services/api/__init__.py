@@ -4,6 +4,6 @@
     Unified JSON response with base format.
 """
 
-from . import error
+from . import errors
 from . import response
 from . import version
