@@ -42,9 +42,9 @@ class SessionToken(BaseToken):
         Decoding with custom payload fields.
         """
         instance = super(SessionToken, cls).decode(token, key)
-        instance._session_id = instance._raw_payload[
-            "sid"
-        ]  # pylint: disable=protected-access
+
+        session_id = instance._raw_payload["sid"]  # pylint: disable=protected-access
+        instance._session_id = session_id  # pylint: disable=protected-access
         return instance
 
     def encode(self, *, key: str | None = None) -> str:

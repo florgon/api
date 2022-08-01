@@ -47,8 +47,10 @@ class AccessToken(BaseToken):
         Decoding with custom payload fields.
         """
         instance = super(AccessToken, cls).decode(token, key)
-        instance._session_id = instance._raw_payload["sid"]
-        instance._scope = instance._raw_payload["scope"]
+        session_id = instance._raw_payload["sid"]  # pylint: disable=protected-access
+        instance._session_id = session_id  # pylint: disable=protected-access
+        scope = instance._raw_payload["scope"]  # pylint: disable=protected-access
+        instance._scope = scope  # pylint: disable=protected-access
         return instance
 
     def encode(self, *, key: str | None = None) -> str:

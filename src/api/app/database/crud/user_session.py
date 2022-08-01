@@ -7,7 +7,9 @@ import secrets
 from sqlalchemy.orm import Session
 
 # CRUD.
-from app.database import crud
+from app.database.crud.user_agent import (
+    get_or_create_by_string as get_ua_or_crete_by_string,
+)
 
 # Models.
 from app.database.models.user_session import UserSession
@@ -82,9 +84,7 @@ def get_or_create_new(
     """Returns user session or creates a new one."""
 
     # Query user agent.
-    user_agent: UserAgent = crud.user_agent.get_or_create_by_string(
-        db, client_user_agent
-    )
+    user_agent: UserAgent = get_ua_or_crete_by_string(db, client_user_agent)
     user_agent_id = user_agent.id
 
     queried_session: UserSession = get_by_ip_address_and_user_agent(
