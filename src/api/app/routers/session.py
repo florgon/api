@@ -36,7 +36,7 @@ router = APIRouter()
 async def method_session_get_user_info(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
-    """Returns user account information by session token, and additonal information about token."""
+    """Returns user account information by session token, and additional information about token."""
     auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     return api_success(
         {
@@ -104,7 +104,7 @@ async def method_session_logout(
     await RateLimiter(times=1, seconds=15).check(req)
 
     if revoke_all:
-        sessions = crud.user_session.get_by_owner_id(db, session.owner_id)
+        sessions = crud.user_session.get_by_owner_id(db, owner_id=auth_data.user.id)
         for _session in sessions:
             _session.is_active = False
         db.commit()

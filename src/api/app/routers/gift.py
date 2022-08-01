@@ -12,7 +12,6 @@ from app.services.request import query_auth_data_from_request
 
 from app.database.dependencies import get_db, Session
 from app.database.models.gift import GiftRewardType
-from app.config import get_settings, Settings
 from app.database import crud
 
 router = APIRouter()
@@ -23,7 +22,6 @@ async def method_gift_accept(
     req: Request,
     db: Session = Depends(get_db),
     promocode: str | None = None,
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Accepts gift."""
 
