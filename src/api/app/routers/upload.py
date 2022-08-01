@@ -8,13 +8,12 @@ from urllib.parse import urlsplit
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-from app.services.request import query_auth_data_from_request
-from app.services.api.response import api_success, api_error, ApiErrorCode
-from app.services.limiter.depends import RateLimiter
-
-from app.database.dependencies import get_db, Session
 from app.database import crud
+from app.database.dependencies import Session, get_db
+from app.services.api.response import ApiErrorCode, api_error, api_success
+from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
+from app.services.request import query_auth_data_from_request
 
 router = APIRouter()
 

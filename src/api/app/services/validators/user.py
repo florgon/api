@@ -5,12 +5,11 @@
 # Libraries.
 from validate_email import validate_email
 
+from app.config import get_settings
 # Database.
 from app.database import crud
-
 # Services.
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.config import get_settings
 
 
 def validate_signup_fields(db, username: str, email: str, password: str):

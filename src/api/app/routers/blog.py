@@ -3,20 +3,19 @@
     Provides API methods (routes) for working blog.
 """
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
-
-# Etc.
-from app.services.api.response import api_error, api_success, ApiErrorCode
-from app.services.request import query_auth_data_from_request
-from app.services.permissions import Permission
-from app.serializers.blog_post import serialize as serialize_post
-from app.serializers.blog_post import serialize_list as serialize_posts
 
 # Database.
 from app.database import crud
-from app.database.dependencies import get_db, Session
+from app.database.dependencies import Session, get_db
+from app.serializers.blog_post import serialize as serialize_post
+from app.serializers.blog_post import serialize_list as serialize_posts
+# Etc.
+from app.services.api.response import ApiErrorCode, api_error, api_success
 from app.services.limiter.depends import RateLimiter
+from app.services.permissions import Permission
+from app.services.request import query_auth_data_from_request
 
 router = APIRouter()
 

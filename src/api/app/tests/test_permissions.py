@@ -4,11 +4,8 @@
 
 import unittest
 
-from app.services.permissions import (
-    parse_permissions_from_scope,
-    normalize_scope,
-    Permission,
-)
+from app.services.permissions import (Permission, normalize_scope,
+                                      parse_permissions_from_scope)
 
 
 class TestPermissionsUnit(unittest.TestCase):

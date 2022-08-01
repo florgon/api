@@ -3,7 +3,7 @@
 """
 
 # ORM.
-from sqlalchemy import Text, Integer, Column
+from sqlalchemy import Column, Integer, Text
 
 # Core model base.
 from app.database.core import Base

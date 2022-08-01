@@ -2,12 +2,10 @@
     DTO for authentication request.
 """
 
-from app.services.permissions import Permission, parse_permissions_from_scope
-
-from app.tokens.base_token import BaseToken
-
 from app.database.models.user import User
 from app.database.models.user_session import UserSession
+from app.services.permissions import Permission, parse_permissions_from_scope
+from app.tokens.base_token import BaseToken
 
 
 class AuthData:

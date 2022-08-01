@@ -5,8 +5,7 @@
 """
 
 # Pydantic abstract class with data types.
-from pydantic import BaseSettings
-from pydantic import PostgresDsn, RedisDsn, conint, EmailStr
+from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
 
 
 class Settings(BaseSettings):

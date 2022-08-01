@@ -2,9 +2,9 @@
     Blog database model.
 """
 
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 # ORM.
 from sqlalchemy.sql import func
-from sqlalchemy import Integer, Column, DateTime, Text, String, ForeignKey
 
 # Core model base.
 from app.database.core import Base

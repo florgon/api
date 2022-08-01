@@ -4,30 +4,25 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
+from fastapi.responses import JSONResponse
 from pyotp import TOTP
 
-from fastapi import APIRouter, Depends, Header, Request, BackgroundTasks
-from fastapi.responses import JSONResponse
-
-
-from app.services.permissions import Permission
-
-from app.services.request import query_auth_data_from_request
-from app.services.validators.user import validate_signup_fields
-from app.services.passwords import check_password
-
+from app.config import Settings, get_settings
+from app.database import crud
+from app.database.dependencies import Session, get_db
+from app.email import messages as email_messages
+from app.serializers.session import serialize_sessions
+from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
-
+from app.services.passwords import check_password
+from app.services.permissions import Permission
+from app.services.request import (get_client_host_from_request,
+                                  query_auth_data_from_request)
+from app.services.validators.user import validate_signup_fields
 from app.tokens.session_token import SessionToken
-from app.serializers.user import serialize_user
-from app.serializers.session import serialize_sessions
-from app.database.dependencies import get_db, Session
-from app.database import crud
-from app.config import get_settings, Settings
-from app.services.request import get_client_host_from_request
-from app.email import messages as email_messages
 
 router = APIRouter()
 

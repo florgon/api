@@ -2,9 +2,9 @@
     OAuth client use database model.
 """
 
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 # ORM.
 from sqlalchemy.sql import func
-from sqlalchemy import Integer, ForeignKey, Column, DateTime
 
 # Core model base.
 from app.database.core import Base

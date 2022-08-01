@@ -23,11 +23,14 @@ jobs:
         run: pip install --upgrade pip
         working-directory: "src/api/"
       - name: Install linters
-        run: pip install "black<23" pylint==v3.0.0a3 mypy==v0.902
+        run: pip install "black<23" pylint==v3.0.0a3 mypy==v0.902 isort==5.10.1
         working-directory: "src/api/"
       - name: Black
         run: black --diff --check $(git ls-files '*.py')
         working-directory: "src/api/"
+      - name: ISort
+        working-directory: "src/api/"
+        run: isort --check-only .
       - name: PyLint
         run: pylint --disable=duplicate-code --disable=too-few-public-methods --disable=too-many-arguments --disable=too-many-locals --disable=too-many-return-statements --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
         working-directory: "src/api/"
