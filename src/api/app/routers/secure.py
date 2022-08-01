@@ -1,4 +1,3 @@
-
 """
     Secure API router.
     Provides API methods (routes) for working with server-side with client apps servers.
