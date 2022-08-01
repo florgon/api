@@ -1,4 +1,4 @@
-name: Linters
+name: Formatters
 on:
   pull_request:
     branches: [main]
@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Checks
+    name: Formatters
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -22,12 +22,12 @@ jobs:
       - name: Upgrade pip
         run: pip install --upgrade pip
         working-directory: "src/api/"
-      - name: Install linters
-        run: pip install pylint==v3.0.0a3 mypy==v0.902
+      - name: Install formatters
+        run: pip install "black<23" isort==5.10.1
         working-directory: "src/api/"
-      - name: PyLint
-        run: pylint --disable=duplicate-code --disable=too-few-public-methods --disable=too-many-arguments --disable=too-many-locals --disable=too-many-return-statements --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
+      - name: Black format.
+        run: black --diff --check $(git ls-files '*.py')
         working-directory: "src/api/"
-      - name: MyPy
+      - name: ISort format.
         working-directory: "src/api/"
-        run: mypy $(git ls-files '*.py') || true
+        run: isort --check-only --profile black .
