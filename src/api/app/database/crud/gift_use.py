@@ -10,6 +10,7 @@ from app.database.models.gift_use import GiftUse
 
 
 def create(db: Session, user_id: int, gift_id: int) -> GiftUse:
+    """Creates new Gift use object that is commited in the database already."""
     gift_use = GiftUse(user_id=user_id, gift_id=gift_id)
     db.add(gift_use)
     db.commit()
@@ -18,6 +19,7 @@ def create(db: Session, user_id: int, gift_id: int) -> GiftUse:
 
 
 def get_unique_uses(db: Session, gift_id: int) -> int:
+    """Returns count of all uses of gift by different users."""
     return (
         db.query(GiftUse.user_id)
         .filter(GiftUse.gift_id == gift_id)
@@ -27,4 +29,5 @@ def get_unique_uses(db: Session, gift_id: int) -> int:
 
 
 def get_uses(db: Session, gift_id: int) -> int:
+    """Returns total count of gift uses overall."""
     return db.query(GiftUse).filter(GiftUse.gift_id == gift_id).count()

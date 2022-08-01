@@ -1,3 +1,7 @@
+"""
+    Tests OAuth scope permissions unit (parsing, normalization).
+"""
+
 import unittest
 
 from app.services.permissions import (
@@ -8,7 +12,10 @@ from app.services.permissions import (
 
 
 class TestPermissionsUnit(unittest.TestCase):
+    """Checks OAuth scope permissions unit."""
+
     def test_normalization(self):
+        """Tests scope normalization."""
         with self.assertRaises(TypeError):
             normalize_scope([Permission.email])  # noqa
         self.assertEqual(normalize_scope(""), "")
@@ -17,6 +24,7 @@ class TestPermissionsUnit(unittest.TestCase):
         self.assertEqual(normalize_scope("\nemail, \remail"), "")
 
     def test_parse(self):
+        """Checking main parsing feature (scope to permissions list)."""
         with self.assertRaises(TypeError):
             parse_permissions_from_scope([Permission.email])  # noqa
         self.assertIsInstance(parse_permissions_from_scope(""), list)

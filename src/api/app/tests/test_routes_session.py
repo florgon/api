@@ -1,3 +1,8 @@
+"""
+    Tests session API methods and overall auth process(?).
+"""
+
+
 import pytest
 
 from fastapi.testclient import TestClient
@@ -7,11 +12,15 @@ from app.app import app
 
 @pytest.fixture
 def client():
+    """Web server application fixture to have app initialized."""
     with TestClient(app) as c:
         yield c
 
 
-def test_read_session_signup_get_user_info(client):
+def test_read_session_signup_get_user_info(
+    client,
+):  # pylint: disable=redefined-outer-name
+    """Complex check for signup, get user info, get profile info."""
     username = "tester"
     signup_response = client.get(
         "/_session._signup",
