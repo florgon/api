@@ -8,10 +8,12 @@ from fastapi import FastAPI
 
 # ORM constructor.
 from . import database
+
 # Settings.
 from .config import get_settings
 from .event_handlers import add_event_handlers
 from .exception_handlers import register_handlers
+
 # Setters for custom layers.
 from .middlewares import add_middlewares
 from .routers import register_routers

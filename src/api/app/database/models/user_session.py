@@ -3,6 +3,7 @@
 """
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+
 # ORM.
 from sqlalchemy.sql import func
 

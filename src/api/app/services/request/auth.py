@@ -14,8 +14,7 @@ from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.permissions import Permission, parse_permissions_from_scope
 from app.services.request.auth_data import AuthData
-from app.services.request.session_check_client import \
-    session_check_client_by_request
+from app.services.request.session_check_client import session_check_client_by_request
 from app.tokens.access_token import AccessToken
 from app.tokens.base_token import BaseToken
 from app.tokens.session_token import SessionToken

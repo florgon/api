@@ -18,9 +18,12 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.request import query_auth_data_from_request
 from app.tokens.email_token import EmailToken
-from app.tokens.exceptions import (TokenExpiredError, TokenInvalidError,
-                                   TokenInvalidSignatureError,
-                                   TokenWrongTypeError)
+from app.tokens.exceptions import (
+    TokenExpiredError,
+    TokenInvalidError,
+    TokenInvalidSignatureError,
+    TokenWrongTypeError,
+)
 
 router = APIRouter()
 

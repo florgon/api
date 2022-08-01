@@ -11,13 +11,17 @@ from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
+
 # Services.
-from app.services.permissions import (Permission, normalize_scope,
-                                      parse_permissions_from_scope,
-                                      permissions_get_ttl)
-from app.services.request.session_check_client import \
-    session_check_client_by_request
+from app.services.permissions import (
+    Permission,
+    normalize_scope,
+    parse_permissions_from_scope,
+    permissions_get_ttl,
+)
+from app.services.request.session_check_client import session_check_client_by_request
 from app.tokens.access_token import AccessToken
+
 # Other.
 from app.tokens.oauth_code import OAuthCode
 from app.tokens.session_token import SessionToken

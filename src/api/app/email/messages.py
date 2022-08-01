@@ -3,6 +3,7 @@
 """
 
 from fastapi import BackgroundTasks
+
 # Libraries.
 from fastapi_mail import MessageSchema
 

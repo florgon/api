@@ -19,8 +19,10 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.passwords import check_password
 from app.services.permissions import Permission
-from app.services.request import (get_client_host_from_request,
-                                  query_auth_data_from_request)
+from app.services.request import (
+    get_client_host_from_request,
+    query_auth_data_from_request,
+)
 from app.services.validators.user import validate_signup_fields
 from app.tokens.session_token import SessionToken
 

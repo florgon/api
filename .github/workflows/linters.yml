@@ -30,7 +30,7 @@ jobs:
         working-directory: "src/api/"
       - name: ISort
         working-directory: "src/api/"
-        run: isort --check-only .
+        run: isort --check-only --profile black .
       - name: PyLint
         run: pylint --disable=duplicate-code --disable=too-few-public-methods --disable=too-many-arguments --disable=too-many-locals --disable=too-many-return-statements --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
         working-directory: "src/api/"
