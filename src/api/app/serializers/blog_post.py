@@ -1,3 +1,7 @@
+"""
+    Blog post database model serializer.
+"""
+
 import time
 
 from app.database.models.blog_post import BlogPost

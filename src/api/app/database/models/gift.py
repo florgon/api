@@ -34,4 +34,6 @@ class Gift(Base):
 
 
 class GiftRewardType(IntEnum):
+    """Reward types for the gift."""
+
     VIP = 1

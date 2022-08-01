@@ -6,4 +6,6 @@ from ._base import ExternalSocialAuthService
 
 
 class VkOauthService(ExternalSocialAuthService):
-    pass
+    """
+    VK external OAuth service.
+    """
