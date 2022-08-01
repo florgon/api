@@ -13,6 +13,7 @@ from app.database.models.gift import Gift, GiftRewardType
 def create(
     db: Session, reward_type: GiftRewardType, created_by: int, max_uses: int
 ) -> Gift:
+    """Creates new Gift object that is committed in the database already and have all required stuff (as promocode) generated."""
     promocode = _generate_promocode(32)
     gift = Gift(
         promocode=promocode,
@@ -27,6 +28,7 @@ def create(
 
 
 def get_by_promocode(db: Session, promocode: str) -> Gift | None:
+    """Returns Gift by it`s promocode string."""
     return db.query(Gift).filter(Gift.promocode == promocode).first()
 
 

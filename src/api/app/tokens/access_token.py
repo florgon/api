@@ -21,9 +21,11 @@ class AccessToken(BaseToken):
     _scope: str = ""
 
     def get_session_id(self) -> int:
+        """Returns session ID linked to the token."""
         return self._session_id
 
     def get_scope(self) -> str:
+        """Returns permissions scope of the token."""
         return self._scope
 
     def __init__(

@@ -10,7 +10,7 @@ from app.database.models.gift_use import GiftUse
 
 
 def create(db: Session, user_id: int, gift_id: int) -> GiftUse:
-    """Creates new Gift use object that is commited in the database already."""
+    """Creates new Gift use object that is committed in the database already."""
     gift_use = GiftUse(user_id=user_id, gift_id=gift_id)
     db.add(gift_use)
     db.commit()

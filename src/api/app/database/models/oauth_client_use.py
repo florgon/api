@@ -10,7 +10,7 @@ from sqlalchemy import Integer, ForeignKey, Column, DateTime
 from app.database.core import Base
 
 
-class OAauthClientUse(Base):
+class OAuthClientUse(Base):
     """Auth service OAuth2 client usage statistics model"""
 
     __tablename__ = "oauth_clients_uses"
