@@ -3,9 +3,11 @@
     Provides API methods (routes) for working with email confirmation.
 """
 
+
+import urllib.parse
+
 from fastapi import APIRouter, Depends, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
-import urllib.parse
 
 from app.tokens.email_token import EmailToken
 from app.tokens.exceptions import (

@@ -29,7 +29,7 @@ jobs:
         run: black --diff --check $(git ls-files '*.py')
         working-directory: "src/api/"
       - name: PyLint
-        run: pylint --disable=too-few-public methods --disable=too-many-arguments --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
+        run: pylint --disable=too-few-public-methods --disable=too-many-arguments --disable=too-many-locals --disable-too-many-return-statements --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
         working-directory: "src/api/"
       - name: MyPy
         working-directory: "src/api/"
