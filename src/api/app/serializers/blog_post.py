@@ -27,5 +27,5 @@ def serialize_list(posts: list[BlogPost]) -> dict:
     return {"posts": serialized_posts}
 
 
-serialized_posts = serialize_list
-serialized_post = serialize
+serialize_posts = serialize_list
+serialize_post = serialize

@@ -102,4 +102,5 @@ ca_certs = None  # (Default: None)
 # Hooks.
 # https://docs.gunicorn.org/en/latest/settings.html#server-hooks
 def pre_request(worker, req):
+    """Logger for pre-request. """
     worker.log.debug("%s %s" % (req.method, req.path))

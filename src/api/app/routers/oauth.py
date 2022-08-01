@@ -48,7 +48,7 @@ async def method_oauth_authorize(
             "OAuth client not found or deactivated!",
         )
 
-    if response_type == "code" or response_type == "token":
+    if response_type in ("code", "token"):
         # If response type is valid (Authorization code flow or Implicit flow)
 
         # client_id - OAuth client unique identifier (Database ID).
@@ -151,7 +151,7 @@ async def method_oauth_allow_client(
 
     # Validate session token.
     session_token_unsigned = SessionToken.decode_unsigned(session_token)
-    session_id = session_token_unsigned.get_session_id()
+    session_id = session_token_unsigned.get_session_id()  # pylint: disable=no-member
 
     session = (
         crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
@@ -296,7 +296,7 @@ def _grant_type_authorization_code(
 
     code_unsigned = OAuthCode.decode_unsigned(code)
 
-    session_id = code_unsigned.get_session_id()
+    session_id = code_unsigned.get_session_id()  # pylint: disable=no-member
     session = (
         crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
     )
@@ -307,13 +307,13 @@ def _grant_type_authorization_code(
 
     code_signed = OAuthCode.decode(code, key=session.token_secret)
 
-    if redirect_uri != code_signed.get_redirect_uri():
+    if redirect_uri != code_signed.get_redirect_uri():  # pylint: disable=no-member
         return api_error(
             ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH,
             "redirect_uri should be same!",
         )
 
-    if client_id != code_signed.get_client_id():
+    if client_id != code_signed.get_client_id():  # pylint: disable=no-member
         return api_error(
             ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH,
             "Given code was obtained with different client!",
@@ -348,7 +348,9 @@ def _grant_type_authorization_code(
         )
 
     # Access token have infinity TTL, if there is scope permission given for no expiration date.
-    access_token_permissions = parse_permissions_from_scope(code_signed.get_scope())
+    access_token_permissions = parse_permissions_from_scope(
+        code_signed.get_scope()
+    )  # pylint: disable=no-member
     access_token_ttl = permissions_get_ttl(
         access_token_permissions, default_ttl=settings.security_access_tokens_ttl
     )
@@ -358,7 +360,7 @@ def _grant_type_authorization_code(
         access_token_ttl,
         user.id,
         session.id,
-        normalize_scope(code_signed.get_scope()),
+        normalize_scope(code_signed.get_scope()),  # pylint: disable=no-member
     ).encode(key=session.token_secret)
 
     response_payload = {

@@ -7,7 +7,10 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 from app.services.permissions import Permission
-from app.services.request import query_auth_data_from_request
+from app.services.request import (
+    query_auth_data_from_request,
+    try_query_auth_data_from_request,
+)
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.services.limiter.depends import RateLimiter
@@ -73,19 +76,16 @@ async def method_user_get_profile_info(
         )
 
     is_owner = False
-    is_authenticated = False
     is_admin = False
+    is_authenticated = False
     if not profile_user.privacy_profile_public or not profile_user.is_active:
         # If not public, or deactivated (check for admin).
-        try:
-            auth_data = query_auth_data_from_request(
-                req, db, allow_external_clients=True
-            )
-            is_authenticated = True
+        is_authenticated, auth_data = try_query_auth_data_from_request(
+            req, db, allow_external_clients=True
+        )
+        if is_authenticated:
             is_owner = auth_data.user.id == profile_user.id
             is_admin = auth_data.user.is_admin
-        except:
-            pass
 
     # If banned, raise error if not admin.
     if not profile_user.is_active and not is_admin:
