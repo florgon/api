@@ -4,10 +4,9 @@
     And middlewares itself.
 """
 
+from app.config import get_settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.config import get_settings
 
 
 def add_middlewares(app: FastAPI) -> None:

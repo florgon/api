@@ -3,14 +3,13 @@
     (Session opened from another client).
 """
 
-from fastapi import Request
-from sqlalchemy.orm import Session
-
 from app.config import get_settings
 from app.database import crud
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.request.get_client_host import get_client_host_from_request
+from fastapi import Request
+from sqlalchemy.orm import Session
 
 
 def session_check_client_by_request(
@@ -22,19 +21,22 @@ def session_check_client_by_request(
 
     settings = get_settings()
 
-    # Client host (IP) is wrong.
+    # If true, means that session detected as suspicious.
+    is_suspicious = False
 
+    # Client host (IP) is wrong.
     if settings.auth_reject_wrong_ip_addr:
         if get_client_host_from_request(request) != session.ip_address:
-            raise ApiErrorException(
-                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
-            )
+            is_suspicious = True
 
     # Client user agent is wrong.
     if settings.auth_reject_wrong_user_agent:
         user_agent_string = request.headers.get("User-Agent")
         user_agent = crud.user_agent.get_by_string(db, user_agent_string)
         if user_agent is None or user_agent.id != session.user_agent_id:
-            raise ApiErrorException(
-                ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
-            )
+            is_suspicious = True
+
+    if is_suspicious:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
+        )

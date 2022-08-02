@@ -5,15 +5,14 @@
 
 from urllib.parse import urlsplit
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
-
 from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.services.api.response import ApiErrorCode, api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

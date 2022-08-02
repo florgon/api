@@ -2,13 +2,12 @@
     User database model.
 """
 
+# Core model base.
+from app.database.core import Base
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 
 # ORM.
 from sqlalchemy.sql import func
-
-# Core model base.
-from app.database.core import Base
 
 
 class OAuthClient(Base):

@@ -3,9 +3,6 @@
     (FastAPI exception handlers)
 """
 
-from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
-
 from app.services.api.errors import ApiErrorException
 from app.tokens.exceptions import (
     TokenExpiredError,
@@ -13,6 +10,8 @@ from app.tokens.exceptions import (
     TokenInvalidSignatureError,
     TokenWrongTypeError,
 )
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
 from . import _handlers
 

@@ -3,15 +3,14 @@
     (FastAPI routers)
 """
 
-from fastapi import FastAPI
-
 from app.config import get_settings
+from fastapi import FastAPI
 
 from . import (
     admin,
     blog,
     email,
-    ext_social_auth,
+    ext_oauth,
     gift,
     oauth,
     oauth_client,
@@ -38,7 +37,7 @@ def register_routers(app: FastAPI) -> None:
         user,
         utils,
         secure,
-        ext_social_auth,
+        ext_oauth,
         admin,
         security,
         upload,

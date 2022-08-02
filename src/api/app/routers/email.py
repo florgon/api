@@ -6,9 +6,6 @@
 
 import urllib.parse
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
-from fastapi.responses import JSONResponse
-
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
@@ -24,6 +21,8 @@ from app.tokens.exceptions import (
     TokenInvalidSignatureError,
     TokenWrongTypeError,
 )
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

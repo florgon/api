@@ -2,12 +2,6 @@
     Oauth API auth routers.
 """
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
-
-# Libraries.
-from sqlalchemy.orm import Session
-
 from app.database import crud
 from app.database.dependencies import get_db
 
@@ -20,6 +14,11 @@ from app.services.permissions import Permission
 
 # Services.
 from app.services.request import query_auth_data_from_request
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
+
+# Libraries.
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
