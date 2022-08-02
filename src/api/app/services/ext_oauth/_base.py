@@ -38,11 +38,11 @@ class ExternalOAuthService:
         authorize_url_params = self._build_authorize_url_params()
         return f"{self.oauth_screen_provider_url}?{authorize_url_params}&scope="
 
-    def resolve_code_to_token(self, code: str):
+    def resolve_code_to_token(self, code: str) -> str:
         """
         Resolves code (OAuth) to token (access) by sending requests to auth server.
         """
-        raise NotImplementedError
+        return ""
 
     def get_resolve_code_url(self, code: str) -> str:
         """
