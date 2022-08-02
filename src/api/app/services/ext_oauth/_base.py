@@ -4,6 +4,8 @@
 
 from typing import Literal
 
+import requests
+
 
 class ExternalOAuthService:
     """
@@ -38,11 +40,15 @@ class ExternalOAuthService:
         authorize_url_params = self._build_authorize_url_params()
         return f"{self.oauth_screen_provider_url}?{authorize_url_params}&scope="
 
-    def resolve_code_to_token(self, code: str) -> str:
+    def resolve_code_to_token(self, code: str) -> str | None:
         """
         Resolves code (OAuth) to token (access) by sending requests to auth server.
         """
-        return ""
+        resolve_response = self._request_code_resolver(code=code)
+        token = resolve_response.json().get("token")
+        if not isinstance(token, str):
+            return None
+        return str(token)
 
     def get_resolve_code_url(self, code: str) -> str:
         """
@@ -51,6 +57,21 @@ class ExternalOAuthService:
         resolve_code_url_params = self._build_resolve_code_url_params()
         grant_type = "authorization_code"
         return f"{self.code_resolver_provider_url}?code={code}&grant_type={grant_type}&{resolve_code_url_params}"
+
+    def _request_code_resolver(self, code: str) -> requests.Response:
+        """
+        Returns response from code resolver OAuth endpoint.
+        :param code: OAuth code.
+        """
+        if self.code_resolver_http_method not in ("GET", "POST"):
+            raise ValueError("Code resolver HTTP method must be GET or POST!")
+
+        code_resolver_request_url = self.get_resolve_code_url(code=code)
+        if self.code_resolver_http_method == "GET":
+            return requests.get(url=code_resolver_request_url)
+
+        if self.code_resolver_http_method == "POST":
+            return requests.post(url=code_resolver_request_url)
 
     def _build_authorize_url_params(self) -> str:
         """
