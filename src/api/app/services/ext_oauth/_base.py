@@ -67,11 +67,9 @@ class ExternalOAuthService:
             raise ValueError("Code resolver HTTP method must be GET or POST!")
 
         code_resolver_request_url = self.get_resolve_code_url(code=code)
-        if self.code_resolver_http_method == "GET":
-            return requests.get(url=code_resolver_request_url)
-
         if self.code_resolver_http_method == "POST":
             return requests.post(url=code_resolver_request_url)
+        return requests.get(url=code_resolver_request_url)
 
     def _build_authorize_url_params(self) -> str:
         """
