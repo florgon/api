@@ -1,11 +1,9 @@
+# pylint: disable=singleton-comparison
 """
     OAuth client CRUD utils for the database.
 """
 
-# Libraries.
 import secrets
-
-# Services.
 from app.database.models.oauth_client import OAuthClient
 from sqlalchemy.orm import Session
 

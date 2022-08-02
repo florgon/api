@@ -1,13 +1,10 @@
+# pylint: disable=singleton-comparison
 """
     User CRUD utils for the database.
 """
 
-# Libraries.
 from datetime import datetime
-
 from app.config import get_settings
-
-# Services.
 from app.database.models.user import User
 from app.services.passwords import get_hashed_password
 from pyotp import random_base32

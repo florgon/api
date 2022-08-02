@@ -1,17 +1,14 @@
+# pylint: disable=singleton-comparison
 """
     User session CRUD utils for the database.
 """
 
-# Libraries.
-import secrets
 
-# CRUD.
+import secrets
 from app.database.crud.user_agent import (
     get_or_create_by_string as get_ua_or_crete_by_string,
 )
 from app.database.models.user_agent import UserAgent
-
-# Models.
 from app.database.models.user_session import UserSession
 from sqlalchemy.orm import Session
 

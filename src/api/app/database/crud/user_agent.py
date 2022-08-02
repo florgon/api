@@ -1,11 +1,9 @@
+# pylint: disable=singleton-comparison
 """
     User agent CRUD utils for the database.
 """
 
-# Models.
 from app.database.models.user_agent import UserAgent
-
-# Libraries.
 from sqlalchemy.orm import Session
 
 
