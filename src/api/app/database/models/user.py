@@ -65,7 +65,7 @@ class User(Base):
 
     def is_female(self) -> bool:
         """Returns is current user female of not."""
-        return self.sex is False
+        return self.sex == False
 
     def get_mention(self) -> str:
         """Returns user mention for email."""

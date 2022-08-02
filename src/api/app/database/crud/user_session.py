@@ -52,7 +52,7 @@ def get_by_ip_address_and_user_agent(
         db.query(UserSession)
         .filter(UserSession.ip_address == ip_address)
         .filter(UserSession.user_agent_id == user_agent.id)
-        .filter(UserSession.is_active is True)
+        .filter(UserSession.is_active == True)
         .first()
     )
 
@@ -64,14 +64,14 @@ def get_count(db: Session) -> int:
 
 def get_active_count(db: Session) -> int:
     """Returns total active session count in the database."""
-    return db.query(UserSession).filter(UserSession.is_active is True).count()
+    return db.query(UserSession).filter(UserSession.is_active == True).count()
 
 
 def get_active_count_grouped(db: Session) -> int:
     """Returns active session count grouped by users."""
     return (
         db.query(UserSession.owner_id)
-        .filter(UserSession.is_active is True)
+        .filter(UserSession.is_active == True)
         .group_by(UserSession.owner_id)
         .count()
     )
@@ -79,14 +79,14 @@ def get_active_count_grouped(db: Session) -> int:
 
 def get_inactive_count(db: Session) -> int:
     """Returns total inactive session count in the database."""
-    return db.query(UserSession).filter(UserSession.is_active is False).count()
+    return db.query(UserSession).filter(UserSession.is_active == False).count()
 
 
 def get_inactive_count_grouped(db: Session) -> int:
     """Returns inactive session count grouped by users."""
     return (
         db.query(UserSession.owner_id)
-        .filter(UserSession.is_active is False)
+        .filter(UserSession.is_active == False)
         .group_by(UserSession.owner_id)
         .count()
     )

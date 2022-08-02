@@ -60,12 +60,12 @@ def get_count(db: Session) -> int:
 
 def get_active_count(db: Session) -> int:
     """Returns count of active clients."""
-    return db.query(OAuthClient).filter(OAuthClient.is_active is True).count()
+    return db.query(OAuthClient).filter(OAuthClient.is_active == True).count()
 
 
 def get_inactive_count(db: Session) -> int:
     """Returns count of inactive clients."""
-    return db.query(OAuthClient).filter(OAuthClient.is_active is False).count()
+    return db.query(OAuthClient).filter(OAuthClient.is_active == False).count()
 
 
 def get_last(db: Session) -> OAuthClient:
