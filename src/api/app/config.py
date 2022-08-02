@@ -105,6 +105,7 @@ class Settings(BaseSettings):
     signup_open_registration: bool = True
 
     # Authentication.
+    # Two options below, controls session suspicious check.
     # If true, will block all requests for sessions opened from another IP address (except exception cases).
     auth_reject_wrong_ip_addr: bool = True
     # If true, will block all requests for sessions opened from another user agent (except exception cases).
@@ -113,6 +114,21 @@ class Settings(BaseSettings):
     auth_oauth_screen_provider_url: str = "https://florgon.space/oauth/authorize"
     # If true will enable 2FA with email when user verifies email.
     auth_enable_tfa_on_email_verification: bool = True
+    # External VK OAuth service configuration.
+    auth_ext_oauth_vk_enabled: bool = False
+    auth_ext_oauth_vk_client_id: str = ""
+    auth_ext_oauth_vk_client_secret: str = ""
+    auth_ext_oauth_vk_redirect_uri: str = "/oauth/ext/vk/callback"
+    # External GitHub OAuth service configuration
+    auth_ext_oauth_github_enabled: bool = False
+    auth_ext_oauth_github_client_id: str = ""
+    auth_ext_oauth_github_client_secret: str = ""
+    auth_ext_oauth_github_redirect_uri: str = "/oauth/ext/github/callback"
+    # External Yandex OAuth service configuration
+    auth_ext_oauth_yandex_enabled: bool = False
+    auth_ext_oauth_yandex_client_id: str = ""
+    auth_ext_oauth_yandex_client_secret: str = ""
+    auth_ext_oauth_yandex_redirect_uri: str = "/oauth/ext/yandex/callback"
 
     # Proxy (Server content with prefix or domain (Proxy server)).
 
