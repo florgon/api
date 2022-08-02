@@ -2,4 +2,4 @@
     Services utils.
 """
 
-from . import api, passwords, permissions, request, validators
+from . import api, ext_oauth, passwords, permissions, request, validators
