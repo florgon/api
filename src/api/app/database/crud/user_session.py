@@ -31,6 +31,19 @@ def get_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
     return db.query(UserSession).filter(UserSession.owner_id == owner_id).all()
 
 
+def deactivate_list(db, sessions: list[UserSession]) -> None:
+    """Deactivates list of a sessions."""
+    for session in sessions:
+        session.is_active = False
+    db.commit()
+
+
+def deactivate_one(db, session: UserSession) -> None:
+    """Deactivates one session."""
+    session.is_active = False
+    db.commit()
+
+
 def get_by_ip_address_and_user_agent(
     db: Session, ip_address: str, user_agent: UserAgent
 ) -> UserSession | None:
