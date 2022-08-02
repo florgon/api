@@ -27,4 +27,4 @@ pyotp==2.6.0  # OTP for 2FA. Used for email and mobile 2FA process.
 # CI/CD, Testing.
 pytest==7.1.2  # Unit tests.
 requests==2.28.1  # Make requests to server.
-pytest-cov==2.6.1  # Tests coverage.
+pytest-cov==3.0.0  # Tests coverage.
