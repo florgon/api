@@ -2,13 +2,12 @@
     Blog database model.
 """
 
+# Core model base.
+from app.database.core import Base
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 
 # ORM.
 from sqlalchemy.sql import func
-
-# Core model base.
-from app.database.core import Base
 
 
 class BlogPost(Base):

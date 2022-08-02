@@ -2,11 +2,11 @@
     Blog post CRUD utils for the database.
 """
 
-# Libraries.
-from sqlalchemy.orm import Session
-
 # Services.
 from app.database.models.blog_post import BlogPost
+
+# Libraries.
+from sqlalchemy.orm import Session
 
 
 def get_by_id(db: Session, post_id: int) -> BlogPost | None:

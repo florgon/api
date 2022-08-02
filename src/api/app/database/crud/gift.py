@@ -5,10 +5,9 @@
 # Libraries.
 import secrets
 
-from sqlalchemy.orm import Session
-
 # Models.
 from app.database.models.gift import Gift, GiftRewardType
+from sqlalchemy.orm import Session
 
 
 def create(

@@ -3,13 +3,12 @@
     Provides API methods (routes) for working with user security.
 """
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
-
 from app.database.dependencies import Session, get_db
 from app.services.api.response import ApiErrorCode, api_error, api_success
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

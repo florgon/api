@@ -2,13 +2,12 @@
     User database model.
 """
 
+# Core model base.
+from app.database.core import Base
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
 
 # ORM.
 from sqlalchemy.sql import func
-
-# Core model base.
-from app.database.core import Base
 
 
 class User(Base):

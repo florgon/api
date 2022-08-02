@@ -5,10 +5,9 @@
 
 from time import time
 
+from app.services.api.response import api_success
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-
-from app.services.api.response import api_success
 
 router = APIRouter()
 

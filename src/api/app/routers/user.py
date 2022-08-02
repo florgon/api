@@ -3,9 +3,6 @@
     Provides API methods (routes) for working with user account.
 """
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
-
 from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.serializers.user import serialize_user
@@ -17,6 +14,8 @@ from app.services.request import (
     query_auth_data_from_request,
     try_query_auth_data_from_request,
 )
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

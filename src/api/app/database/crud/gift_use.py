@@ -2,11 +2,11 @@
     Gift use CRUD utils for the database.
 """
 
-# Libraries.
-from sqlalchemy.orm import Session
-
 # Models.
 from app.database.models.gift_use import GiftUse
+
+# Libraries.
+from sqlalchemy.orm import Session
 
 
 def create(db: Session, user_id: int, gift_id: int) -> GiftUse:

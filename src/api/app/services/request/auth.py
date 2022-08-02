@@ -6,9 +6,6 @@
 
 from typing import Type
 
-from fastapi.requests import Request
-from sqlalchemy.orm import Session
-
 from app.database import crud
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
@@ -18,6 +15,8 @@ from app.services.request.session_check_client import session_check_client_by_re
 from app.tokens.access_token import AccessToken
 from app.tokens.base_token import BaseToken
 from app.tokens.session_token import SessionToken
+from fastapi.requests import Request
+from sqlalchemy.orm import Session
 
 
 def query_auth_data_from_token(

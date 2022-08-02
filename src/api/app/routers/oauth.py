@@ -2,10 +2,6 @@
     Oauth API auth routers.
 """
 
-# Libraries.
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse, RedirectResponse
-
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
@@ -25,6 +21,10 @@ from app.tokens.access_token import AccessToken
 # Other.
 from app.tokens.oauth_code import OAuthCode
 from app.tokens.session_token import SessionToken
+
+# Libraries.
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 
 router = APIRouter()
 
