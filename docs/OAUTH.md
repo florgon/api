@@ -1,3 +1,3 @@
 # Florgon OAuth.
 
-[Read more at dev.florgon.space](https://dev.florgon.space/oauth)
+[Read more at documentation](https://florgon.space/dev/oauth)
