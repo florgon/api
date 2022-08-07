@@ -56,7 +56,7 @@ backlog = 2048  # Default, maximal, relates to high-load. (Limit for pending cli
 
 # Worker.
 # https://docs.gunicorn.org/en/latest/settings.html#worker-processes
-workers = 4 * cpu_count()  # (Default: 1). Generally in range (2-4 x ${NUM_CORES}).
+workers = 2 * cpu_count() + 1  # (Default: 1). Generally in range (2-4 x ${NUM_CORES}).
 worker_class = "uvicorn.workers.UvicornWorker"  # Not default, Uvicorn worker as we are using Uvicorn.
 worker_connections = 1000  # Not affects, due to worker type.
 threads = 1  # Not affects, as only works with `gthread` worker class.
