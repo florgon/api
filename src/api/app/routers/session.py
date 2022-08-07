@@ -88,7 +88,9 @@ async def method_session_logout(
     await RateLimiter(times=1, seconds=15).check(req)
 
     if revoke_all:
-        sessions = crud.user_session.get_by_owner_id(db, owner_id=auth_data.user.id)
+        sessions = crud.user_session.get_active_by_owner_id(
+            db, owner_id=auth_data.user.id
+        )
         crud.user_session.deactivate_list(db, sessions)
         return api_success({"sids": [_session.id for _session in sessions]})
 
@@ -102,7 +104,7 @@ async def method_session_logout(
     return api_success({"sid": session.id})
 
 
-@router.get("/_session._list", dependencies=[Depends(RateLimiter(times=2, seconds=3))])
+@router.get("/_session._list", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
 async def method_session_list(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -113,10 +115,10 @@ async def method_session_list(
         req, db, only_session_token=False, required_permissions=[Permission.sessions]
     )
     current_session = auth_data.session
-    sessions = crud.user_session.get_by_owner_id(db, current_session.owner_id)
+    sessions = crud.user_session.get_active_by_owner_id(db, current_session.owner_id)
     return api_success(
         {
-            **serialize_sessions(sessions, db=db, include_deactivated=False),
+            **serialize_sessions(sessions, db=db),
             "current_id": current_session.id,
         }
     )

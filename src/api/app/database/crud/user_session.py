@@ -23,9 +23,19 @@ def get_by_id(db: Session, session_id: int) -> UserSession | None:
     return db.query(UserSession).filter(UserSession.id == session_id).first()
 
 
-def get_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
+def get_all_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
     """Returns list of sessions by owner user id."""
     return db.query(UserSession).filter(UserSession.owner_id == owner_id).all()
+
+
+def get_active_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
+    """Returns list of sessions by owner user id."""
+    return (
+        db.query(UserSession)
+        .filter(UserSession.owner_id == owner_id)
+        .filter(UserSession.active == True)
+        .all()
+    )
 
 
 def deactivate_list(db, sessions: list[UserSession]) -> None:
