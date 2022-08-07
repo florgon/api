@@ -1,3 +1,4 @@
+# pylint: disable=singleton-comparison
 """
     Blog post CRUD utils for the database.
 """

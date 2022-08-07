@@ -1,17 +1,14 @@
+# pylint: disable=singleton-comparison
 """
     User session CRUD utils for the database.
 """
 
-# Libraries.
-import secrets
 
-# CRUD.
+import secrets
 from app.database.crud.user_agent import (
     get_or_create_by_string as get_ua_or_crete_by_string,
 )
 from app.database.models.user_agent import UserAgent
-
-# Models.
 from app.database.models.user_session import UserSession
 from sqlalchemy.orm import Session
 
@@ -31,6 +28,19 @@ def get_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
     return db.query(UserSession).filter(UserSession.owner_id == owner_id).all()
 
 
+def deactivate_list(db, sessions: list[UserSession]) -> None:
+    """Deactivates list of a sessions."""
+    for session in sessions:
+        session.is_active = False
+    db.commit()
+
+
+def deactivate_one(db, session: UserSession) -> None:
+    """Deactivates one session."""
+    session.is_active = False
+    db.commit()
+
+
 def get_by_ip_address_and_user_agent(
     db: Session, ip_address: str, user_agent: UserAgent
 ) -> UserSession | None:
@@ -39,7 +49,7 @@ def get_by_ip_address_and_user_agent(
         db.query(UserSession)
         .filter(UserSession.ip_address == ip_address)
         .filter(UserSession.user_agent_id == user_agent.id)
-        .filter(UserSession.is_active is True)
+        .filter(UserSession.is_active == True)
         .first()
     )
 
@@ -51,14 +61,14 @@ def get_count(db: Session) -> int:
 
 def get_active_count(db: Session) -> int:
     """Returns total active session count in the database."""
-    return db.query(UserSession).filter(UserSession.is_active is True).count()
+    return db.query(UserSession).filter(UserSession.is_active == True).count()
 
 
 def get_active_count_grouped(db: Session) -> int:
     """Returns active session count grouped by users."""
     return (
         db.query(UserSession.owner_id)
-        .filter(UserSession.is_active is True)
+        .filter(UserSession.is_active == True)
         .group_by(UserSession.owner_id)
         .count()
     )
@@ -66,14 +76,14 @@ def get_active_count_grouped(db: Session) -> int:
 
 def get_inactive_count(db: Session) -> int:
     """Returns total inactive session count in the database."""
-    return db.query(UserSession).filter(UserSession.is_active is False).count()
+    return db.query(UserSession).filter(UserSession.is_active == False).count()
 
 
 def get_inactive_count_grouped(db: Session) -> int:
     """Returns inactive session count grouped by users."""
     return (
         db.query(UserSession.owner_id)
-        .filter(UserSession.is_active is False)
+        .filter(UserSession.is_active == False)
         .group_by(UserSession.owner_id)
         .count()
     )

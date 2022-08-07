@@ -151,6 +151,7 @@ class Settings(BaseSettings):
     # Time-To-Live for different token types.
     security_email_tokens_ttl: int = 3600
     security_access_tokens_ttl: int = 7776000
+    security_refresh_tokens_ttl: int = 7776000
     security_session_tokens_ttl: int = 864000
     security_oauth_code_tokens_ttl: int = 300
     # 2FA TOTP intervals.

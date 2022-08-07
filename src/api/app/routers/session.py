@@ -4,6 +4,10 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
+from fastapi.responses import JSONResponse
+from pyotp import TOTP
+
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
@@ -13,17 +17,12 @@ from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
-from app.services.passwords import check_password
 from app.services.permissions import Permission
 from app.services.request import (
-    get_client_host_from_request,
     query_auth_data_from_request,
 )
-from app.services.validators.user import validate_signup_fields
-from app.tokens.session_token import SessionToken
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
-from fastapi.responses import JSONResponse
-from pyotp import TOTP
+from app.services.validators.user import validate_signin_fields, validate_signup_fields
+from app.services.session import publish_new_session_with_token
 
 router = APIRouter()
 
@@ -49,7 +48,7 @@ async def method_session_get_user_info(
     )
 
 
-@router.get("/_session._signup")
+@router.get("/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))])
 async def method_session_signup(
     req: Request,
     username: str,
@@ -67,21 +66,10 @@ async def method_session_signup(
         )
 
     validate_signup_fields(db, username, email, password)
-    await RateLimiter(times=5, minutes=5).check(req)
     user = crud.user.create(db=db, email=email, username=username, password=password)
-
-    session_user_agent = user_agent
-    session_client_host = get_client_host_from_request(req)
-    session = crud.user_session.get_or_create_new(
-        db, user.id, session_client_host, session_user_agent
+    token, session = publish_new_session_with_token(
+        user=user, user_agent=user_agent, db=db, req=req
     )
-    token = SessionToken(
-        settings.security_tokens_issuer,
-        settings.security_session_tokens_ttl,
-        user.id,
-        session.id,
-    )
-    await RateLimiter(times=2, hours=24).check(req)
     return api_success(
         {
             **serialize_user(user),
@@ -101,21 +89,16 @@ async def method_session_logout(
 
     if revoke_all:
         sessions = crud.user_session.get_by_owner_id(db, owner_id=auth_data.user.id)
-        for _session in sessions:
-            _session.is_active = False
-        db.commit()
+        crud.user_session.deactivate_list(db, sessions)
         return api_success({"sids": [_session.id for _session in sessions]})
-    if sid:
-        session = crud.user_session.get_by_id(db, sid)
-        if not session or not session.is_active:
-            return api_error(
-                ApiErrorCode.API_ITEM_NOT_FOUND, "Session not found or already closed!"
-            )
-    else:
-        session = auth_data.session
 
-    session.is_active = False
-    db.commit()
+    session = crud.user_session.get_by_id(db, sid) if sid else auth_data.session
+    if not session or not session.is_active:
+        return api_error(
+            ApiErrorCode.API_ITEM_NOT_FOUND, "Session not found or already closed!"
+        )
+
+    crud.user_session.deactivate_one(db, session)
     return api_success({"sid": session.id})
 
 
@@ -153,11 +136,7 @@ async def method_session_request_tfa_otp(
 
     # Check credentials.
     user = crud.user.get_by_login(db=db, login=login)
-    if not user or not check_password(password=password, hashed_password=user.password):
-        return api_error(
-            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
-            "Invalid credentials for authentication (password or login).",
-        )
+    validate_signin_fields(user=user, password=password)
 
     if not user.security_tfa_enabled:
         return api_error(
@@ -210,11 +189,7 @@ async def method_session_signin(
 
     # Check credentials.
     user = crud.user.get_by_login(db=db, login=login)
-    if not user or not check_password(password=password, hashed_password=user.password):
-        return api_error(
-            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
-            "Invalid credentials for authentication (password or login).",
-        )
+    validate_signin_fields(db, user, password)
 
     if user.security_tfa_enabled:
         # If user has enabled 2FA.
@@ -246,16 +221,8 @@ async def method_session_signin(
                 "2FA authentication one time password expired or invalid!",
             )
 
-    session_user_agent = user_agent
-    session_client_host = get_client_host_from_request(req)
-    session = crud.user_session.get_or_create_new(
-        db, user.id, session_client_host, session_user_agent
-    )
-    token = SessionToken(
-        settings.security_tokens_issuer,
-        settings.security_session_tokens_ttl,
-        user.id,
-        session.id,
+    token, session = publish_new_session_with_token(
+        user=user, user_agent=user_agent, db=db, req=req
     )
     return api_success(
         {
