@@ -45,8 +45,9 @@ def serialize(
         serialized_user["email"] = user.email
 
     if include_optional_fields:
+        time_online = user.time_online
         serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
-        serialized_user["time_online"] = time.mktime(user.time_online.timetuple())
+        serialized_user["time_online"] = time.mktime(time_online.timetuple()) if time_online else None
         serialized_user["states"] = {"is_active": user.is_active, "is_vip": user.is_vip}
 
         if include_private_fields:
