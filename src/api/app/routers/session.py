@@ -4,6 +4,10 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
+from fastapi.responses import JSONResponse
+from pyotp import TOTP
+
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
@@ -15,14 +19,9 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import (
-    get_client_host_from_request,
     query_auth_data_from_request,
 )
 from app.services.validators.user import validate_signin_fields, validate_signup_fields
-from app.tokens.session_token import SessionToken
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
-from fastapi.responses import JSONResponse
-from pyotp import TOTP
 from app.services.session import publish_new_session_with_token
 
 router = APIRouter()

@@ -2,6 +2,7 @@
     Stuff for working with sessions.
 """
 
+from fastapi import Request
 from app.database.models.user_session import UserSession
 from app.config import get_settings
 from app.database import crud
@@ -10,7 +11,6 @@ from app.services.request import (
     get_client_host_from_request,
 )
 from app.tokens.session_token import SessionToken
-from fastapi import Request
 from app.database.models.user import User
 
 

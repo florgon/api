@@ -92,7 +92,9 @@ async def method_oauth_access_token(
     """Resolves grant to access token."""
 
     if not grant_type or grant_type == "authorization_code":
-        return _grant_type_authorization_code(req, db, settings)
+        return _grant_type_authorization_code(
+            req, client_id, client_secret, db, settings
+        )
 
     if grant_type == "refresh_token":
         return _grant_type_refresh_token(req, client_id, client_secret, db, settings)

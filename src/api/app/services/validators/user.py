@@ -2,12 +2,12 @@
     User validators.
 """
 
+from validate_email import validate_email
+
+
 from app.config import get_settings
-
-
 from app.database import crud
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from validate_email import validate_email
 from app.database.models.user import User
 from app.services.passwords import check_password
 
