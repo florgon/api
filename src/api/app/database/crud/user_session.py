@@ -33,7 +33,7 @@ def get_active_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
     return (
         db.query(UserSession)
         .filter(UserSession.owner_id == owner_id)
-        .filter(UserSession.active == True)
+        .filter(UserSession.is_active == True)
         .all()
     )
 
