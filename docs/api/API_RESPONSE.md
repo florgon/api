@@ -1,3 +1,3 @@
 # API response.
 
-[Read more at dev.florgon.space](https://dev.florgon.space/apis/auth)
+[Read more at documentation](https://florgon.space/apis/auth)
