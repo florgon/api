@@ -105,10 +105,11 @@ async def method_email_confirmation_resend(
     confirmation_token = EmailToken(
         settings.security_tokens_issuer, settings.security_email_tokens_ttl, user.id
     ).encode(key=settings.security_email_tokens_secret_key)
-    confirmation_link = urllib.parse.urljoin(
-        settings.proxy_url_domain,
-        settings.proxy_url_prefix + "/_emailConfirmation.confirm",
-    )
+    # confirmation_link = urllib.parse.urljoin(
+    #    settings.proxy_url_domain,
+    #    settings.proxy_url_prefix + "/_emailConfirmation.confirm",
+    # )
+    confirmation_link = "https://florgon.space/email/verify"
     email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
     await messages.send_verification_email(
         background_tasks, email, user.get_mention(), email_confirmation_link
