@@ -1,11 +1,9 @@
+# pylint: disable=singleton-comparison
 """
     Gift use CRUD utils for the database.
 """
 
-# Models.
 from app.database.models.gift_use import GiftUse
-
-# Libraries.
 from sqlalchemy.orm import Session
 
 

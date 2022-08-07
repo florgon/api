@@ -1,13 +1,10 @@
+# pylint: disable=singleton-comparison
 """
     User CRUD utils for the database.
 """
 
-# Libraries.
 from datetime import datetime
-
 from app.config import get_settings
-
-# Services.
 from app.database.models.user import User
 from app.services.passwords import get_hashed_password
 from pyotp import random_base32
@@ -80,12 +77,12 @@ def get_count(db: Session) -> int:
 
 def get_active_count(db: Session) -> int:
     """Returns total number of active users in database."""
-    return db.query(User).filter(User.is_active is True).count()
+    return db.query(User).filter(User.is_active == True).count()
 
 
 def get_inactive_count(db: Session) -> int:
     """Returns total number of inactive users in database."""
-    return db.query(User).filter(User.is_active is False).count()
+    return db.query(User).filter(User.is_active == False).count()
 
 
 def get_last(db: Session) -> User:
@@ -95,14 +92,14 @@ def get_last(db: Session) -> User:
 
 def get_vip_count(db: Session) -> int:
     """Returns total number of vips in database."""
-    return db.query(User).filter(User.is_vip is True).count()
+    return db.query(User).filter(User.is_vip == True).count()
 
 
 def get_admin_count(db: Session) -> int:
     """Returns total number of admin users in database."""
-    return db.query(User).filter(User.is_admin is True).count()
+    return db.query(User).filter(User.is_admin == True).count()
 
 
 def get_verified_count(db: Session) -> int:
     """Returns total number of verified email users in database."""
-    return db.query(User).filter(User.is_verified is True).count()
+    return db.query(User).filter(User.is_verified == True).count()

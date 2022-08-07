@@ -2,20 +2,18 @@
     User validators.
 """
 
-from app.config import get_settings
-
-# Database.
-from app.database import crud
-
-# Services.
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-
-# Libraries.
 from validate_email import validate_email
 
 
-def validate_signup_fields(db, username: str, email: str, password: str):
-    """Returns dict object for API response with serialized user data."""
+from app.config import get_settings
+from app.database import crud
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.database.models.user import User
+from app.services.passwords import check_password
+
+
+def validate_signup_fields(db, username: str, email: str, password: str) -> None:
+    """Validates that all fields passes signup base validation, or raises API error if not."""
 
     settings = get_settings()
 
@@ -65,4 +63,14 @@ def validate_signup_fields(db, username: str, email: str, password: str):
     if len(password) > 64:
         raise ApiErrorException(
             ApiErrorCode.AUTH_PASSWORD_INVALID, "Password should be shorten than 64!"
+        )
+
+
+def validate_signin_fields(user: User, password: str) -> None:
+    """Validates that all fields passes signin base validation, or raises API error if not."""
+
+    if not user or not check_password(password=password, hashed_password=user.password):
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
+            "Invalid credentials for authentication.",
         )

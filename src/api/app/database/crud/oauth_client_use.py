@@ -1,11 +1,9 @@
+# pylint: disable=singleton-comparison
 """
     OAuth client use CRUD utils for the database.
 """
 
-# Models.
 from app.database.models.oauth_client_use import OAuthClientUse
-
-# Libraries.
 from sqlalchemy.orm import Session
 
 
