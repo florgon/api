@@ -2,7 +2,7 @@
     Stuff for working with sessions.
 """
 
-from api.app.database.models.user_session import UserSession
+from app.database.models.user_session import UserSession
 from app.config import get_settings
 from app.database import crud
 from app.database.dependencies import Session
