@@ -6,17 +6,15 @@
 
 from fastapi import FastAPI
 
-# ORM constructor.
+
 from . import database
 
-# Settings.
 from .config import get_settings
-from .event_handlers import add_event_handlers
-from .exception_handlers import register_handlers
 
-# Setters for custom layers.
+from .event_handlers import add_event_handlers
+from .exception_handlers import add_exception_handlers
 from .middlewares import add_middlewares
-from .routers import register_routers
+from .routers import include_routers
 
 if __name__ == "__main__":
     # You are not supposed to run this directly.
@@ -69,9 +67,9 @@ def _construct_app() -> FastAPI:
 
     # Register all internal stuff as routers/handlers/middlewares etc.
     add_event_handlers(app_instance)
+    add_exception_handlers(app_instance)
     add_middlewares(app_instance)
-    register_handlers(app_instance)
-    register_routers(app_instance)
+    include_routers(app_instance)
 
     return app_instance
 

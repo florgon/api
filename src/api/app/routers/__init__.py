@@ -23,7 +23,7 @@ from . import (
 )
 
 
-def register_routers(app: FastAPI) -> None:
+def include_routers(app: FastAPI) -> None:
     """
     Registers (Including) FastAPI routers for FastAPI app.
     """
