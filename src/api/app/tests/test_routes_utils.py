@@ -23,3 +23,15 @@ def test_read_utils_get_server_time(client):  # pylint: disable=redefined-outer-
     assert "success" in json
     assert "v" in json
     assert "server_time" in json["success"]
+
+
+def test_read_utils_ping(client):  # pylint: disable=redefined-outer-name
+    """Tests that server responds with pong for utils ping method."""
+    response = client.get("/utils.ping")
+    assert response.status_code == 200
+
+    json = response.json()
+    assert "success" in json
+    assert "v" in json
+    assert "ping" in json["success"]
+    assert "pong!" == json["success"]["ping"]
