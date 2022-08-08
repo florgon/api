@@ -4,7 +4,7 @@
 """
 
 
-import urllib.parse
+# import urllib.parse
 
 from app.config import Settings, get_settings
 from app.database import crud
@@ -14,7 +14,7 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.request import query_auth_data_from_request
-from app.tokens.email_token import EmailToken
+from app.tokens import EmailToken
 from app.tokens.exceptions import (
     TokenExpiredError,
     TokenInvalidError,
