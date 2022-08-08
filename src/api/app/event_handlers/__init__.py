@@ -6,7 +6,7 @@
 
 from fastapi import FastAPI
 
-from .services import limiter
+from app.services import limiter
 
 
 def add_event_handlers(app: FastAPI) -> None:

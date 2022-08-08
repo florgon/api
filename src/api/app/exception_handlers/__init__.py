@@ -16,7 +16,7 @@ from fastapi.exceptions import RequestValidationError
 from . import _handlers
 
 
-def register_handlers(app: FastAPI) -> None:
+def add_exception_handlers(app: FastAPI) -> None:
     """
     Adds exception handlers for application.
     """
