@@ -16,14 +16,10 @@ from app.services.permissions import (
     permissions_get_ttl,
 )
 from app.services.request.session_check_client import session_check_client_by_request
-from app.tokens.access_token import AccessToken
+from app.tokens import AccessToken, SessionToken, OAuthCode
 
 # Grants.
 from app.oauth_grants import resolve_grant
-
-# Other.
-from app.tokens.oauth_code import OAuthCode
-from app.tokens.session_token import SessionToken
 
 # Libraries.
 from fastapi import APIRouter, Depends, Request

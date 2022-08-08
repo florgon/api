@@ -5,7 +5,7 @@
 
 import unittest
 
-from app.tokens.access_token import AccessToken
+from app.tokens import AccessToken
 
 
 class TestAccessTokenUnit(unittest.TestCase):

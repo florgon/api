@@ -10,7 +10,7 @@ from app.database.dependencies import Session
 from app.services.request import (
     get_client_host_from_request,
 )
-from app.tokens.session_token import SessionToken
+from app.tokens import SessionToken
 from app.database.models.user import User
 
 

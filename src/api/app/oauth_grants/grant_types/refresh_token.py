@@ -11,8 +11,8 @@ from app.services.permissions import (
     parse_permissions_from_scope,
     permissions_get_ttl,
 )
-from app.tokens.access_token import AccessToken
-from app.tokens.refresh_token import RefreshToken
+from app.tokens import AccessToken
+from app.tokens import RefreshToken
 
 # Libraries.
 from fastapi import Request

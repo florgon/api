@@ -6,4 +6,18 @@
     All tokens should be child classes of BaseToken class.
 """
 
-from . import access_token, email_token, oauth_code, session_token
+from .access_token import AccessToken
+from .email_token import EmailToken
+from .oauth_code import OAuthCode
+from .session_token import SessionToken
+from .refresh_token import RefreshToken
+from .base_token import BaseToken
+
+__all__ = [
+    "AccessToken",
+    "EmailToken",
+    "OAuthCode",
+    "SessionToken",
+    "RefreshToken",
+    "BaseToken",
+]
