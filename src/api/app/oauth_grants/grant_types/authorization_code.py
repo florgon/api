@@ -1,3 +1,7 @@
+"""
+    Resolves OAuth code grant.
+"""
+
 from app.config import Settings
 from app.database import crud
 from app.database.dependencies import Session

@@ -1,3 +1,7 @@
+"""
+    Resolves refresh token grant.
+"""
+
 from app.config import Settings
 from app.database import crud
 from app.database.dependencies import Session
@@ -17,6 +21,7 @@ from app.tokens import RefreshToken
 # Libraries.
 from fastapi import Request
 from fastapi.responses import JSONResponse
+
 
 def oauth_refresh_token_grant(
     req: Request, client_id: int, client_secret: str, db: Session, settings: Settings

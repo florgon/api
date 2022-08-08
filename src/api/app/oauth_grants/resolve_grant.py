@@ -1,3 +1,6 @@
+"""
+    Resolves from grant_type string name grant type resolver.
+"""
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -22,7 +25,9 @@ def resolve_grant(
     db: Session,
     settings: Settings,
 ) -> JSONResponse:
-    """"""
+    """
+    Resolves string of the grant type to tokens (access, access+refresh pair).
+    """
     if not grant_type or grant_type == "authorization_code":
         return oauth_authorization_code_grant(
             req, client_id, client_secret, db, settings

@@ -4,7 +4,7 @@
 """
 
 
-import urllib.parse
+# import urllib.parse
 
 from app.config import Settings, get_settings
 from app.database import crud
