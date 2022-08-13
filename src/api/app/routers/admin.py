@@ -9,7 +9,7 @@ from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_error, api_success
+from app.services.api.response import api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
@@ -49,7 +49,9 @@ async def method_admin_get_sessions_counters(
     return api_success(
         {
             "sessions": {
-                "time_last_created": str(crud.user_session.get_last(db).time_created),
+                "time_last_created": time.mktime(
+                    crud.user_session.get_last(db).time_created.timetuple
+                ),
                 "all": crud.user_session.get_count(db),
                 "inactive": {
                     "count": crud.user_session.get_inactive_count(db),
@@ -75,7 +77,9 @@ async def method_admin_get_oauth_clients_counters(
     return api_success(
         {
             "oauth_clients": {
-                "time_last_created": str(crud.oauth_client.get_last(db).time_created),
+                "time_last_created": time.mktime(
+                    crud.oauth_client.get_last(db).time_created.timetuple
+                ),
                 "all": crud.oauth_client.get_count(db),
                 "inactive": crud.oauth_client.get_inactive_count(db),
                 "active": crud.oauth_client.get_active_count(db),
@@ -96,7 +100,7 @@ async def method_admin_get_users_counters(
         {
             "users": {
                 "time_last_created": time.mktime(
-                    crud.user.get_last(db).time_created.timetuple()
+                    crud.user.get_last(db).time_created.timetuple
                 ),
                 "all": crud.user.get_count(db),
                 "inactive": crud.user.get_inactive_count(db),
