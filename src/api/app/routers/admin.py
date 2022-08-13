@@ -8,7 +8,7 @@ import time
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
-from app.services.api.errors import ApiErrorCode
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
@@ -19,15 +19,12 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/_admin.getSessionsCounters")
-async def method_admin_get_sessions_counters(
-    req: Request,
-    db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
-) -> JSONResponse:
-    """Returns sessions counters."""
+async def validate_admin_method_allowed(req: Request, db: Session, settings: Settings):
+    """
+    Validates that the method is allowed to be called.
+    """
     if settings.admin_methods_disabled:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
         )
 
@@ -35,10 +32,20 @@ async def method_admin_get_sessions_counters(
         req, db, required_permissions=[Permission.admin]
     )
     if not auth_data.user.is_admin:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
         )
     await RateLimiter(times=2, seconds=15).check(req)
+
+
+@router.get("/_admin.getSessionsCounters")
+async def method_admin_get_sessions_counters(
+    req: Request,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Returns sessions counters."""
+    validate_admin_method_allowed(req, db, settings)
     return api_success(
         {
             "sessions": {
@@ -64,18 +71,7 @@ async def method_admin_get_oauth_clients_counters(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns OAuth clients counters."""
-    if settings.admin_methods_disabled:
-        return api_error(
-            ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
-        )
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.admin]
-    )
-    if not auth_data.user.is_admin:
-        return api_error(
-            ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
-        )
-    await RateLimiter(times=2, seconds=15).check(req)
+    validate_admin_method_allowed(req, db, settings)
     return api_success(
         {
             "oauth_clients": {
@@ -95,18 +91,7 @@ async def method_admin_get_users_counters(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns users counters."""
-    if settings.admin_methods_disabled:
-        return api_error(
-            ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
-        )
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.admin]
-    )
-    if not auth_data.user.is_admin:
-        return api_error(
-            ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
-        )
-    await RateLimiter(times=2, seconds=15).check(req)
+    validate_admin_method_allowed(req, db, settings)
     return api_success(
         {
             "users": {
