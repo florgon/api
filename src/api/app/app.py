@@ -7,14 +7,14 @@
 from fastapi import FastAPI
 
 
-from . import database
+from .core import database
 
-from .config import get_settings
+from .core.config import get_settings
 
-from .event_handlers import add_event_handlers
-from .exception_handlers import add_exception_handlers
-from .middlewares import add_middlewares
-from .routers import include_routers
+from .core.event_handlers import add_event_handlers
+from .core.exception_handlers import add_exception_handlers
+from .core.middlewares import add_middlewares
+from .v1 import include_routers
 
 if __name__ == "__main__":
     # You are not supposed to run this directly.

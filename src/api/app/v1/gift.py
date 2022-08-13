@@ -1,0 +1,56 @@
+"""
+    Gift API router.
+    Provides API methods (routes) for working gifts.
+"""
+
+from app.core.database import crud
+from app.core.database.dependencies import Session, get_db
+from app.core.database.models.gift import GiftRewardType
+from app.core.services.api.response import ApiErrorCode, api_error, api_success
+from app.core.services.request import query_auth_data_from_request
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
+
+router = APIRouter()
+
+
+@router.get("/gift.accept")
+async def method_gift_accept(
+    req: Request,
+    db: Session = Depends(get_db),
+    promocode: str | None = None,
+) -> JSONResponse:
+    """Accepts gift."""
+
+    auth_data = query_auth_data_from_request(req, db)
+    gift = crud.gift.get_by_promocode(db, promocode=promocode) if promocode else None
+    if not gift:
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST, "Gift not found, or invalid promocode."
+        )
+
+    if crud.gift_use.get_uses(db, gift.id) >= gift.max_uses:
+        return api_error(ApiErrorCode.GIFT_USED, "Gift already used max times.")
+
+    if not gift.is_active:
+        return api_error(ApiErrorCode.GIFT_EXPIRED, "Gift not active or expired.")
+    if gift.reward == GiftRewardType.VIP:
+        if auth_data.user.is_vip:
+            return api_error(
+                ApiErrorCode.GIFT_CANNOT_ACCEPTED,
+                "Gift cannot be accepted due to you already being a vip.",
+            )
+        user = auth_data.user
+        user.is_vip = True
+    else:
+        return api_error(
+            ApiErrorCode.GIFT_CANNOT_ACCEPTED,
+            "Gift cannot be accepted due to outdated reward type.",
+        )
+    gift_use = crud.gift_use.create(db, user.id, gift.id)
+    db.add(user)
+    db.add(gift_use)
+
+    db.commit()
+
+    return api_success({"gift": {"status": "accepted"}})

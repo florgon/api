@@ -4,7 +4,7 @@
 
 import unittest
 
-from app.database.core import SessionLocal
+from app.core.database.core import SessionLocal
 from sqlalchemy import text
 
 
