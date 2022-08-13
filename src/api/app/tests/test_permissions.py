@@ -4,7 +4,7 @@
 
 import unittest
 
-from app.services.permissions import (
+from app.core.services.permissions import (
     Permission,
     normalize_scope,
     parse_permissions_from_scope,

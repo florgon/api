@@ -6,7 +6,7 @@
 from app.core.config import get_settings
 from fastapi import FastAPI
 
-from . import (
+from .endpoints import (
     admin,
     blog,
     email,
