@@ -17,7 +17,7 @@ def client():
 
 def test_read_blog_get(client):  # pylint: disable=redefined-outer-name
     """Test blog public getter method."""
-    response = client.get("/blog.get")
+    response = client.get("/v1/blog.get")
     assert response.status_code == 200
 
     json = response.json()
@@ -25,7 +25,7 @@ def test_read_blog_get(client):  # pylint: disable=redefined-outer-name
     assert "v" in json
     assert "posts" in json["success"]
 
-    response = client.get("/blog.get?post_id=1")
+    response = client.get("/v1/blog.get?post_id=1")
     json = response.json()
     assert "error" in json
     assert "v" in json
@@ -34,5 +34,5 @@ def test_read_blog_get(client):  # pylint: disable=redefined-outer-name
     error_status = json["error"]["status"]
     assert error_status == 404
 
-    response = client.get("/blog.create")
+    response = client.get("/v1/blog.create")
     assert response.status_code != 200

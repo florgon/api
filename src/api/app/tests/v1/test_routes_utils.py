@@ -16,7 +16,7 @@ def client():
 
 def test_read_utils_get_server_time(client):  # pylint: disable=redefined-outer-name
     """Tests that server responds with time for utils get server time method."""
-    response = client.get("/utils.getServerTime")
+    response = client.get("/v1/utils.getServerTime")
     assert response.status_code == 200
 
     json = response.json()
@@ -27,7 +27,7 @@ def test_read_utils_get_server_time(client):  # pylint: disable=redefined-outer-
 
 def test_read_utils_ping(client):  # pylint: disable=redefined-outer-name
     """Tests that server responds with pong for utils ping method."""
-    response = client.get("/utils.ping")
+    response = client.get("/v1/utils.ping")
     assert response.status_code == 200
 
     json = response.json()

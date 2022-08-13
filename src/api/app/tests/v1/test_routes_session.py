@@ -21,7 +21,7 @@ def test_read_session_signup_get_user_info(
     """Complex check for signup, get user info, get profile info."""
     username = "tester"
     signup_response = client.get(
-        "/_session._signup",
+        "/v1/_session._signup",
         params={
             "username": username,
             "email": "tester@example.com",
@@ -50,7 +50,7 @@ def test_read_session_signup_get_user_info(
 
     session_token = json["success"]["session_token"]
     get_info_response = client.get(
-        "/_session._getUserInfo", params={"session_token": session_token}
+        "/v1/_session._getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
     assert "v" in json
@@ -60,7 +60,7 @@ def test_read_session_signup_get_user_info(
     assert json["success"]["user"]["username"] == username
 
     get_profile_info_response = client.get(
-        "/user.getProfileInfo", params={"username": username}
+        "/v1/user.getProfileInfo", params={"username": username}
     )
     json = get_profile_info_response.json()
     assert "v" in json
