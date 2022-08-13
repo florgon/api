@@ -1,6 +1,6 @@
 """
-    API version 1.
-    Provides endpoints with logic for `v1` version of the API.
+    API version 2.
+    Provides endpoints with logic for `v2` version of the API.
 """
 
 from fastapi import FastAPI
@@ -9,13 +9,13 @@ from app.core.config import get_settings
 from .endpoints import get_api_routers
 
 
-def include_api_v1_routers(app: FastAPI) -> None:
+def include_api_v2_routers(app: FastAPI) -> None:
     """
     Includes FastAPI API routers to the FastAPI application.
-    Will include all endpoint routers of the `v1` version.
+    Will include all endpoint routers of the `v2` version.
     """
     settings = get_settings()
-    prefix = f"/v1{settings.proxy_url_prefix}"
+    prefix = f"/v2{settings.proxy_url_prefix}"
 
     for router in get_api_routers():
         app.include_router(

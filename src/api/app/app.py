@@ -14,7 +14,8 @@ from .core.config import get_settings
 from .core.event_handlers import add_event_handlers
 from .core.exception_handlers import add_exception_handlers
 from .core.middlewares import add_middlewares
-from .v1 import include_routers
+from .v1 import include_api_v1_routers
+from .v2 import include_api_v2_routers
 
 if __name__ == "__main__":
     # You are not supposed to run this directly.
@@ -69,7 +70,8 @@ def _construct_app() -> FastAPI:
     add_event_handlers(app_instance)
     add_exception_handlers(app_instance)
     add_middlewares(app_instance)
-    include_routers(app_instance)
+    include_api_v1_routers(app_instance)
+    include_api_v2_routers(app_instance)
 
     return app_instance
 
