@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/security.getInfo")
+@router.get("/security/info")
 async def method_security_get_info(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -35,7 +35,7 @@ async def method_security_get_info(
     )
 
 
-@router.get("/security.userEnableTfa")
+@router.get("/security/tfa/enable")
 async def method_security_user_enable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -47,7 +47,7 @@ async def method_security_user_enable_tfa(
     )
 
 
-@router.get("/security.userDisableTfa")
+@router.get("/security/tfa/disable")
 async def method_security_user_disable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -59,7 +59,7 @@ async def method_security_user_disable_tfa(
     )
 
 
-@router.get("/security.userRequestChangePassword")
+@router.get("/security/password/change/request")
 async def method_security_user_request_change_password(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -71,8 +71,8 @@ async def method_security_user_request_change_password(
     )
 
 
-@router.get("/security.userAcceptChangePassword")
-async def method_security_user_accept_change_password(
+@router.get("/security/password/change/confirm")
+async def method_security_user_confirm_change_password(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Accepts change password for the current user."""

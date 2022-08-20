@@ -38,7 +38,7 @@ async def validate_admin_method_allowed(req: Request, db: Session, settings: Set
     await RateLimiter(times=2, seconds=15).check(req)
 
 
-@router.get("/_admin.getSessionsCounters")
+@router.get("/admin/counters/sessions")
 async def method_admin_get_sessions_counters(
     req: Request,
     db: Session = Depends(get_db),
@@ -66,7 +66,7 @@ async def method_admin_get_sessions_counters(
     )
 
 
-@router.get("/_admin.getOauthClientsCounters")
+@router.get("/admin/counters/oauth_clients")
 async def method_admin_get_oauth_clients_counters(
     req: Request,
     db: Session = Depends(get_db),
@@ -88,7 +88,7 @@ async def method_admin_get_oauth_clients_counters(
     )
 
 
-@router.get("/_admin.getUsersCounters")
+@router.get("/admin/counters/users")
 async def method_admin_get_users_counters(
     req: Request,
     db: Session = Depends(get_db),

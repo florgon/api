@@ -17,7 +17,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/upload.getPhotoUploadServer")
+@router.get("/upload/server/photo")
 async def method_upload_get_photo_upload_server(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -30,7 +30,7 @@ async def method_upload_get_photo_upload_server(
     return api_success({"upload_url": f"http://{upload_server_domain}/upload"})
 
 
-@router.get("/upload.saveOauthClientAvatar")
+@router.get("/upload/save/oauth_client_avatar")
 async def method_upload_save_oauth_client_avatar(
     photo: str, client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -68,7 +68,7 @@ async def method_upload_save_oauth_client_avatar(
     return api_success({"photo_url": photo, "is_updated": is_updated})
 
 
-@router.get("/upload.saveUserAvatar")
+@router.get("/upload/save/user_avatar")
 async def method_upload_save_user_avatar(
     photo: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:

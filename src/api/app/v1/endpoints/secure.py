@@ -11,8 +11,8 @@ from fastapi import APIRouter, Depends
 router = APIRouter()
 
 
-@router.get("/secure.checkAccessToken")
-async def method_secure_check_token(
+@router.get("/secure/access_token/check")
+async def method_secure_check_access_token(
     token: str, scope: str = "", db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns access token information."""

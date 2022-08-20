@@ -21,13 +21,16 @@ from app.core.services.permissions import Permission
 from app.core.services.request import (
     query_auth_data_from_request,
 )
-from app.core.services.validators.user import validate_signin_fields, validate_signup_fields
+from app.core.services.validators.user import (
+    validate_signin_fields,
+    validate_signup_fields,
+)
 from app.core.services.session import publish_new_session_with_token
 
 router = APIRouter()
 
 
-@router.get("/_session._getUserInfo")
+@router.get("/session/internal/user")
 async def method_session_get_user_info(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -48,7 +51,9 @@ async def method_session_get_user_info(
     )
 
 
-@router.get("/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))])
+@router.get(
+    "/session/internal/signup", dependencies=[Depends(RateLimiter(times=3, hours=12))]
+)
 async def method_session_signup(
     req: Request,
     username: str,
@@ -79,7 +84,7 @@ async def method_session_signup(
     )
 
 
-@router.get("/_session._logout")
+@router.get("/session/internal/logout")
 async def method_session_logout(
     req: Request, revoke_all: bool = False, sid: int = 0, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -104,7 +109,7 @@ async def method_session_logout(
     return api_success({"sid": session.id})
 
 
-@router.get("/_session._list", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
+@router.get("/session/list", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
 async def method_session_list(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -125,7 +130,8 @@ async def method_session_list(
 
 
 @router.get(
-    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=1, minutes=1))]
+    "/session/internal/signin/tfa/request",
+    dependencies=[Depends(RateLimiter(times=1, minutes=1))],
 )
 async def method_session_request_tfa_otp(
     login: str,
@@ -177,7 +183,7 @@ async def method_session_request_tfa_otp(
 
 
 @router.get(
-    "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
+    "/session/internal/signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
 )
 async def method_session_signin(
     req: Request,

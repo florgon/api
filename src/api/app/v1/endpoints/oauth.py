@@ -29,7 +29,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 router = APIRouter()
 
 
-@router.get("/oauth.authorize")
+@router.get("/oauth/authorize")
 async def method_oauth_authorize(
     client_id: int,
     state: str,
@@ -79,7 +79,7 @@ async def method_oauth_authorize(
     )
 
 
-@router.get("/oauth.accessToken")
+@router.get("/oauth/access_token")
 async def method_oauth_access_token(
     req: Request,
     client_id: int,
@@ -100,7 +100,7 @@ async def method_oauth_access_token(
     )
 
 
-@router.get("/_oauth._allowClient")
+@router.get("/oauth/internal/client/allow")
 async def method_oauth_allow_client(
     req: Request,
     session_token: str,

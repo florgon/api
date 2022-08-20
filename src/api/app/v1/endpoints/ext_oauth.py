@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 router = APIRouter()
 
 
-@router.get("/extOauthVk.requestSignin")
+@router.get("/oauth/ext/vk/signin/request")
 async def method_ext_oauth_vk_request_signin(display: str = "page") -> JSONResponse:
     """OAuth with external OAuth VK provider."""
 
@@ -39,7 +39,7 @@ async def method_ext_oauth_vk_request_signin(display: str = "page") -> JSONRespo
     return RedirectResponse(url=authorize_url)
 
 
-@router.get("/extOauthGithub.requestSignin")
+@router.get("/oauth/ext/github/signin/request")
 async def method_ext_oauth_github_request_signin() -> JSONResponse:
     """OAuth with external OAuth GitHub provider."""
 
@@ -61,7 +61,7 @@ async def method_ext_oauth_github_request_signin() -> JSONResponse:
     return RedirectResponse(url=authorize_url)
 
 
-@router.get("/extOauthYandex.requestSignin")
+@router.get("/oauth/ext/yandex/signin/request")
 async def method_ext_oauth_yandex_request_signin() -> JSONResponse:
     """OAuth with external OAuth Yandex provider."""
 

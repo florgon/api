@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/gift.accept")
+@router.get("/gifts/accept")
 async def method_gift_accept(
     req: Request,
     db: Session = Depends(get_db),

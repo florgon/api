@@ -6,7 +6,10 @@ from app.core.database import crud
 from app.core.database.dependencies import get_db
 
 # Other.
-from app.core.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
+from app.core.serializers.oauth_client import (
+    serialize_oauth_client,
+    serialize_oauth_clients,
+)
 from app.core.services.api.errors import ApiErrorCode
 from app.core.services.api.response import api_error, api_success
 from app.core.services.limiter.depends import RateLimiter
@@ -23,7 +26,7 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.get("/oauthClient.new")
+@router.get("/oauth/client/new")
 async def method_oauth_client_new(
     display_name: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -44,7 +47,7 @@ async def method_oauth_client_new(
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
-@router.get("/oauthClient.list")
+@router.get("/oauth/clients")
 async def method_oauth_client_list(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -58,7 +61,7 @@ async def method_oauth_client_list(
     )
 
 
-@router.get("/oauthClient.get")
+@router.get("/oauth/clients/{client_id}")
 async def method_oauth_client_get(
     client_id: int, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -73,7 +76,7 @@ async def method_oauth_client_get(
     return api_success(serialize_oauth_client(oauth_client, display_secret=False))
 
 
-@router.get("/oauthClient.expireSecret")
+@router.get("/oauth/clients/{client_id}/secret/expire")
 async def method_oauth_client_expire_secret(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -98,7 +101,7 @@ async def method_oauth_client_expire_secret(
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
-@router.get("/oauthClient.edit")
+@router.get("/oauth/clients/{client_id}/edit")
 async def method_oauth_client_update(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -141,7 +144,7 @@ async def method_oauth_client_update(
     )
 
 
-@router.get("/oauthClient.stats")
+@router.get("/oauth/clients/{client_id}/stats")
 async def method_oauth_client_stats(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:

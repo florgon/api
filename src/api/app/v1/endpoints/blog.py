@@ -20,7 +20,9 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/blog.create", dependencies=[Depends(RateLimiter(times=2, minutes=5))])
+@router.get(
+    "/blog/posts/create", dependencies=[Depends(RateLimiter(times=2, minutes=5))]
+)
 async def method_blog_create(
     title: str, content: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -43,21 +45,23 @@ async def method_blog_create(
     return api_error(ApiErrorCode.API_UNKNOWN_ERROR, "Failed to create post.")
 
 
-@router.get("/blog.get", dependencies=[Depends(RateLimiter(times=3, seconds=1))])
-async def method_blog_get(
-    post_id: int | None = None,
-    author_id: int | None = None,
+@router.get("/blog/posts", dependencies=[Depends(RateLimiter(times=3, seconds=1))])
+async def method_blog_posts_get(
     db: Session = Depends(get_db),
 ) -> JSONResponse:
-    """Returns specific post by ID or all posts."""
+    """Returns all blog posts."""
+    posts = crud.blog_post.get_all(db)
+    return api_success(serialize_posts(posts=posts))
 
-    if post_id is None:
-        # All posts (no post_id passed)
-        if author_id is not None:
-            posts = crud.blog_post.get_by_author_id(db, author_id=author_id)
-        else:
-            posts = crud.blog_post.get_all(db)
-        return api_success(serialize_posts(posts=posts))
+
+@router.get(
+    "/blog/posts/{post_id}", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
+)
+async def method_blog_get(
+    post_id: int,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Returns specific post by ID."""
 
     post = crud.blog_post.get_by_id(db, post_id)
     if post is None:

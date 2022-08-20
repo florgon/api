@@ -31,7 +31,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/_emailConfirmation.confirm",
+    "/email/confirmation/confirm",
     dependencies=[Depends(RateLimiter(times=3, seconds=1))],
 )
 async def method_email_confirmation_confirm(
@@ -82,7 +82,7 @@ async def method_email_confirmation_confirm(
     return api_success({"email": user.email, "is_confirmed": True})
 
 
-@router.get("/_emailConfirmation.resend")
+@router.get("/email/confirmation/resend")
 async def method_email_confirmation_resend(
     req: Request,
     background_tasks: BackgroundTasks,

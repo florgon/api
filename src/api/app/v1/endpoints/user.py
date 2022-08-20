@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/user.getInfo")
+@router.get("/user")
 async def method_user_get_info(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -40,12 +40,10 @@ async def method_user_get_info(
     )
 
 
-@router.get(
-    "/user.getProfileInfo", dependencies=[Depends(RateLimiter(times=3, seconds=1))]
-)
+@router.get("/user/profile", dependencies=[Depends(RateLimiter(times=3, seconds=1))])
 async def method_user_get_profile_info(
     req: Request,
-    user_id: int | None = None,
+    user_id: int,
     username: str | None = None,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
@@ -118,7 +116,7 @@ async def method_user_get_profile_info(
     )
 
 
-@router.get("/user.getCounters")
+@router.get("/user/counters")
 async def method_user_get_counter(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -133,7 +131,7 @@ async def method_user_get_counter(
     )
 
 
-@router.get("/user.setInfo")
+@router.get("/user/edit")
 async def method_user_set_info(
     req: Request,
     first_name: str | None = None,
