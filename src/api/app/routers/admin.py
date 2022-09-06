@@ -50,7 +50,7 @@ async def method_admin_get_sessions_counters(
         {
             "sessions": {
                 "time_last_created": time.mktime(
-                    crud.user_session.get_last(db).time_created.timetuple
+                    crud.user_session.get_last(db).time_created.timetuple()
                 ),
                 "all": crud.user_session.get_count(db),
                 "inactive": {
@@ -78,7 +78,7 @@ async def method_admin_get_oauth_clients_counters(
         {
             "oauth_clients": {
                 "time_last_created": time.mktime(
-                    crud.oauth_client.get_last(db).time_created.timetuple
+                    crud.oauth_client.get_last(db).time_created.timetuple()
                 ),
                 "all": crud.oauth_client.get_count(db),
                 "inactive": crud.oauth_client.get_inactive_count(db),
@@ -100,7 +100,7 @@ async def method_admin_get_users_counters(
         {
             "users": {
                 "time_last_created": time.mktime(
-                    crud.user.get_last(db).time_created.timetuple
+                    crud.user.get_last(db).time_created.timetuple()
                 ),
                 "all": crud.user.get_count(db),
                 "inactive": crud.user.get_inactive_count(db),
