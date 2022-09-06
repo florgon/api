@@ -10,6 +10,7 @@ WORKDIR /srv/www/florgon/api
 
 # Install requirements.
 COPY api/requirements.txt /srv/www/florgon/api/
+RUN apk add build-base
 RUN pip install --upgrade pip
 RUN pip install --upgrade --no-cache-dir -r requirements.txt
 
