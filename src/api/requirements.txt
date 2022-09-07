@@ -13,7 +13,7 @@ uvicorn==0.18.3
 gunicorn==20.1.0
 
 # ORM with Database engine.
-sqlalchemy==1.4.40  # ORM.
+sqlalchemy==1.4.41  # ORM.
 psycopg2-binary==2.9.3  # SQL Engine (PostgreSQL engine core).
 aioredis==2.0.1  # Async Redis engine.
 
