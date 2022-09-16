@@ -93,7 +93,7 @@ async def method_user_get_profile_info(
         )
 
     # Privacy.
-    if not profile_user.privacy_profile_public and not is_owner:
+    if not profile_user.privacy_profile_public and (not is_owner and not is_admin):
         return api_error(
             ApiErrorCode.USER_PROFILE_PRIVATE,
             "Requested user preferred to keep his profile private!",
