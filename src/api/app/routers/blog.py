@@ -51,13 +51,18 @@ async def method_blog_get(
 ) -> JSONResponse:
     """Returns specific post by ID or all posts."""
 
+    # There is some weird logic, if there is will be SQL I may try to do joins,
+    # or even also rework API solution...
+    # If you don`t get me, forgot.
+
     if post_id is None:
         # All posts (no post_id passed)
         if author_id is not None:
             posts = crud.blog_post.get_by_author_id(db, author_id=author_id)
         else:
             posts = crud.blog_post.get_all(db)
-        return api_success(serialize_posts(posts=posts))
+        authors = crud.user.get_by_ids(db, user_ids=[post.author_id for post in posts])
+        return api_success(serialize_posts(posts=posts, authors=authors))
 
     post = crud.blog_post.get_by_id(db, post_id)
     if post is None:
@@ -65,4 +70,5 @@ async def method_blog_get(
             ApiErrorCode.API_ITEM_NOT_FOUND, "Post with given ID not found!"
         )
 
-    return api_success(serialize_post(post, in_list=False))
+    author = crud.user.get_by_id(db, user_id=post.author_id)
+    return api_success(serialize_post(post=post, author=author, in_list=False))

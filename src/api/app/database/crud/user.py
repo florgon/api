@@ -16,6 +16,11 @@ def get_by_id(db: Session, user_id: int) -> User:
     return db.query(User).filter(User.id == user_id).first()
 
 
+def get_by_ids(db: Session, user_ids: list[int]) -> list[User]:
+    """Returns users by it`s IDs."""
+    return db.query(User).filter(User.id.in_(user_ids)).all()
+
+
 def get_by_email(db: Session, email: str) -> User:
     """Returns user by it`s email."""
     return db.query(User).filter(User.email == email).first()
