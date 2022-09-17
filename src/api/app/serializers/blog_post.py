@@ -5,16 +5,17 @@
 import time
 
 from app.database.models.blog_post import BlogPost
+from app.database.models.user import User
 
 
-def serialize(post: BlogPost, in_list: bool = False) -> dict:
+def serialize(post: BlogPost, author: User, in_list: bool = False) -> dict:
     """Returns dict object for API response with serialized blog post data."""
 
     serialized_post = {
         "id": post.id,
         "title": post.title,
         "content": post.content,
-        "author_id": post.author_id,
+        "author": {"id": author.id, "username": author.username},
         "created_at": time.mktime(post.time_created.timetuple()),
     }
 
@@ -24,10 +25,10 @@ def serialize(post: BlogPost, in_list: bool = False) -> dict:
     return {"post": serialized_post}
 
 
-def serialize_list(posts: list[BlogPost]) -> dict:
+def serialize_list(posts: list[BlogPost], authors: list[User]) -> dict:
     """Returns dict object for API response with serialized blog post list data."""
 
-    serialized_posts = [serialize(post) for post in posts]
+    serialized_posts = [serialize(post, author) for post, author in zip(posts, authors)]
     return {"posts": serialized_posts}
 
 
