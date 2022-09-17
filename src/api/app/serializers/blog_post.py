@@ -28,7 +28,10 @@ def serialize(post: BlogPost, author: User, in_list: bool = False) -> dict:
 def serialize_list(posts: list[BlogPost], authors: list[User]) -> dict:
     """Returns dict object for API response with serialized blog post list data."""
 
-    serialized_posts = [serialize(post, author) for post, author in zip(posts, authors)]
+    authors_dict = {author.id: author for author in authors}
+    serialized_posts = [
+        serialize(post, author=authors_dict[post.author_id]) for post in posts
+    ]
     return {"posts": serialized_posts}
 
 
