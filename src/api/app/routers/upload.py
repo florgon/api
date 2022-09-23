@@ -40,7 +40,9 @@ async def method_upload_save_oauth_client_avatar(
     # Notice that is not clear implementation of uploading mechanism.
     # As next implementation have real check that uploading is done by upload server.
 
-    auth_data = query_auth_data_from_request(req, db, required_permissions=None)
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions=Permission.oauth_clients
+    )
     oauth_client = crud.oauth_client.get_by_id(db, client_id=client_id)
     if not oauth_client:
         return api_error(ApiErrorCode.OAUTH_CLIENT_NOT_FOUND, "OAuth client not found.")
@@ -55,7 +57,7 @@ async def method_upload_save_oauth_client_avatar(
     if not urlsplit(photo).netloc.endswith("florgon.space"):
         return api_error(
             ApiErrorCode.API_FORBIDDEN,
-            "Denied to upload user avatar from non Florgon domain!",
+            "Denied to upload oauth client avatar from non Florgon domain!",
         )
 
     is_updated = False
