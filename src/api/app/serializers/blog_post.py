@@ -30,7 +30,8 @@ def serialize_list(posts: list[BlogPost], authors: list[User]) -> dict:
 
     authors_dict = {author.id: author for author in authors}
     serialized_posts = [
-        serialize(post, author=authors_dict[post.author_id]) for post in posts
+        serialize(post, author=authors_dict[post.author_id], in_list=True)
+        for post in posts
     ]
     return {"posts": serialized_posts}
 
