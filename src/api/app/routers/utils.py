@@ -24,3 +24,10 @@ async def method_utils_ping() -> JSONResponse:
     """Returns pong (as answer to ping)."""
 
     return api_success({"ping": "pong!"})
+
+
+@router.get("/utils.raiseISE")
+async def method_gatey_debug() -> JSONResponse:
+    """Raises internal server error that should trigger Gatey (or some checks out of the server)."""
+
+    return api_success({"division_by_zero": 1 / 0})
