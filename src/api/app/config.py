@@ -6,6 +6,7 @@
 
 # Pydantic abstract class with data types.
 from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
+import gatey_sdk
 
 
 class Settings(BaseSettings):
@@ -62,6 +63,10 @@ class Settings(BaseSettings):
     cors_allow_origins: list[str] = ["*"]
     cors_allow_methods: list[str] = ["GET", "HEAD"]
     cors_allow_headers: list[str] = ["*"]
+
+    # Gatey.
+    gatey_project_id: int | None = None
+    gatey_client_secret: str | None = None
 
     # Cache.
 
@@ -159,8 +164,40 @@ class Settings(BaseSettings):
     security_tfa_totp_interval_mobile: int = 30
 
 
+def _init_gatey_client(settings: Settings):
+    """
+    Initializes Gatey client.
+    """
+
+    def _void_transport(*args, **kwargs):
+        """Void transport that does nothing if gatey is not configured."""
+        ...
+
+    # TODO: Use server secret.
+    gatey_is_configured = (
+        settings.gatey_client_secret is not None
+        and settings.gatey_project_id is not None
+    )
+    gatey_transport = None if gatey_is_configured else _void_transport
+    gatey_client = gatey_sdk.Client(
+        transport=gatey_transport,
+        project_id=settings.gatey_project_id,
+        client_secret=settings.gatey_client_secret,
+        check_api_auth_on_init=False,
+        handle_global_exceptions=False,
+    )
+    gatey_client.capture_message(
+        level="INFO",
+        message="[Florgon API] Server successfully initialized Gatey client (gatey-sdk-py)",
+    )
+    return gatey_client
+
+
 # Static settings object with single instance.
 _settings = Settings()
+
+# Static Gatey error logger.
+_gatey = _init_gatey_client(_settings)
 
 
 def get_settings() -> Settings:
@@ -168,3 +205,10 @@ def get_settings() -> Settings:
     Returns Singleton settings object with all configuration settings.
     """
     return _settings
+
+
+def get_gatey_client() -> gatey_sdk.Client:
+    """
+    Returns Singleton Gatey client object.
+    """
+    return _gatey
