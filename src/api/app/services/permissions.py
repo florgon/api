@@ -25,7 +25,9 @@ class Permission(Enum):
     admin = "admin"
 
     # Services.
+    messenger = "messenger"
     gatey = "gatey"
+    cc = "cc"
     ads = "ads"
 
 
@@ -107,6 +109,8 @@ __CODE_PERMISSIONS_ORDER = [
     Permission.security,
     Permission.gatey,
     Permission.ads,
+    Permission.messenger,
+    Permission.cc,
 ]
 
 # String tags, for separator and modificator that gives all permissions.
@@ -124,6 +128,8 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.sessions,
     Permission.gatey,
     Permission.ads,
+    Permission.messenger,
+    Permission.cc,
 ]
 
 # Allowed permission, as string list.
