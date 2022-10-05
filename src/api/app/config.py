@@ -65,7 +65,7 @@ class Settings(BaseSettings):
     cors_allow_headers: list[str] = ["*"]
 
     # Gatey.
-    gatey_client_id: int | None = None
+    gatey_project_id: int | None = None
     gatey_client_secret: str | None = None
 
     # Cache.
@@ -176,12 +176,12 @@ def _init_gatey_client(settings: Settings):
     # TODO: Use server secret.
     gatey_is_configured = (
         settings.gatey_client_secret is not None
-        and settings.gatey_client_id is not None
+        and settings.gatey_project_id is not None
     )
-    gatey_transport = _void_transport if gatey_is_configured else None
+    gatey_transport = None if gatey_is_configured else _void_transport
     gatey_client = gatey_sdk.Client(
         transport=gatey_transport,
-        client_id=settings.gatey_client_id,
+        project_id=settings.gatey_project_id,
         client_secret=settings.gatey_client_secret,
         check_api_auth_on_init=False,
         handle_global_exceptions=False,
