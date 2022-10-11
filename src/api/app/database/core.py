@@ -20,6 +20,7 @@ engine = create_engine(
     pool_timeout=settings.database_pool_timeout,
     pool_recycle=settings.database_pool_recycle,
     poolclass=QueuePool,
+    pool_pre_ping=True,
 )
 metadata = MetaData(bind=engine)
 
