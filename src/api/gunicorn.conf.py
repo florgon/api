@@ -77,7 +77,7 @@ limit_request_field_size = 2047  # (Default: 8190). Limit for header size.
 
 # Server mechanics.
 # https://docs.gunicorn.org/en/latest/settings.html#server-mechanics
-preload_app = True  # (Default: False). Loads application code before worker fork. Saves a bit RAM and launch time.
+preload_app = False  # (Default: False). Loads application code before worker fork. Saves a bit RAM and launch time. WARNING: Disable this as this will cause errors with forking database connections (database errors).
 reuse_port = False
 daemon = False  # (Default: False). Should process manager detach from terminal and used as background?
 user = 1005  # OS.
