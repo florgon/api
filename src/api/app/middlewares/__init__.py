@@ -8,7 +8,7 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import get_settings
+from app.config import get_settings, get_gatey_client
 
 
 class GateyMiddleware:
@@ -21,7 +21,11 @@ class GateyMiddleware:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        await self.app(scope, receive, send)
+        try:
+            await self.app(scope, receive, send)
+        except Exception as e:
+            get_gatey_client().capture_exception(e)
+            raise e
         return
 
 

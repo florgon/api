@@ -164,7 +164,7 @@ class Settings(BaseSettings):
     security_tfa_totp_interval_mobile: int = 30
 
 
-def _init_gatey_client(settings: Settings):
+def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
     """
     Initializes Gatey client.
     """

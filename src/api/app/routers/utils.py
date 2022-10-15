@@ -31,8 +31,4 @@ async def method_utils_ping() -> JSONResponse:
 async def method_raise_ise() -> JSONResponse:
     """Raises internal server error that should trigger Gatey (or some checks out of the server)."""
 
-    try:
-        return api_success({"division_by_zero": 1 / 0})
-    except Exception as e:
-        get_gatey_client().capture_exception(e)
-        raise e
+    return api_success({"division_by_zero": 1 / 0})
