@@ -29,7 +29,9 @@ class Settings(BaseSettings):
     database_max_overflow: int = 0
     # Pool size for database pool.
     database_pool_size: int = 20
-
+    # Pre ping pool.
+    database_pool_pre_ping: bool = True
+    
     # Mail.
 
     # If false, email will be disabled and not even sent.
