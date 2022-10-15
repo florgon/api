@@ -66,7 +66,8 @@ class Settings(BaseSettings):
 
     # Gatey.
     gatey_project_id: int | None = None
-    gatey_client_secret: str | None = None
+    gatey_client_secret: str | None = None  # Not preferable.
+    gatey_server_secret: str | None = None
 
     # Cache.
 
@@ -175,7 +176,7 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
 
     # TODO: Use server secret.
     gatey_is_configured = (
-        settings.gatey_client_secret is not None
+        (settings.gatey_client_secret is not None or settings.gatey_server_secret is not None)
         and settings.gatey_project_id is not None
     )
     gatey_transport = None if gatey_is_configured else _void_transport
@@ -183,6 +184,7 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
         transport=gatey_transport,
         project_id=settings.gatey_project_id,
         client_secret=settings.gatey_client_secret,
+        server_secret=settings.gatey_server_secret,
         check_api_auth_on_init=False,
         handle_global_exceptions=False,
         global_handler_skip_internal_exceptions=False,
