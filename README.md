@@ -54,3 +54,8 @@ API error codes: [`/docs/api/API_ERROR_CODES.md`](/docs/api/API_ERROR_CODES.md)
 ### Other.
 
 Integrating Florgon OAuth: [`/docs/OAUTH.md`](/docs/OAUTH.md)
+
+# Tested on...
+
+Docker engine: v20.* \
+Docker compose: v2.*
