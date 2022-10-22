@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     cors_allow_headers: list[str] = ["*"]
 
     # Gatey.
+    gatey_is_enabled: bool = False
     gatey_project_id: int | None = None
     gatey_client_secret: str | None = None  # Not preferable.
     gatey_server_secret: str | None = None
@@ -170,10 +171,13 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
     Initializes Gatey client.
     """
 
+    if not settings.gatey_is_enabled:
+        return
+    
     def _void_transport(*args, **kwargs):
         """Void transport that does nothing if gatey is not configured."""
         ...
-
+        
     # TODO: Use server secret.
     gatey_is_configured = (
         (settings.gatey_client_secret is not None or settings.gatey_server_secret is not None)
