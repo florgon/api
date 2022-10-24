@@ -10,7 +10,6 @@ import logging
 # Pydantic abstract class with data types.
 from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
 # Libs.
-from fastapi.logger import logger
 import gatey_sdk
 
 
@@ -205,22 +204,6 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
     )
     return gatey_client
 
-def _init_logger() -> None:
-    """
-    Initializes logger.
-    """
-    current_logger = _logger
-    fastapi_logger.handlers = current_logger.handlers
-    fastapi_logger.setLevel(current_logger.level)
-
-# Static settings object with single instance.
-_settings = Settings()
-
-# Static Gatey error logger.
-_gatey = _init_gatey_client(_settings)
-
-_logger = logging.getLogger("gunicorn.error")
-
 def get_logger():
     """
     Returns logger.
@@ -239,3 +222,14 @@ def get_gatey_client() -> gatey_sdk.Client:
     Returns Singleton Gatey client object.
     """
     return _gatey
+
+
+# Static settings object with single instance.
+_settings = Settings()
+
+# Static Gatey error logger.
+_gatey = _init_gatey_client(_settings)
+
+# Static logger.
+_logger = logging.getLogger("gunicorn.error")
+

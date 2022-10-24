@@ -5,11 +5,11 @@
 """
 
 from fastapi import FastAPI
-
+from fastapi.logger import logger as fastapi_logger
 
 from . import database
 
-from .config import get_settings, get_logger, _init_logger
+from .config import get_settings, get_logger
 
 from .event_handlers import add_event_handlers
 from .exception_handlers import add_exception_handlers
@@ -72,8 +72,10 @@ def _construct_app() -> FastAPI:
     include_routers(app_instance)
 
     # Logging.
-    _init_logger()
-    get_logger().info("Successfully initalized FastAPI application with logger!")
+    logger = get_logger()
+    fastapi_logger.handlers = logger.handlers
+    fastapi_logger.setLevel(logger.level)
+    logger.info("Successfully initalized FastAPI application with logger!")
     
     return app_instance
 
