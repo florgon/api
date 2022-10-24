@@ -14,6 +14,7 @@ from app.services.permissions import Permission, parse_permissions_from_scope
 from app.services.request.auth_data import AuthData
 from app.services.request.session_check_client import session_check_client_by_request
 from app.tokens import AccessToken, BaseToken, SessionToken
+from app.config import get_logger
 from fastapi.requests import Request
 from sqlalchemy.orm import Session
 
@@ -333,6 +334,7 @@ def _raise_integrity_check_error():
     """
     Raises authentication system integrity check error.
     """
+    get_logger().info("Got catched authentication system integrity check failure!")
     raise ApiErrorException(
         ApiErrorCode.AUTH_INVALID_TOKEN,
         "Authentication system integrity check failed!",

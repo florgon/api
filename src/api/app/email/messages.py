@@ -9,13 +9,14 @@ from fastapi_mail import MessageSchema
 
 # Core.
 from .config import fastmail
-
+from app.config import get_logger
 
 async def _send_email(email: str, subject: str, body: str):
     """Sends message to single recipient email."""
     if not fastmail:
         return  # Mail disabled.
 
+    get_logger().info(f"Sending e-mail to {email}. '{subject}'.")
     await fastmail.send_message(
         MessageSchema(subject=subject, recipients=[email], body=body, subtype="plain")
     )

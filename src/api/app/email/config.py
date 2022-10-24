@@ -3,7 +3,7 @@
 """
 
 # Settings for configuring mail connection.
-from app.config import Settings
+from app.config import Settings, get_logger
 
 # Libraries.
 from fastapi_mail import ConnectionConfig, FastMail
@@ -13,8 +13,10 @@ def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
     """Returns connection configuration for email."""
 
     if not settings.mail_enabled:
+        get_logger().info("Mail is not enabled! Skipping building connection config...")
         return None
 
+    get_logger().info("Building connection config...")
     return ConnectionConfig(
         MAIL_USERNAME=settings.mail_username,
         MAIL_PASSWORD=settings.mail_password,

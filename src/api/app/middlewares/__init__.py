@@ -8,7 +8,7 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import get_settings, get_gatey_client
+from app.config import get_settings, get_gatey_client, get_logger
 
 
 class GateyMiddleware:
@@ -24,6 +24,7 @@ class GateyMiddleware:
         try:
             await self.app(scope, receive, send)
         except Exception as e:
+            get_logger().info("Got captured Gatey exception! Sending to Gatey client...")
             get_gatey_client().capture_exception(e)
             raise e
         return
@@ -55,6 +56,7 @@ def _add_cors_middleware(app: FastAPI) -> None:
     """
     settings = get_settings()
     if not settings.cors_enabled:
+        get_logger().info("CORS is not enabled! Please notice that!")
         return
 
     app.add_middleware(
