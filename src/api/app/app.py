@@ -9,7 +9,7 @@ from fastapi import FastAPI
 
 from . import database
 
-from .config import get_settings
+from .config import get_settings, get_logger, _init_logger
 
 from .event_handlers import add_event_handlers
 from .exception_handlers import add_exception_handlers
@@ -71,6 +71,10 @@ def _construct_app() -> FastAPI:
     add_middlewares(app_instance)
     include_routers(app_instance)
 
+    # Logging.
+    _init_logger()
+    get_logger().info("Successfully initalized FastAPI application with logger!")
+    
     return app_instance
 
 
