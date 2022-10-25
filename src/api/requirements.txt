@@ -5,7 +5,7 @@ fastapi==0.85.1
 
 # Mail wrapper for FastAPI.
 # used to send email messages.
-fastapi_mail==1.1.5
+fastapi_mail==1.2.0
 
 # ASGI server worker with
 # server process manager.
