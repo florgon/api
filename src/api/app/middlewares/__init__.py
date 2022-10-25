@@ -24,8 +24,10 @@ class GateyMiddleware:
         try:
             await self.app(scope, receive, send)
         except Exception as e:
-            get_logger().info("Got captured Gatey exception! Sending to Gatey client...")
-            get_gatey_client().capture_exception(e)
+            gatey_client = get_gatey_client()
+            if gatey_client:
+                get_logger().info("Got captured Gatey exception! Sending to Gatey client...")
+                get_gatey_client().capture_exception(e)
             raise e
         return
 
