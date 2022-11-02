@@ -1,7 +1,7 @@
 # Florgon API server requirements.
 
 # Web framework (FastAPI).
-fastapi==0.85.1
+fastapi==0.85.2
 
 # Mail wrapper for FastAPI.
 # used to send email messages.
