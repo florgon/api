@@ -2,103 +2,151 @@
     Resolves OAuth code grant.
 """
 
-from app.config import Settings
-from app.database import crud
-from app.database.dependencies import Session
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error, api_success
 
-# Services.
+from dataclasses import dataclass
+
+from fastapi.responses import JSONResponse
+
+from app.config import Settings
+
+from app.database import crud
+from app.database.models.user_session import UserSession
+from app.database.models.user import User
+from app.database.dependencies import Session
+
+from app.services.api.errors import ApiErrorCode
+from app.services.api.response import api_success
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.tokens import AccessToken, RefreshToken, OAuthCode
 from app.services.permissions import (
     Permission,
     normalize_scope,
     parse_permissions_from_scope,
     permissions_get_ttl,
 )
-from app.tokens import AccessToken
-from app.tokens import RefreshToken
-
-# Other.
-from app.tokens import OAuthCode
-
-# Libraries.
-from fastapi import Request
-from fastapi.responses import JSONResponse
 
 
-def oauth_authorization_code_grant(
-    req: Request, client_id: int, client_secret: str, db: Session, settings: Settings
-) -> JSONResponse:
-    """OAuth authorization code grant type."""
-    code = req.query_params.get("code", None)
-    redirect_uri = req.query_params.get("redirect_uri", None)
-    if not code:
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`code` required for `authorization_code` grant type!",
-        )
-    if not redirect_uri:
-        return api_error(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "`redirect_uri` required for `authorization_code` grant type!",
-        )
 
-    code_unsigned = OAuthCode.decode_unsigned(code)
+@dataclass
+class TokensPair:
+    """Refresh + Access encoded tokens pair. """
+    access_ttl: float | int
+    access_permissions: list[Permission]
+    access_token: str
+    refresh_token: str
 
-    session_id = code_unsigned.get_session_id()  # pylint: disable=no-member
-    session = (
-        crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
-    )
-    if not session:
-        return api_error(
-            ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!"
-        )
 
-    code_signed = OAuthCode.decode(code, key=session.token_secret)
-
-    if redirect_uri != code_signed.get_redirect_uri():  # pylint: disable=no-member
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH,
-            "redirect_uri should be same!",
-        )
-
-    if client_id != code_signed.get_client_id():  # pylint: disable=no-member
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH,
-            "Given code was obtained with different client!",
-        )
-
-    # Query OAuth client.
+def _verify_oauth_client_secret(db: Session, client_id: int, client_secret: str) -> None:
+    """
+    Checks that oauth client is valid for that client secret.
+    """
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
 
-    # Verification for OAuth client.
     if not oauth_client or not oauth_client.is_active:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
             "OAuth client not found or deactivated!",
         )
 
     if oauth_client.secret != client_secret:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH,
-            "Invalid client_secret! Please review secret, or generate new secret.",
+            "Invalid client secret! Please review secret, or generate new secret.",
         )
 
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=code_signed.get_subject())
+
+def _query_user_by_user_id(db: Session, session: UserSession, user_id: int) -> User:
+    """
+    Returns user by ID and verify it by session.
+    """
+    user = crud.user.get_by_id(db=db, user_id=user_id)
     if not user:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
             "Unable to find user that belongs to this code!",
         )
     if session.owner_id != user.id:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Code session was linked to another user!"
         )
 
-    # Access token have infinity TTL, if there is scope permission given for no expiration date.
+
+def _verify_oauth_params(code_token: OAuthCode, redirect_uri: str, client_id: int):
+    """
+    Checks resolve oauth params.
+    """
+    if redirect_uri != code_token.get_redirect_uri():  # pylint: disable=no-member
+        raise ApiErrorException(
+            ApiErrorCode.OAUTH_CLIENT_REDIRECT_URI_MISMATCH,
+            "redirect_uri should be same!",
+        )
+
+    if client_id != code_token.get_client_id():  # pylint: disable=no-member
+        raise ApiErrorException(
+            ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH,
+            "Given code was obtained with different client!",
+        )
+
+
+def _decode_signed_code_token_with_session(
+    db: Session, raw_code_token: str
+) -> tuple[OAuthCode, UserSession]:
+    """
+    Returns decoded code token and session.
+    """
+    code_token_unsigned = OAuthCode.decode_unsigned(raw_code_token)
+
+    session_id = code_token_unsigned.get_session_id()  # pylint: disable=no-member
+    session = (
+        crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
+    )
+    if not session:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!"
+        )
+
+    code_token = OAuthCode.decode(raw_code_token, key=session.token_secret)
+    return code_token, session
+
+
+def _verify_and_expire_oauth_code(db: Session, code_token: OAuthCode) -> None:
+    """
+    Verifies and expires oauth code by query database code.
+    """
+    oauth_code = crud.oauth_code.get_by_id(db, code_id=code_token.get_code_id())
+    if not oauth_code:
+        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "No additional information.")
+    if oauth_code.was_used:
+        raise ApiErrorException(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired or already used!")
+    oauth_code.was_used = True
+    db.refresh(oauth_code)
+
+def _query_user_data_from_raw_code_token(
+    db: Session, 
+    raw_code_token: str, 
+    redirect_uri: str, 
+    client_id: str,
+    client_secret: str
+) -> tuple[OAuthCode, UserSession, User]:
+    """
+    Returns user data from raw code token by decoding and veryfing it.
+    """
+
+    code_token, session = _decode_signed_code_token_with_session(db, raw_code_token)
+    _verify_oauth_params(code_token, redirect_uri, client_id)
+    _verify_oauth_client_secret(db, client_id=client_id, client_secret=client_secret)
+    user = _query_user_by_user_id(db, session, user_id=code_token.get_subject())
+    _verify_and_expire_oauth_code(db, code_token)
+    return code_token, session, user
+
+
+def encode_tokens_pair(code_token: OAuthCode, session: UserSession, user: User, settings: Settings):
+    """
+    Returns encoded tokens pair.
+    """
+    # Access token have infinity TTL, if there scope permission for no expiration date.
     access_token_permissions = parse_permissions_from_scope(
-        code_signed.get_scope()  # pylint: disable=no-member
+        code_token.get_scope()  # pylint: disable=no-member
     )
 
     access_token_ttl = permissions_get_ttl(
@@ -110,7 +158,7 @@ def oauth_authorization_code_grant(
         access_token_ttl,
         user.id,
         session.id,
-        normalize_scope(code_signed.get_scope()),  # pylint: disable=no-member
+        normalize_scope(code_token.get_scope()),  # pylint: disable=no-member
     ).encode(key=session.token_secret)
     refresh_token = RefreshToken(
         settings.security_tokens_issuer,
@@ -119,14 +167,29 @@ def oauth_authorization_code_grant(
         session.id,
     ).encode(key=session.token_secret)
 
-    response_payload = {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "expires_in": access_token_ttl,
+    return TokensPair(access_token_ttl, access_token_permissions, access_token, refresh_token)
+
+
+def oauth_authorization_code_grant(
+    raw_code_token: str, redirect_uri: str, client_id: int, client_secret: str, db: Session, settings: Settings
+) -> JSONResponse:
+    """OAuth authorization code grant type."""
+    code_token, session, user = \
+        _query_user_data_from_raw_code_token(
+            db=db, 
+            raw_code_token=raw_code_token, 
+            redirect_uri=redirect_uri, 
+            client_id=client_id, 
+            client_secret=client_secret
+        )
+
+    tokens_pair = encode_tokens_pair(code_token, session, user, settings)
+    send_email_field = Permission.email in tokens_pair.access_permissions 
+    return api_success({
+        "access_token": tokens_pair.access_token,
+        "refresh_token": tokens_pair.refresh_token,
+        "expires_in": tokens_pair.access_token,
         "user_id": user.id,
-    }
-
-    if Permission.email in access_token_permissions:
-        response_payload["email"] = user.email
-
-    return api_success(response_payload)
+    } | ({
+        "email": user.email
+    } if send_email_field else {}))

@@ -21,6 +21,7 @@ class OAuthCode(BaseToken):
     _redirect_uri: str = ""
     _client_id: int = None
     _scope: str = ""
+    _code_id: int = None
 
     def get_session_id(self) -> int:
         """Returns session ID of the token."""
@@ -38,6 +39,10 @@ class OAuthCode(BaseToken):
         """Returns the client ID linked for code."""
         return self._client_id
 
+    def get_code_id(self) -> int:
+        """Returns code ID."""
+        return self._code_id
+
     def __init__(
         self,
         issuer: str,
@@ -47,11 +52,13 @@ class OAuthCode(BaseToken):
         scope: str | None = None,
         redirect_uri: str | None = None,
         client_id: int | None = None,
+        code_id: int | None = None,
         payload: dict | None = None,
         *,
         key: str | None = None
     ):
         super().__init__(issuer, ttl, subject=user_id, payload={}, key=key)
+        self._code_id = code_id
         self._session_id = session_id
         self._scope = scope
         self._redirect_uri = redirect_uri
@@ -72,6 +79,8 @@ class OAuthCode(BaseToken):
         instance._redirect_uri = redirect_uri  # pylint: disable=protected-access
         client_id = instance._raw_payload["cid"]  # pylint: disable=protected-access
         instance._client_id = client_id  # pylint: disable=protected-access
+        code_id = instance._raw_payload["id"]  # pylint: disable=protected-access
+        instance._code_id = code_id  # pylint: disable=protected-access
 
         return instance
 
@@ -83,4 +92,5 @@ class OAuthCode(BaseToken):
         self.custom_payload["ruri"] = self._redirect_uri
         self.custom_payload["scope"] = self._scope
         self.custom_payload["cid"] = self._client_id
+        self.custom_payload["id"] = self._code_id
         return super().encode(key=key)
