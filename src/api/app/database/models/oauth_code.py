@@ -11,7 +11,7 @@ from sqlalchemy.sql import func
 
 
 class OAuthCode(Base):
-    """OAuth code session (window) """
+    """OAuth code session (window)"""
 
     __tablename__ = "oauth_codes"
 

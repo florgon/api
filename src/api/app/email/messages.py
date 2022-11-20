@@ -11,6 +11,7 @@ from fastapi_mail import MessageSchema
 from .config import fastmail
 from app.config import get_logger
 
+
 async def _send_email(email: str, subject: str, body: str):
     """Sends message to single recipient email."""
     if not fastmail:

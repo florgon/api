@@ -7,8 +7,10 @@
 
 # Logs.
 import logging
+
 # Pydantic abstract class with data types.
 from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
+
 # Libs.
 import gatey_sdk
 
@@ -177,15 +179,15 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
 
     if not settings.gatey_is_enabled:
         return
-    
+
     def _void_transport(*args, **kwargs):
         """Void transport that does nothing if gatey is not configured."""
         ...
 
     gatey_is_configured = (
-        (settings.gatey_client_secret is not None or settings.gatey_server_secret is not None)
-        and settings.gatey_project_id is not None
-    )
+        settings.gatey_client_secret is not None
+        or settings.gatey_server_secret is not None
+    ) and settings.gatey_project_id is not None
     gatey_transport = None if gatey_is_configured else _void_transport
     gatey_client = gatey_sdk.Client(
         transport=gatey_transport,
@@ -203,11 +205,13 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
     )
     return gatey_client
 
+
 def get_logger():
     """
     Returns logger.
     """
     return _logger
+
 
 def get_settings() -> Settings:
     """
@@ -231,4 +235,3 @@ _gatey = _init_gatey_client(_settings)
 
 # Static logger.
 _logger = logging.getLogger("gunicorn.error")
-

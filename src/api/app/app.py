@@ -76,7 +76,7 @@ def _construct_app() -> FastAPI:
     fastapi_logger.handlers = logger.handlers
     fastapi_logger.setLevel(logger.level)
     logger.info("Successfully initalized FastAPI application with logger!")
-    
+
     return app_instance
 
 

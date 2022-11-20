@@ -8,6 +8,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from pyotp import TOTP
 
+
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db

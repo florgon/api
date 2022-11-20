@@ -26,17 +26,19 @@ from app.services.permissions import (
 )
 
 
-
 @dataclass
 class TokensPair:
-    """Refresh + Access encoded tokens pair. """
+    """Refresh + Access encoded tokens pair."""
+
     access_ttl: float | int
     access_permissions: list[Permission]
     access_token: str
     refresh_token: str
 
 
-def _verify_oauth_client_secret(db: Session, client_id: int, client_secret: str) -> None:
+def _verify_oauth_client_secret(
+    db: Session, client_id: int, client_secret: str
+) -> None:
     """
     Checks that oauth client is valid for that client secret.
     """
@@ -70,6 +72,7 @@ def _query_user_by_user_id(db: Session, session: UserSession, user_id: int) -> U
             ApiErrorCode.AUTH_INVALID_TOKEN, "Code session was linked to another user!"
         )
     return user
+
 
 def _verify_oauth_params(code_token: OAuthCode, redirect_uri: str, client_id: int):
     """
@@ -115,19 +118,23 @@ def _verify_and_expire_oauth_code(db: Session, code_token: OAuthCode) -> None:
     """
     oauth_code = crud.oauth_code.get_by_id(db, code_id=code_token.get_code_id())
     if not oauth_code:
-        raise ApiErrorException(ApiErrorCode.AUTH_INVALID_TOKEN, "No additional information.")
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_INVALID_TOKEN, "No additional information."
+        )
     if oauth_code.was_used:
-        raise ApiErrorException(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired or already used!")
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired or already used!"
+        )
     oauth_code.was_used = True
     db.commit()
 
 
 def _query_user_data_from_raw_code_token(
-    db: Session, 
-    raw_code_token: str, 
-    redirect_uri: str, 
+    db: Session,
+    raw_code_token: str,
+    redirect_uri: str,
     client_id: str,
-    client_secret: str
+    client_secret: str,
 ) -> tuple[OAuthCode, UserSession, User]:
     """
     Returns user data from raw code token by decoding and veryfing it.
@@ -141,7 +148,9 @@ def _query_user_data_from_raw_code_token(
     return code_token, session, user
 
 
-def encode_tokens_pair(code_token: OAuthCode, session: UserSession, user: User, settings: Settings):
+def encode_tokens_pair(
+    code_token: OAuthCode, session: UserSession, user: User, settings: Settings
+):
     """
     Returns encoded tokens pair.
     """
@@ -168,29 +177,36 @@ def encode_tokens_pair(code_token: OAuthCode, session: UserSession, user: User, 
         session.id,
     ).encode(key=session.token_secret)
 
-    return TokensPair(access_token_ttl, access_token_permissions, access_token, refresh_token)
+    return TokensPair(
+        access_token_ttl, access_token_permissions, access_token, refresh_token
+    )
 
 
 def oauth_authorization_code_grant(
-    raw_code_token: str, redirect_uri: str, client_id: int, client_secret: str, db: Session, settings: Settings
+    raw_code_token: str,
+    redirect_uri: str,
+    client_id: int,
+    client_secret: str,
+    db: Session,
+    settings: Settings,
 ) -> JSONResponse:
     """OAuth authorization code grant type."""
-    code_token, session, user = \
-        _query_user_data_from_raw_code_token(
-            db=db, 
-            raw_code_token=raw_code_token, 
-            redirect_uri=redirect_uri, 
-            client_id=client_id, 
-            client_secret=client_secret
-        )
+    code_token, session, user = _query_user_data_from_raw_code_token(
+        db=db,
+        raw_code_token=raw_code_token,
+        redirect_uri=redirect_uri,
+        client_id=client_id,
+        client_secret=client_secret,
+    )
 
     tokens_pair = encode_tokens_pair(code_token, session, user, settings)
-    send_email_field = Permission.email in tokens_pair.access_permissions 
-    return api_success({
-        "access_token": tokens_pair.access_token,
-        "refresh_token": tokens_pair.refresh_token,
-        "expires_in": tokens_pair.access_token,
-        "user_id": user.id,
-    } | ({
-        "email": user.email
-    } if send_email_field else {}))
+    send_email_field = Permission.email in tokens_pair.access_permissions
+    return api_success(
+        {
+            "access_token": tokens_pair.access_token,
+            "refresh_token": tokens_pair.refresh_token,
+            "expires_in": tokens_pair.access_token,
+            "user_id": user.id,
+        }
+        | ({"email": user.email} if send_email_field else {})
+    )

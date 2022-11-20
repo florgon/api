@@ -26,7 +26,9 @@ class GateyMiddleware:
         except Exception as e:
             gatey_client = get_gatey_client()
             if gatey_client:
-                get_logger().info("Got captured Gatey exception! Sending to Gatey client...")
+                get_logger().info(
+                    "Got captured Gatey exception! Sending to Gatey client..."
+                )
                 get_gatey_client().capture_exception(e)
             raise e
         return
