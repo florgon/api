@@ -69,7 +69,7 @@ def _query_user_by_user_id(db: Session, session: UserSession, user_id: int) -> U
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Code session was linked to another user!"
         )
-
+    return user
 
 def _verify_oauth_params(code_token: OAuthCode, redirect_uri: str, client_id: int):
     """

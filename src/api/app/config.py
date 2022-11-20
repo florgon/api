@@ -181,8 +181,7 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
     def _void_transport(*args, **kwargs):
         """Void transport that does nothing if gatey is not configured."""
         ...
-        
-    # TODO: Use server secret.
+
     gatey_is_configured = (
         (settings.gatey_client_secret is not None or settings.gatey_server_secret is not None)
         and settings.gatey_project_id is not None
