@@ -119,7 +119,9 @@ def _verify_and_expire_oauth_code(db: Session, code_token: OAuthCode) -> None:
     if oauth_code.was_used:
         raise ApiErrorException(ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired or already used!")
     oauth_code.was_used = True
+    db.add(oauth_code)
     db.refresh(oauth_code)
+    db.commit()
 
 def _query_user_data_from_raw_code_token(
     db: Session, 
