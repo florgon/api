@@ -29,8 +29,20 @@ def resolve_grant(
     Resolves string of the grant type to tokens (access, access+refresh pair).
     """
     if not grant_type or grant_type == "authorization_code":
+        raw_code_token = req.query_params.get("code", None)
+        redirect_uri = req.query_params.get("redirect_uri", None)
+        if not raw_code_token:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "`code` required for `authorization_code` grant type!",
+            )
+        if not redirect_uri:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "`redirect_uri` required for `authorization_code` grant type!",
+            )
         return oauth_authorization_code_grant(
-            req, client_id, client_secret, db, settings
+            raw_code_token, redirect_uri, client_id, client_secret, db, settings
         )
 
     if grant_type == "refresh_token":

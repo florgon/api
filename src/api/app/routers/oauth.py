@@ -184,7 +184,14 @@ async def method_oauth_allow_client(
             scope,
             redirect_uri,
             client_id,
+            code_id=crud.oauth_code.create(
+                db=db,
+                user_id=user.id, 
+                session_id=session.id, 
+                client_id=client_id
+            ).id
         ).encode(key=session.token_secret)
+        
 
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
