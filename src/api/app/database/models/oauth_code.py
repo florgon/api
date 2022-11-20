@@ -28,7 +28,6 @@ class OAuthCode(Base):
     was_used = Column(Boolean, default=False)
 
     # Time.
-    time_to_live = Column(Integer, nullable=False)
     time_created = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

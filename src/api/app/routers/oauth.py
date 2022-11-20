@@ -176,9 +176,10 @@ async def method_oauth_allow_client(
         # Code should have very small time-to-live (TTL),
         # as it should be resolved to access token with default TTL immediately at server.
         scope = normalize_scope(scope)
+        time_to_live = settings.security_oauth_code_tokens_ttl
         code = OAuthCode(
             settings.security_tokens_issuer,
-            settings.security_oauth_code_tokens_ttl,
+            time_to_live,
             user.id,
             session.id,
             scope,
