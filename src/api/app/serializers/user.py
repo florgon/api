@@ -23,7 +23,7 @@ def serialize(
         "avatar": user.avatar,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "sex": 0 if user.is_female() else 1,
+        "sex": int(user.sex),
     }
 
     if include_profile_fields:

@@ -20,6 +20,7 @@ from . import (
     upload,
     user,
     utils,
+    mailings,
 )
 
 
@@ -43,5 +44,6 @@ def include_routers(app: FastAPI) -> None:
         upload,
         gift,
         blog,
+        mailings,
     ]:
         app.include_router(module.router, prefix=proxy_url_prefix)
