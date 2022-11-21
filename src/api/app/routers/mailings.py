@@ -4,6 +4,7 @@
 """
 
 from datetime import datetime
+from functools import partial
 from app.services.api.response import api_error, ApiErrorCode, api_success
 from app.services.request.auth import query_auth_data_from_request
 from app.database.dependencies import get_db, Session
@@ -53,7 +54,7 @@ def query_users_by_filter_query(db: Session, filter_query: str) -> list[User]:
     # Apply filters for users list.
     for query_param in query_params:
         query_filter_func = QUERY_FILTER_PARAMS[query_param]
-        users = filter(query_filter_func, users)  # Chaining.
+        users = filter(partial(query_filter_func, db), users)  # Chaining.
     return list(users)
 
 
