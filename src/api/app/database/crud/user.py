@@ -11,6 +11,13 @@ from pyotp import random_base32
 from sqlalchemy.orm import Session
 
 
+def get_all_filtered(db: Session) -> list[User]:
+    """
+    Returns all users.
+    """
+    return db.query(User).all()
+
+
 def get_by_id(db: Session, user_id: int) -> User:
     """Returns user by it`s ID."""
     return db.query(User).filter(User.id == user_id).first()

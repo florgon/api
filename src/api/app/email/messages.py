@@ -2,6 +2,7 @@
     Stuff for sending messages.
 """
 
+from pydantic import EmailStr
 from fastapi import BackgroundTasks
 
 # Libraries.
@@ -12,14 +13,18 @@ from .config import fastmail
 from app.config import get_logger
 
 
-async def _send_email(email: str, subject: str, body: str):
-    """Sends message to single recipient email."""
+async def send_custom_email(emails: list[EmailStr], subject: str, body: str):
+    """Sends message to email(s)."""
     if not fastmail:
         return  # Mail disabled.
 
-    get_logger().info(f"Sending e-mail to {email}. '{subject}'.")
+    get_logger().info(
+        f"Sending e-mail to {emails[0]}. '{subject}'."
+        if len(emails) <= 1
+        else f"Sending e-mail to {len(emails)} recepients. '{subject}'."
+    )
     await fastmail.send_message(
-        MessageSchema(subject=subject, recipients=[email], body=body, subtype="plain")
+        MessageSchema(subject=subject, recipients=emails, body=body, subtype="plain")
     )
 
 
@@ -29,7 +34,7 @@ async def send_verification_email(
     """Send verification email to user."""
     subject = "Sign-up on Florgon!"
     message = f"Hello, {mention}! Please confirm your Florgon account email address by clicking link below! Link: {confirmation_link}"
-    background_tasks.add_task(_send_email, email, subject, message)
+    background_tasks.add_task(send_custom_email, [email], subject, message)
 
 
 async def send_verification_end_email(
@@ -38,7 +43,7 @@ async def send_verification_end_email(
     """Send verification end email to the user."""
     subject = "Email verified on Florgon!"
     message = f"Hello, {mention}! Your Florgon account email address was verified! Welcome to Florgon!"
-    background_tasks.add_task(_send_email, email, subject, message)
+    background_tasks.add_task(send_custom_email, [email], subject, message)
 
 
 async def send_tfa_otp_email(
@@ -47,4 +52,4 @@ async def send_tfa_otp_email(
     """Send 2FA one time password email to the user."""
     subject = "Florgon Sign-In code!"
     message = f"Hello, {mention}! Use code below to sign-in in to your Florgon account! Code: {otp}"
-    background_tasks.add_task(_send_email, email, subject, message)
+    background_tasks.add_task(send_custom_email, [email], subject, message)
