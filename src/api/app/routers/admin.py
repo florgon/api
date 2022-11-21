@@ -5,16 +5,20 @@
 
 import time
 
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
+
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_success
+from app.services.api.response import api_success, api_error
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
+from app.serializers.user import serialize_users
+from app.services.user_query_filter import query_users_by_filter_query
+
 
 router = APIRouter()
 
@@ -111,3 +115,27 @@ async def method_admin_get_users_counters(
             }
         }
     )
+
+
+@router.get("/_admin.listUsers")
+async def method_admin_list_users(
+    req: Request,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Creates new mailing task (Permitted only)."""
+
+    auth_data = query_auth_data_from_request(req, db)
+    if not auth_data.user.is_admin:
+        return api_error(
+            ApiErrorCode.API_FORBIDDEN, "You have no access to call this method!"
+        )
+
+    filter_query = req.query_params.get(
+        "filter",
+    )
+    if not filter_query:
+        return api_error(ApiErrorCode.API_INVALID_REQUEST, "Filter string required!")
+
+    users = query_users_by_filter_query(db, filter_query)
+
+    return api_success({"total_count": len(users)} | serialize_users(db, users))

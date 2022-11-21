@@ -11,6 +11,7 @@ from app.database.models.user import User
 def serialize(
     user: User,
     *,
+    in_list: bool = False,
     include_email: bool = False,
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
@@ -57,7 +58,17 @@ def serialize(
                 serialized_user["states"]["is_admin"] = user.is_admin
             serialized_user["states"]["is_confirmed"] = user.is_verified
 
+    if in_list:
+        return serialize_user
+
     return {"user": serialized_user}
 
 
+def serialize_list(users: list[User]) -> dict:
+    """Returns dict object for API response with serialized users list data."""
+
+    return {"users": [serialize(user, in_list=True) for user in users]}
+
+
 serialize_user = serialize
+serialize_users = serialize_list
