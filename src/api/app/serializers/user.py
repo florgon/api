@@ -64,10 +64,29 @@ def serialize(
     return {"user": serialized_user}
 
 
-def serialize_list(users: list[User]) -> dict:
+def serialize_list(
+    users: list[User],
+    *,
+    include_email: bool = False,
+    include_optional_fields: bool = False,
+    include_private_fields: bool = False,
+    include_profile_fields: bool = False
+) -> dict:
     """Returns dict object for API response with serialized users list data."""
 
-    return {"users": [serialize(user, in_list=True) for user in users]}
+    return {
+        "users": [
+            serialize(
+                user,
+                in_list=True,
+                include_email=include_email,
+                include_optional_fields=include_optional_fields,
+                include_private_fields=include_private_fields,
+                include_profile_fields=include_profile_fields,
+            )
+            for user in users
+        ]
+    }
 
 
 serialize_user = serialize

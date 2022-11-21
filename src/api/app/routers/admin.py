@@ -120,6 +120,10 @@ async def method_admin_get_users_counters(
 @router.get("/_admin.listUsers")
 async def method_admin_list_users(
     req: Request,
+    include_email: bool = False,
+    include_optional_fields: bool = False,
+    include_private_fields: bool = False,
+    include_profile_fields: bool = False,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Creates new mailing task (Permitted only)."""
@@ -138,4 +142,13 @@ async def method_admin_list_users(
 
     users = query_users_by_filter_query(db, filter_query)
 
-    return api_success({"total_count": len(users)} | serialize_users(users))
+    return api_success(
+        {"total_count": len(users)}
+        | serialize_users(
+            users,
+            include_email=include_email,
+            include_optional_fields=include_optional_fields,
+            include_private_fields=include_private_fields,
+            include_profile_fields=include_profile_fields,
+        )
+    )
