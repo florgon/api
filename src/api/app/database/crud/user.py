@@ -11,7 +11,7 @@ from pyotp import random_base32
 from sqlalchemy.orm import Session
 
 
-def get_all_filtered(db: Session) -> list[User]:
+def get_all(db: Session) -> list[User]:
     """
     Returns all users.
     """
