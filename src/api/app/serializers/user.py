@@ -59,7 +59,7 @@ def serialize(
             serialized_user["states"]["is_confirmed"] = user.is_verified
 
     if in_list:
-        return serialize_user
+        return serialized_user
 
     return {"user": serialized_user}
 
