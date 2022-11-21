@@ -138,4 +138,4 @@ async def method_admin_list_users(
 
     users = query_users_by_filter_query(db, filter_query)
 
-    return api_success({"total_count": len(users)} | serialize_users(db, users))
+    return api_success({"total_count": len(users)} | serialize_users(users))
