@@ -2,17 +2,19 @@
     Mailings API router.
     Provides API methods (routes) for working with admin mailing.
 """
-
 from datetime import datetime
 from functools import partial
+
+from pydantic import EmailStr
+from fastapi import APIRouter, Request, Depends, BackgroundTasks
+from fastapi.responses import JSONResponse
+
 from app.services.api.response import api_error, ApiErrorCode, api_success
 from app.services.request.auth import query_auth_data_from_request
 from app.database.dependencies import get_db, Session
 from app.database.models.user import User
 from app.database import crud
 from app.email.messages import send_custom_email
-from fastapi import APIRouter, Request, Depends, BackgroundTasks
-from fastapi.responses import JSONResponse
 
 
 router = APIRouter()
@@ -21,6 +23,7 @@ router = APIRouter()
 SECONDS_IN_WEEK = 7 * 24 * 60 * 60
 QUERY_FILTER_SEPARATOR = ";"
 QUERY_FILTER_PARAMS = {
+    "all": lambda *_: True,
     "admin": lambda _, u: u.is_admin,
     "has_oauth_clients": lambda db, u: len(crud.oauth_client.get_by_owner_id(db, u.id))
     > 0,
@@ -58,13 +61,15 @@ def query_users_by_filter_query(db: Session, filter_query: str) -> list[User]:
     return list(users)
 
 
-def send_emails_for_users(
-    background_tasks: BackgroundTasks, users: list[User], subject: str, message: str
+def send_emails_for_recepients(
+    background_tasks: BackgroundTasks,
+    recepients: list[EmailStr],
+    subject: str,
+    message: str,
 ) -> None:
     """
     Creates tasks to send emails for users.
     """
-    recepients = [user.email for user in users]
     for recepient in recepients:
         # Bad!
         background_tasks.add_task(send_custom_email, [recepient], subject, message)
@@ -99,14 +104,14 @@ async def method_mailings_send(
     if not filter_query:
         return api_error(ApiErrorCode.API_INVALID_REQUEST, "Filter string required!")
 
-    users = query_users_by_filter_query(db, filter_query)
+    recepients = [user.email for user in query_users_by_filter_query(db, filter_query)]
     if not skip_create_task:
-        send_emails_for_users(background_tasks, users, subject, message)
+        send_emails_for_recepients(background_tasks, recepients, subject, message)
 
     response = {
-        "total_recepients": len(users),
+        "total_recepients": len(recepients),
         "task_created": not skip_create_task,
     }
     if display_recepients:
-        response |= {"recepients": users}
+        response |= {"recepients": recepients}
     return api_success(response)
