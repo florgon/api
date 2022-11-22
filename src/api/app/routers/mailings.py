@@ -34,6 +34,7 @@ def send_emails_for_recepients(
 async def method_mailings_send(
     req: Request,
     background_tasks: BackgroundTasks,
+    recepient: str = "",
     subject: str = "",
     message: str = "",
     skip_create_task: bool = False,
@@ -53,15 +54,22 @@ async def method_mailings_send(
             ApiErrorCode.API_INVALID_REQUEST, "Subject and message required!"
         )
 
-    filter_query = req.query_params.get(
-        "filter",
-    )
-    if not filter_query:
-        return api_error(ApiErrorCode.API_INVALID_REQUEST, "Filter string required!")
+    if not recepient:
+        filter_query = req.query_params.get(
+            "filter",
+        )
+        if not filter_query:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST, "Filter string required!"
+            )
 
-    recepients = [user.email for user in query_users_by_filter_query(db, filter_query)]
-    if not skip_create_task:
-        send_emails_for_recepients(background_tasks, recepients, subject, message)
+        recepients = [
+            user.email for user in query_users_by_filter_query(db, filter_query)
+        ]
+        if not skip_create_task:
+            send_emails_for_recepients(background_tasks, recepients, subject, message)
+    else:
+        recepients = [recepient]
 
     response = {
         "total_recepients": len(recepients),

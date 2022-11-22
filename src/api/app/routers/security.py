@@ -134,7 +134,7 @@ async def method_security_user_change_password(
     )
     user = auth_data.user
     current_password = req.query_params.get("current_password")
-    new_password = req.query_params.get("new_pasword")
+    new_password = req.query_params.get("new_password")
     if not new_password or not current_password:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -144,7 +144,13 @@ async def method_security_user_change_password(
     # Check password and TFA.
     validate_user_tfa_otp_from_request(req, user)
     validate_password_field(new_password)
-    if not check_password(current_password, user.password):
+    passwords_is_same = check_password(current_password, user.password)
+    if passwords_is_same:
+        return api_error(
+            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
+            "Password are the same!",
+        )
+    if not passwords_is_same:
         return api_error(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
             "Current password is not same with one that you passed!",

@@ -50,8 +50,8 @@ class Settings(BaseSettings):
     mail_username: str = ""
     # Mail server configuration.
     mail_port: int = 587
-    mail_tls: bool = False
-    mail_ssl: bool = True
+    mail_starttls: bool = False
+    mail_ssl_tls: bool = True
     mail_use_credentials: bool = True
     mail_validate_certs: bool = True
     # Utils.

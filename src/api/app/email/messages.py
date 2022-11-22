@@ -2,29 +2,31 @@
     Stuff for sending messages.
 """
 
-from pydantic import EmailStr
 from fastapi import BackgroundTasks
 
 # Libraries.
-from fastapi_mail import MessageSchema
+from fastapi_mail import MessageSchema, MessageType
 
 # Core.
 from .config import fastmail
 from app.config import get_logger
 
 
-async def send_custom_email(emails: list[EmailStr], subject: str, body: str):
-    """Sends message to email(s)."""
+async def send_custom_email(recepients: list[str], subject: str, body: str):
+    """Sends message to single recipient email."""
     if not fastmail:
         return  # Mail disabled.
 
+    recepients_count = len(recepients)
     get_logger().info(
-        f"Sending e-mail to {emails[0]}. '{subject}'."
-        if len(emails) <= 1
-        else f"Sending e-mail to {len(emails)} recepients. '{subject}'."
+        f"Sending e-mail to {recepients[0]}. '{subject}'."
+        if recepients_count == 1
+        else f"Sending e-mail to {recepients_count} recepients. '{subject}'."
     )
     await fastmail.send_message(
-        MessageSchema(subject=subject, recipients=emails, body=body, subtype="plain")
+        MessageSchema(
+            subject=subject, recipients=recepients, body=body, subtype=MessageType.plain
+        )
     )
 
 
