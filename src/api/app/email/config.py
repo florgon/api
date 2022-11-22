@@ -33,7 +33,7 @@ def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
     )
 
 
-def _build_fastmail(settings: Settings) -> None:
+def _build_fastmail(settings: Settings) -> FastMail | None:
     """Returns configured FastMail system."""
     config = _build_connection_config(settings=settings)
     if config is None:

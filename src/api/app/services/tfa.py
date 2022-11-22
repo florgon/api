@@ -1,0 +1,73 @@
+"""
+    Service to work with 2FA OTP.
+"""
+
+from pyotp import TOTP
+from fastapi import Request
+
+from app.database.models.user import User
+from app.config import get_settings
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+
+
+def _shift_tfa_security_key(secret_key: str, shift_key: str):
+    shifted_key = ""
+    for char in secret_key:
+        shifted_key += ord()
+    return shifted_key
+
+
+def validate_user_tfa_otp_from_request(req: Request, user: User):
+    """
+    Raises API error if user is required to send 2FA otp key.
+    """
+    if not user.security_tfa_enabled:
+        return
+
+    settings = get_settings()
+
+    # Request 2FA OTP, raise error with continue information.
+    tfa_otp = req.query_params.get("tfa_otp")
+    if not tfa_otp:
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
+            "2FA authentication one time password required!",
+            {"tfa_otp_required": True},
+        )
+
+    tfa_device = "email"  # Device type.
+
+    # Get OTP generator.
+    otp_secret_key = user.security_tfa_secret_key
+    otp_interval = (
+        settings.security_tfa_totp_interval_email
+        if tfa_device == "email"
+        else settings.security_tfa_totp_interval_mobile
+    )
+    totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
+    # If OTP is not valid, raise error.
+    if not totp.verify(tfa_otp):
+        raise ApiErrorException(
+            ApiErrorCode.AUTH_TFA_OTP_INVALID,
+            "2FA authentication one time password expired or invalid!",
+        )
+
+
+def generate_tfa_otp(user: User, device_type: str) -> str | None:
+    """
+    Generates TFA OTP (key) for given user.
+    """
+    if device_type != "email" or not user.security_tfa_enabled:
+        return None
+
+    # Get generator.
+    settings = get_settings()
+    otp_secret_key = user.security_tfa_secret_key
+    otp_interval = settings.security_tfa_totp_interval_email
+    totp = TOTP(s=otp_secret_key, interval=otp_interval)
+
+    # Get OTP.
+    tfa_otp = totp.now()
+
+    return tfa_otp

@@ -28,7 +28,7 @@ async def send_custom_email(emails: list[EmailStr], subject: str, body: str):
     )
 
 
-async def send_verification_email(
+def send_verification_email(
     background_tasks: BackgroundTasks, email: str, mention: str, confirmation_link: str
 ):
     """Send verification email to user."""
@@ -37,7 +37,7 @@ async def send_verification_email(
     background_tasks.add_task(send_custom_email, [email], subject, message)
 
 
-async def send_verification_end_email(
+def send_verification_end_email(
     background_tasks: BackgroundTasks, email: str, mention: str
 ):
     """Send verification end email to the user."""
@@ -46,10 +46,19 @@ async def send_verification_end_email(
     background_tasks.add_task(send_custom_email, [email], subject, message)
 
 
-async def send_tfa_otp_email(
+def send_password_change_tfa_otp_email(
     background_tasks: BackgroundTasks, email: str, mention: str, otp: str
 ):
     """Send 2FA one time password email to the user."""
+    subject = "Florgon password change!"
+    message = f"Hello, {mention}! Use code below to change password for your Florgon account! Code: {otp}"
+    background_tasks.add_task(send_custom_email, [email], subject, message)
+
+
+def send_signin_tfa_otp_email(
+    background_tasks: BackgroundTasks, email: str, mention: str, otp: str
+):
+    """Send 2FA one time password email for signing to the user."""
     subject = "Florgon Sign-In code!"
-    message = f"Hello, {mention}! Use code below to sign-in in to your Florgon account! Code: {otp}"
+    message = f"Hello, {mention}! Use code below to signin in to your Florgon account! Code: {otp}"
     background_tasks.add_task(send_custom_email, [email], subject, message)

@@ -76,7 +76,7 @@ async def method_email_confirmation_confirm(
         )
 
     crud.user.email_confirm(db, user)
-    await messages.send_verification_end_email(
+    messages.send_verification_end_email(
         background_tasks, user.email, user.get_mention()
     )
     return api_success({"email": user.email, "is_confirmed": True})
@@ -111,7 +111,7 @@ async def method_email_confirmation_resend(
     # )
     confirmation_link = "https://florgon.space/email/verify"
     email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
-    await messages.send_verification_email(
+    messages.send_verification_email(
         background_tasks, email, user.get_mention(), email_confirmation_link
     )
 

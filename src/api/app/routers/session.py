@@ -24,6 +24,7 @@ from app.services.request import (
 )
 from app.services.validators.user import validate_signin_fields, validate_signup_fields
 from app.services.session import publish_new_session_with_token
+from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
 
 router = APIRouter()
 
@@ -133,7 +134,6 @@ async def method_session_request_tfa_otp(
     password: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
@@ -153,16 +153,10 @@ async def method_session_request_tfa_otp(
         # Email 2FA device.
         # Send 2FA OTP to email address.
 
-        # Get generator.
-        otp_secret_key = user.security_tfa_secret_key
-        otp_interval = settings.security_tfa_totp_interval_email
-        totp = TOTP(s=otp_secret_key, interval=otp_interval)
-
-        # Get OTP.
-        tfa_otp = totp.now()
+        tfa_otp = generate_tfa_otp(user, device_type=tfa_device)
 
         # Send OTP.
-        await email_messages.send_tfa_otp_email(
+        email_messages.send_signin_tfa_otp_email(
             background_tasks, user.email, user.get_mention(), tfa_otp
         )
         tfa_otp_is_sent = True
@@ -186,44 +180,11 @@ async def method_session_signin(
     password: str,
     user_agent: str = Header(""),
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
-
-    # Check credentials.
     user = crud.user.get_by_login(db=db, login=login)
     validate_signin_fields(user=user, password=password)
-
-    if user.security_tfa_enabled:
-        # If user has enabled 2FA.
-
-        # Request 2FA OTP, raise error with continue information.
-        tfa_otp = req.query_params.get("tfa_otp")
-        if not tfa_otp:
-            return api_error(
-                ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
-                "2FA authentication one time password required!",
-                {"tfa_otp_required": True},
-            )
-
-        tfa_device = "email"  # Device type.
-
-        # Get OTP generator.
-        otp_secret_key = user.security_tfa_secret_key
-        otp_interval = (
-            settings.security_tfa_totp_interval_email
-            if tfa_device == "email"
-            else settings.security_tfa_totp_interval_mobile
-        )
-        totp = TOTP(s=otp_secret_key, interval=otp_interval)
-
-        # If OTP is not valid, raise error.
-        if not totp.verify(tfa_otp):
-            return api_error(
-                ApiErrorCode.AUTH_TFA_OTP_INVALID,
-                "2FA authentication one time password expired or invalid!",
-            )
-
+    validate_user_tfa_otp_from_request(req, user)
     token, session = publish_new_session_with_token(
         user=user, user_agent=user_agent, db=db, req=req
     )
