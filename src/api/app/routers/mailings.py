@@ -66,10 +66,11 @@ async def method_mailings_send(
         recepients = [
             user.email for user in query_users_by_filter_query(db, filter_query)
         ]
-        if not skip_create_task:
-            send_emails_for_recepients(background_tasks, recepients, subject, message)
     else:
         recepients = [recepient]
+
+    if not skip_create_task:
+        send_emails_for_recepients(background_tasks, recepients, subject, message)
 
     response = {
         "total_recepients": len(recepients),

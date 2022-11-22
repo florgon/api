@@ -78,7 +78,12 @@ async def method_security_user_password_change_request_tfa_otp(
         req, db, required_permissions=[Permission.security]
     ).user
     current_password = req.query_params.get("current_password")
-    new_password = req.query_params.get("new_pasword")
+    new_password = req.query_params.get("new_password")
+    if not new_password or not current_password:
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`current_password` and `new_password` is required.",
+        )
 
     # Check password.
     validate_password_field(new_password)
