@@ -12,7 +12,7 @@
 from math import ceil
 from typing import Callable
 
-import aioredis
+from redis import asyncio as aioredis
 from app.config import get_settings
 from fastapi import HTTPException
 from starlette.requests import Request

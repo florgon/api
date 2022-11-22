@@ -19,7 +19,7 @@ gatey-sdk==0.0.3
 # ORM with Database engine.
 sqlalchemy==1.4.44  # ORM.
 psycopg2-binary==2.9.5  # SQL Engine (PostgreSQL engine core).
-aioredis==2.0.1  # Async Redis engine.
+redis==4.2.0rc1 #Redis engine.
 
 # Some utils libraries.
 validate_email==1.3  # Used for sign-up process.
