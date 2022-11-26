@@ -14,7 +14,6 @@ from app.database.models.user_session import UserSession
 from app.database.models.user import User
 from app.database.dependencies import Session
 
-from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_success
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.tokens import AccessToken, RefreshToken, OAuthCode

@@ -7,7 +7,6 @@ from time import time
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from app.config import get_gatey_client
 from app.services.api.response import api_success
 
 router = APIRouter()

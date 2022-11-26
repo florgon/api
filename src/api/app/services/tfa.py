@@ -10,13 +10,6 @@ from app.config import get_settings
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 
-def _shift_tfa_security_key(secret_key: str, shift_key: str):
-    shifted_key = ""
-    for char in secret_key:
-        shifted_key += ord()
-    return shifted_key
-
-
 def validate_user_tfa_otp_from_request(req: Request, user: User):
     """
     Raises API error if user is required to send 2FA otp key.
