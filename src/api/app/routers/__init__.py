@@ -8,7 +8,6 @@ from fastapi import FastAPI
 
 from . import (
     admin,
-    blog,
     email,
     ext_oauth,
     gift,
@@ -43,7 +42,6 @@ def include_routers(app: FastAPI) -> None:
         security,
         upload,
         gift,
-        blog,
         mailings,
     ]:
         app.include_router(module.router, prefix=proxy_url_prefix)

@@ -34,4 +34,4 @@ def test_read_utils_ping(client):  # pylint: disable=redefined-outer-name
     assert "success" in json
     assert "v" in json
     assert "ping" in json["success"]
-    assert "pong!" == json["success"]["ping"]
+    assert json["success"]["ping"] == "pong!"

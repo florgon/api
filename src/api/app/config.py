@@ -172,15 +172,15 @@ class Settings(BaseSettings):
     security_tfa_totp_interval_mobile: int = 30
 
 
-def _init_gatey_client(settings: Settings) -> gatey_sdk.Client:
+def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     """
     Initializes Gatey client.
     """
 
     if not settings.gatey_is_enabled:
-        return
+        return None
 
-    def _void_transport(*args, **kwargs):
+    def _void_transport(_):
         """Void transport that does nothing if gatey is not configured."""
         ...
 

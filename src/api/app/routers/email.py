@@ -44,7 +44,9 @@ async def method_email_confirmation_confirm(
 
     # Validating CFT, grabbing email from CFT payload.
     try:
-        email_token = EmailToken.decode(cft, key=settings.security_email_tokens_ttl)
+        email_token = EmailToken.decode(
+            cft, key=settings.security_email_tokens_secret_key
+        )
     except (TokenInvalidError, TokenInvalidSignatureError):
         return api_error(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,

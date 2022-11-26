@@ -11,10 +11,11 @@ fastapi_mail==1.2.1
 # server process manager.
 uvicorn==0.19.0
 gunicorn==20.1.0
+httpx==0.23.1
 
 # Florgon Gatey SDK.
 # (Error logging service).
-gatey-sdk==0.0.3
+gatey-sdk==0.0.4
 
 # ORM with Database engine.
 sqlalchemy==1.4.44  # ORM.

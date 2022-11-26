@@ -23,7 +23,6 @@ API server for Florgon services (Florgon API).
 - Email verification system.
 - VIP system (with promocodes).
 - Upload system (With upload server).
-- Blog system.
 
 ### See in action.
 
@@ -57,5 +56,5 @@ Integrating Florgon OAuth: [`/docs/OAUTH.md`](/docs/OAUTH.md)
 
 # Tested on...
 
-Docker engine: v20.* \
-Docker compose: v2.*
+Docker engine: v20._ \
+Docker compose: v2._
