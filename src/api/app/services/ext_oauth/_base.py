@@ -22,7 +22,7 @@ class ExternalOAuthService:
     code_resolver_provider_url = ""
     code_resolver_http_method: Literal["GET", "POST"] = "GET"
 
-    def __init__(self, client_id: str, client_secret: str, client_redirect_uri: str):
+    def __init__(self, client_id: int, client_secret: str, client_redirect_uri: str):
         """
         :param client_id: OAuth client ID.
         :param client_secret: OAuth client secret.

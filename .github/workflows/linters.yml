@@ -29,6 +29,9 @@ jobs:
       - name: PyLint lint.
         run: pylint --disable=too-many-function-args --disable=duplicate-code --disable=wrong-import-order --disable=too-few-public-methods --disable=too-many-arguments --disable=too-many-locals --disable=too-many-return-statements --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
         working-directory: "src/api/"
+      - name: MyPy install stubs.
+        working-directory: "src/api/"
+        run: mypy --install-types
       - name: MyPy type check.
         working-directory: "src/api/"
         run: mypy $(git ls-files '*.py') || true

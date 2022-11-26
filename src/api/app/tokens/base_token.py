@@ -6,10 +6,10 @@
     Some sort of abstract class.
 """
 
+from typing import Any
+import time
 
-import time  # Utils for expiration dates.
-
-import jwt  # Library with base JWT implementation.
+import jwt
 
 from . import exceptions
 
@@ -72,8 +72,8 @@ class BaseToken:
     # Base token fields.
     # Set when decoding token, and will be encoded when encoding token.
     _ttl: int | float = 1.0  # Token expiration time in seconds (Time-To-Live, TTL)
-    _issuer: str = None  # The issuer of the token (hostname).
-    _subject: int = None  # Subject of the token (ID of the object (User))
+    _issuer: str | None = None  # The issuer of the token (hostname).
+    _subject: int | None = None  # Subject of the token (ID of the object (User))
 
     # When decoded token was issued and expires.
     _expires_at: float = 0
@@ -208,7 +208,7 @@ class BaseToken:
 
         # Get token time-to-live (TTL).
         issued_at = float(payload["iat"])
-        ttl, expires_at = 0, 0  # By default token does not has TTL (No expiration).
+        ttl, expires_at = 0.0, 0.0  # By default token does not has TTL (No expiration).
         if "exp" in payload:
             # If there is expiration date,
             # calculate TTL based on expiration timestamp minus issued timestamp.
@@ -285,7 +285,7 @@ class BaseToken:
     @classmethod
     def _decode_jwt_exception_wrapped(
         cls, token: str, key: str | None = None, verify_signature: bool = True
-    ) -> dict[str, any]:
+    ) -> dict[str, Any]:
         """
         Decodes JWT with wrapped exceptions (library exceptions, raised as core exceptions),
         Also provides some abstraction on JWT library decode.
@@ -335,7 +335,7 @@ class BaseToken:
             raise TypeError("Payload must be a dict (To serialize into JSON)!")
         if not isinstance(issuer, str):
             raise TypeError("Issuer must be a string (Hostname)")
-        if not isinstance(ttl, int | float):
+        if not isinstance(ttl, (int | float)):
             raise TypeError("Token TTL must be an number (in seconds)!")
         if not isinstance(subject, int):
             raise TypeError("Token subject must be an integer (ID of the object)")
