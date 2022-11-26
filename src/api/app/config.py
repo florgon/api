@@ -178,7 +178,7 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     """
 
     if not settings.gatey_is_enabled:
-        return
+        return None
 
     def _void_transport(_):
         """Void transport that does nothing if gatey is not configured."""

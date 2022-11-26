@@ -27,4 +27,4 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_SECRET }}
           port: ${{ secrets.DEPLOY_SSH_PORT }}
           script: |
-            bash /srv/florgon/scripts/deploy/florgon-api
+            bash /srv/florgon/scripts/deploy/florgon-api.sh
