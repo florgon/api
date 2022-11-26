@@ -9,7 +9,7 @@ fastapi_mail==1.2.1
 
 # ASGI server worker with
 # server process manager.
-uvicorn==0.19.0
+uvicorn==0.20.0
 gunicorn==20.1.0
 httpx==0.23.1
 
