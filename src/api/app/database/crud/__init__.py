@@ -3,7 +3,6 @@
 """
 
 from . import (
-    blog_post,
     gift,
     gift_use,
     oauth_client,
@@ -15,7 +14,6 @@ from . import (
 )
 
 __all__ = [
-    "blog_post",
     "gift",
     "gift_use",
     "oauth_client",
