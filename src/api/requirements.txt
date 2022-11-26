@@ -19,7 +19,7 @@ gatey-sdk==0.0.4
 
 # ORM with Database engine.
 sqlalchemy==1.4.44  # ORM.
-psycopg2-binary==2.9.4  # SQL Engine (PostgreSQL engine core).
+psycopg2-binary==2.9.5  # SQL Engine (PostgreSQL engine core).
 aioredis==2.0.1  # Async Redis engine.
 
 # Some utils libraries.
