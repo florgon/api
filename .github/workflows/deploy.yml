@@ -27,7 +27,4 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_SECRET }}
           port: ${{ secrets.DEPLOY_SSH_PORT }}
           script: |
-            cd /srv/api/api
-            git pull
-            cd src
-            docker-compose up -d --build
+            bash /srv/florgon/scripts/deploy/florgon-api
