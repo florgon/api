@@ -63,7 +63,10 @@ def _construct_app() -> FastAPI:
     )
 
     # Custom OpenAPI due to response structure.
-    app.openapi = custom_openapi(app)
+    if settings.openapi_enabled:
+        app_instance.openapi = custom_openapi(app_instance)
+    else:
+        del custom_openapi
 
     # Initializing database connection and all ORM stuff.
     if settings.database_create_all:
