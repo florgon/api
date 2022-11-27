@@ -8,7 +8,7 @@ import time
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-from app.config import Settings, get_settings
+from app.config import get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.services.api.errors import ApiErrorCode, ApiErrorException
@@ -16,18 +16,18 @@ from app.services.api.response import api_success, api_error
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
-from app.serializers.user import serialize_users
+from app.serializers.user import serialize_users, serialize_user
 from app.services.user_query_filter import query_users_by_filter_query
-
+from app.database.models.user import User
 
 router = APIRouter()
 
 
-async def validate_admin_method_allowed(req: Request, db: Session, settings: Settings):
+async def validate_admin_method_allowed(req: Request, db: Session) -> None:
     """
     Validates that the method is allowed to be called.
     """
-    if settings.admin_methods_disabled:
+    if get_settings().admin_methods_disabled:
         raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
         )
@@ -42,14 +42,36 @@ async def validate_admin_method_allowed(req: Request, db: Session, settings: Set
     await RateLimiter(times=2, seconds=15).check(req)
 
 
+def query_user_by_id_or_username(
+    db: Session, user_id: int | None = None, username: str | None = None
+) -> User:
+    """Returns user by id or username or raises an exception if failed to query."""
+    if user_id is None and username is None:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST, "user_id or username required!"
+        )
+    if user_id is not None and username is not None:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST, "Please pass only user_id or username!"
+        )
+
+    user = (
+        crud.user.get_by_id(db, user_id)
+        if username is None
+        else crud.user.get_by_username(db, username)
+    )
+    if not user:
+        raise ApiErrorException(ApiErrorCode.USER_NOT_FOUND, "User not found!")
+
+    return user
+
+
 @router.get("/_admin.getSessionsCounters")
 async def method_admin_get_sessions_counters(
-    req: Request,
-    db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
+    req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns sessions counters."""
-    validate_admin_method_allowed(req, db, settings)
+    await validate_admin_method_allowed(req, db)
     return api_success(
         {
             "sessions": {
@@ -74,10 +96,9 @@ async def method_admin_get_sessions_counters(
 async def method_admin_get_oauth_clients_counters(
     req: Request,
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns OAuth clients counters."""
-    validate_admin_method_allowed(req, db, settings)
+    await validate_admin_method_allowed(req, db)
     return api_success(
         {
             "oauth_clients": {
@@ -96,10 +117,9 @@ async def method_admin_get_oauth_clients_counters(
 async def method_admin_get_users_counters(
     req: Request,
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Returns users counters."""
-    validate_admin_method_allowed(req, db, settings)
+    await validate_admin_method_allowed(req, db)
     return api_success(
         {
             "users": {
@@ -128,11 +148,7 @@ async def method_admin_list_users(
 ) -> JSONResponse:
     """Creates new mailing task (Permitted only)."""
 
-    auth_data = query_auth_data_from_request(req, db)
-    if not auth_data.user.is_admin:
-        return api_error(
-            ApiErrorCode.API_FORBIDDEN, "You have no access to call this method!"
-        )
+    await validate_admin_method_allowed(req, db)
 
     filter_query = req.query_params.get(
         "filter",
@@ -152,3 +168,45 @@ async def method_admin_list_users(
             include_profile_fields=include_profile_fields,
         )
     )
+
+
+@router.get("/_admin.banUser")
+async def method_admin_ban_user(
+    req: Request,
+    user_id: int | None = None,
+    username: str | None = None,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Deactivates user."""
+
+    await validate_admin_method_allowed(req, db)
+    user = query_user_by_id_or_username(db, user_id, username)
+
+    # Update user.
+    user.is_active = False
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return api_success(serialize_user(user, in_list=False, include_private_fields=True))
+
+
+@router.get("/_admin.unbanUser")
+async def method_admin_unban_usre(
+    req: Request,
+    user_id: int | None = None,
+    username: str | None = None,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Activates user."""
+
+    await validate_admin_method_allowed(req, db)
+    user = query_user_by_id_or_username(db, user_id, username)
+
+    # Update user.
+    user.is_active = False
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return api_success(serialize_user(user, in_list=False, include_private_fields=True))
