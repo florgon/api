@@ -2,7 +2,7 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    monitor: "florgon-api"
+    monitor: "app"
 
 rule_files:
 
@@ -12,9 +12,9 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  - job_name: "florgon-api"
+  - job_name: "app"
     dns_sd_configs:
-      - names: ["florgon-api"]
+      - names: ["app"]
         port: 80
         type: A
         refresh_interval: 5s
