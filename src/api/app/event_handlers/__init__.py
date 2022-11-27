@@ -20,7 +20,5 @@ def add_event_handlers(app: FastAPI) -> None:
     if get_settings().prometheus_metrics_exposed:
         app.add_event_handler(
             "startup",
-            lambda: Instrumentator()
-            .instrument(app)
-            .expose(app, endpoint=f"{get_settings().proxy_url_prefix}/metrics"),
+            lambda: Instrumentator().instrument(app).expose(app),
         )
