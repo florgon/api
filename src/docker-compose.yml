@@ -53,7 +53,7 @@ services:
     volumes:
       - ./api:/srv/www/florgon/api
     ports:
-      - "${COMPOSE_EXPOSED_PORT}:8000"
+      - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
       - database
       - database-poller
@@ -76,6 +76,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
+    links:
+      - server
     networks:
       - florgon-api
 
@@ -91,6 +93,8 @@ services:
     env_file:
       - ./grafana.env
     depends_on:
+      - prometheus
+    links:
       - prometheus
     networks:
       - florgon-api

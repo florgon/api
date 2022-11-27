@@ -15,6 +15,6 @@ scrape_configs:
   - job_name: "server"
     dns_sd_configs:
       - names: ["server"]
-        port: 8000
+        port: 80
         type: A
         refresh_interval: 5s
