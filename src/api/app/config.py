@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     # Pool size for database pool.
     database_pool_size: int = 20
 
+    # Prometheus (Grafana)
+    prometheus_metrics_exposed: bool = False
+
     # Mail.
 
     # If false, email will be disabled and not even sent.

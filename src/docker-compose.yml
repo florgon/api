@@ -11,7 +11,7 @@ services:
   database:
     image: postgres:14-alpine
     hostname: florgon-api
-    restart: always
+    restart: unless-stopped
     volumes:
       - ../db:/var/lib/postgresql/data
     env_file:
@@ -24,26 +24,30 @@ services:
       - "max_connections=1000" # SHOW max_connections;
       - "-c" # Buffer size for database bufferization.
       - "shared_buffers=128MB" # SHOW shared_buffers;
+
   database-poller:
     image: edoburu/pgbouncer
+    restart: unless-stopped
     env_file:
       - .database.env
     depends_on:
       - database
     networks:
       - florgon-api
+
   cache:
     image: redis:7-alpine
     hostname: florgon-api
-    restart: always
+    restart: unless-stopped
     command: redis-server
     volumes:
       - ../cache:/data
     networks:
       - florgon-api
+
   server:
     hostname: florgon-api
-    restart: always
+    restart: unless-stopped
     env_file:
       - .server.env
     volumes:
@@ -61,5 +65,36 @@ services:
       - florgon-api
     build: .
 
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: ["production"]
+    restart: unless-stopped
+    hostname: florgon-api
+    ports:
+      - "${COMPOSE_PROMETHEUS_EXPOSED_PORT}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - florgon-api
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    profiles: ["production"]
+    hostname: florgon-api
+    ports:
+      - "${COMPOSE_GRAFANA_EXPOSED_PORT}:3000"
+    volumes:
+      - ./datasource.yml:/etc/grafana/provisioning/datasource.yml
+    env_file:
+      - ./grafana.env
+    depends_on:
+      - prometheus
+    networks:
+      - florgon-api
+
 networks:
   florgon-api:
+    name: florgon-api
