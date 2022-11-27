@@ -2,6 +2,8 @@
     Standardized API error codes container.
 """
 
+from starlette.exceptions import HTTPException
+
 from enum import Enum
 
 
@@ -64,7 +66,7 @@ class ApiErrorCode(Enum):
     AUTH_TFA_NOT_ENABLED = 802, 400
 
 
-class ApiErrorException(Exception):
+class ApiErrorException(HTTPException):
     """
     Exception, that will be return to the user as API error response (FastAPI) handler.
     """

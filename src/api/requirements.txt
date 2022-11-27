@@ -2,6 +2,7 @@
 
 # Web framework (FastAPI).
 fastapi==0.87.0
+fastapi-response==0.2.1  # For custom OpenAPI schema exceptions.
 
 # Mail wrapper for FastAPI.
 # used to send email messages.

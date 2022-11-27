@@ -38,8 +38,8 @@ def add_middlewares(app: FastAPI) -> None:
     """
     Registers (add) all custom middlewares to the FastAPI application.
     """
-    _add_cors_middleware(app)
     _add_gatey_middleware(app)
+    _add_cors_middleware(app)
 
 
 def _add_gatey_middleware(app: FastAPI) -> None:

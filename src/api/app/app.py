@@ -6,6 +6,7 @@
 
 from fastapi import FastAPI
 from fastapi.logger import logger as fastapi_logger
+from fastapi_responses import custom_openapi
 
 from . import database
 
@@ -60,6 +61,9 @@ def _construct_app() -> FastAPI:
         root_path=settings.fastapi_root_path,
         root_path_in_servers=True,
     )
+
+    # Custom OpenAPI due to response structure.
+    app.openapi = custom_openapi(app)
 
     # Initializing database connection and all ORM stuff.
     if settings.database_create_all:
