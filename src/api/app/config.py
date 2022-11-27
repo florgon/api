@@ -197,7 +197,7 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
         check_api_auth_on_init=False,
         handle_global_exceptions=False,
         global_handler_skip_internal_exceptions=False,
-        capture_vars=False,
+        exceptions_capture_vars=False,
     )
     gatey_client.capture_message(
         level="INFO",
