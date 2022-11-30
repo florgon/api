@@ -88,17 +88,6 @@ async def method_oauth_access_token(
         settings=settings,
     )
 
-
-csv_file = [[]]
-
-
-def students_fullnames_by_group(group):
-    print(*[row["ФИО"] for row in csv_file if row["группа"] == group.strip()])
-
-
-students_fullnames_by_group("2023")
-
-
 @router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(
     req: Request,
