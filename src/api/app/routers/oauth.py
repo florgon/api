@@ -2,6 +2,8 @@
     Oauth API auth routers.
 """
 
+from urllib.parse import parse_qs
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
@@ -78,10 +80,10 @@ async def method_oauth_access_token_post(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Resolves grant to access token."""
-    json = await req.json()
-    client_secret = json.get("client_secret", client_secret)
-    client_id = json.get("client_id", client_id)
-    grant_type = json.get("grant_type", grant_type)
+    body_query = parse_qs((await req.body()).decode(encoding="UTF-8"))
+    client_secret = body_query.get("client_secret", [client_secret])[0]
+    client_id = body_query.get("client_id", [client_id])[0]
+    grant_type = body_query.get("grant_type", [grant_type])[0]
     if not client_id or not client_secret:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,

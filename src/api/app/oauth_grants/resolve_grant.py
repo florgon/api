@@ -1,6 +1,7 @@
 """
     Resolves from grant_type string name grant type resolver.
 """
+from urllib.parse import parse_qs
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -28,11 +29,11 @@ async def resolve_grant(
     """
     Resolves string of the grant type to tokens (access, access+refresh pair).
     """
-    json = await req.json()
+    body_query = parse_qs((await req.body()).decode(encoding="UTF-8"))
     if not grant_type or grant_type == "authorization_code":
-        raw_code_token = req.query_params.get("code", json.get("code", None))
+        raw_code_token = req.query_params.get("code", body_query.get("code", [None])[0])
         redirect_uri = req.query_params.get(
-            "redirect_uri", json.get("redirect_uri", None)
+            "redirect_uri", body_query.get("redirect_uri", [None])[0]
         )
         if not raw_code_token:
             return api_error(
