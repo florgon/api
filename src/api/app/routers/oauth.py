@@ -73,7 +73,7 @@ async def method_oauth_authorize(
 @router.post("/oauth.accessToken")
 async def method_oauth_access_token_post(
     req: Request,
-    client_id: int | None = None,
+    client_id: int = 0,
     client_secret: str | None = None,
     grant_type: str | None = None,
     db: Session = Depends(get_db),
@@ -82,7 +82,7 @@ async def method_oauth_access_token_post(
     """Resolves grant to access token."""
     body_query = parse_qs((await req.body()).decode(encoding="UTF-8"))
     client_secret = body_query.get("client_secret", [client_secret])[0]
-    client_id = body_query.get("client_id", [client_id])[0]
+    client_id = int(body_query.get("client_id", [client_id])[0])
     grant_type = body_query.get("grant_type", [grant_type])[0]
     if not client_id or not client_secret:
         return api_error(
