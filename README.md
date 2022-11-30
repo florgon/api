@@ -26,16 +26,17 @@ API server for Florgon services (Florgon API).
 
 ### See in action.
 
-API deployed and used in production [here](https://api.florgon.space/) (API endpoint).
+API deployed and used in production [here](https://api.florgon.space/v1) (API endpoint).
 
 ### Technologies.
 
-- Python (FastAPI, SQLAlchemy).
+- Python (FastAPI, SQLAlchemy)
 - PostgreSQL (with pgBouncer)
 - Redis (Handle requests limit)
-- Docker (with Docker-Compose),
+- Docker (with Docker-Compose)
 - Uvicorn (with Gunicorn)
 - PyTest (GitHub workflows)
+- Grafana + Prometheus (Metrics)
 
 # Docs.
 
