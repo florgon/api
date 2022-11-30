@@ -4,6 +4,7 @@
 
 
 import time
+from typing import Any
 
 from app.database.models.user import User
 
@@ -16,14 +17,15 @@ def serialize(
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
     include_profile_fields: bool = False
-):
+) -> dict[str, Any]:
     """Returns dict object for API response with serialized user data."""
-    serialized_user = {
+    serialized_user: dict[str, Any] = {
         "id": user.id,
         "username": user.username,
         "avatar": user.avatar,
         "first_name": user.first_name,
         "last_name": user.last_name,
+        "full_name": user.full_name,
         "sex": int(user.sex),
     }
 
@@ -71,7 +73,7 @@ def serialize_list(
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
     include_profile_fields: bool = False
-) -> dict:
+) -> dict[str, Any]:
     """Returns dict object for API response with serialized users list data."""
 
     return {

@@ -2,7 +2,7 @@ name: Tests (PyTest, Coverage)
 
 on:
   pull_request:
-    branches: [main]
+    branches: ["main", "dev", "staging"]
   workflow_dispatch:
 
 permissions:

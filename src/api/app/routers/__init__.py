@@ -1,11 +1,9 @@
 """
-    Authentication server API routers.
-    (FastAPI routers)
+    FastAPI routers for application.
 """
 
-from app.config import get_settings
 from fastapi import FastAPI
-
+from app.config import get_settings
 from . import (
     admin,
     email,
@@ -27,8 +25,7 @@ def include_routers(app: FastAPI) -> None:
     """
     Registers (Including) FastAPI routers for FastAPI app.
     """
-    settings = get_settings()
-    proxy_url_prefix = settings.proxy_url_prefix
+    proxy_url_prefix = get_settings().proxy_url_prefix
     for module in [
         oauth_client,
         email,

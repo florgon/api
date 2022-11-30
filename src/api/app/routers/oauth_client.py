@@ -2,25 +2,40 @@
     Oauth API auth routers.
 """
 
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+
 from app.database import crud
 from app.database.dependencies import get_db
-
-# Other.
+from app.database.models.oauth_client import OAuthClient
 from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
-from app.services.api.errors import ApiErrorCode
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 
-# Services.
 from app.services.request import query_auth_data_from_request
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
 
-# Libraries.
-from sqlalchemy.orm import Session
 
 router = APIRouter()
+
+
+def _query_oauth_client_with_owner(
+    db: Session, client_id: int, owner_id: int
+) -> OAuthClient:
+    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+    if not oauth_client or not oauth_client.is_active:
+        raise ApiErrorException(
+            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
+            "OAuth client not found or deactivated!",
+        )
+    if oauth_client.owner_id != owner_id:
+        raise ApiErrorException(
+            ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
+            "You are not owner of this OAuth client!",
+        )
+    return oauth_client
 
 
 @router.get("/oauthClient.new")
@@ -82,19 +97,9 @@ async def method_oauth_client_expire_secret(
         req, db, required_permissions=[Permission.oauth_clients]
     )
 
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-    if not oauth_client or not oauth_client.is_active:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
-        )
-    if oauth_client.owner_id != auth_data.user.id:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
-            "You are not owner of this OAuth client!",
-        )
-
+    oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user_id)
     crud.oauth_client.expire(db=db, client=oauth_client)
+
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
@@ -107,17 +112,7 @@ async def method_oauth_client_update(
         req, db, required_permissions=[Permission.oauth_clients]
     )
     # Query OAuth client.
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-    if not oauth_client or not oauth_client.is_active:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
-        )
-    if oauth_client.owner_id != auth_data.user.id:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
-            "You are not owner of this OAuth client!",
-        )
+    oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user_id)
 
     # Updating.
     is_updated = False
@@ -146,20 +141,10 @@ async def method_oauth_client_stats(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client usage data."""
-    auth_data = query_auth_data_from_request(
+    user_id = query_auth_data_from_request(
         req, db, required_permissions=[Permission.oauth_clients]
-    )
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-    if not oauth_client or not oauth_client.is_active:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
-        )
-    if oauth_client.owner_id != auth_data.user.id:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_FORBIDDEN,
-            "You are not owner of this OAuth client!",
-        )
+    ).user_id
+    oauth_client = _query_oauth_client_with_owner(db, client_id, user_id)
 
     return api_success(
         {

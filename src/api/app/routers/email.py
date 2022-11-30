@@ -6,11 +6,11 @@
 
 # import urllib.parse
 
-from app.config import Settings, get_settings
+from app.config import get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.email import messages
-from app.services.api.errors import ApiErrorCode
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.request import query_auth_data_from_request
@@ -30,6 +30,52 @@ router = APIRouter()
 # TODO: Allow specify URL for email confirmation.
 
 
+def _decode_email_token(token: str) -> EmailToken:
+    """
+    Decodes email token and returns it, or raises API error if failed to decode.
+    """
+    secret_key = get_settings().security_email_tokens_secret_key
+    try:
+        email_token = EmailToken.decode(token, key=secret_key)
+    except (TokenInvalidError, TokenInvalidSignatureError):
+        raise ApiErrorException(
+            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
+            "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.",
+        )
+    except TokenExpiredError:
+        raise ApiErrorException(
+            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
+            "Confirmation token expired. Try resend confirmation again.",
+        )
+    except TokenWrongTypeError:
+        raise ApiErrorException(
+            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
+            "Expected token to be a confirmation token, not another type of token.",
+        )
+    return email_token
+
+
+def _generate_confirmation_link(user_id: int) -> str:
+    """
+    Encodes email token and returns confirmation link ready to be send to user email.
+    """
+    # TBD: Refactor this.
+    settings = get_settings()
+
+    # CFT string.
+    confirmation_token = EmailToken(
+        settings.security_tokens_issuer, settings.security_email_tokens_ttl, user_id
+    ).encode(key=settings.security_email_tokens_secret_key)
+
+    # confirmation_link = urllib.parse.urljoin(
+    #    settings.proxy_url_domain,
+    #    settings.proxy_url_prefix + "/_emailConfirmation.confirm",
+    # )
+
+    confirmation_endpoint = "https://florgon.space/email/verify"
+    return f"{confirmation_endpoint}?cft={confirmation_token}"
+
+
 @router.get(
     "/_emailConfirmation.confirm",
     dependencies=[Depends(RateLimiter(times=3, seconds=1))],
@@ -38,30 +84,13 @@ async def method_email_confirmation_confirm(
     cft: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """Confirms email from given CFT (Confirmation token)."""
-
+    """
+    Confirms email from given CFT (Confirmation token).
+    :param cft: Confirmation token from email.
+    """
     # Validating CFT, grabbing email from CFT payload.
-    try:
-        email_token = EmailToken.decode(
-            cft, key=settings.security_email_tokens_secret_key
-        )
-    except (TokenInvalidError, TokenInvalidSignatureError):
-        return api_error(
-            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.",
-        )
-    except TokenExpiredError:
-        return api_error(
-            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Confirmation token expired. Try resend confirmation again.",
-        )
-    except TokenWrongTypeError:
-        return api_error(
-            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Expected token to be a confirmation token, not another type of token.",
-        )
+    email_token = _decode_email_token(token=cft)
 
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=email_token.get_subject())
@@ -89,12 +118,9 @@ async def method_email_confirmation_resend(
     req: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """Resents email confirmation to user email address."""
-    auth_data = query_auth_data_from_request(req, db)
-    user = auth_data.user
-
+    """Resends email confirmation to user email address."""
+    user = query_auth_data_from_request(req, db).user
     if user.is_verified:
         return api_error(
             ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED,
@@ -102,19 +128,10 @@ async def method_email_confirmation_resend(
         )
     await RateLimiter(times=2, hours=1).check(req)
 
-    # TBD: Refactor this.
-    email = user.email
-    confirmation_token = EmailToken(
-        settings.security_tokens_issuer, settings.security_email_tokens_ttl, user.id
-    ).encode(key=settings.security_email_tokens_secret_key)
-    # confirmation_link = urllib.parse.urljoin(
-    #    settings.proxy_url_domain,
-    #    settings.proxy_url_prefix + "/_emailConfirmation.confirm",
-    # )
-    confirmation_link = "https://florgon.space/email/verify"
-    email_confirmation_link = f"{confirmation_link}?cft={confirmation_token}"
     messages.send_verification_email(
-        background_tasks, email, user.get_mention(), email_confirmation_link
+        background_tasks,
+        email=user.email,
+        mention=user.get_mention(),
+        confirmation_link=_generate_confirmation_link(user),
     )
-
-    return api_success({"email": email})
+    return api_success({"email": user.email})

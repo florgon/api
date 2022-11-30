@@ -29,13 +29,11 @@ async def method_user_get_info(
     email_allowed = Permission.email in auth_data.permissions
     return api_success(
         serialize_user(
-            auth_data.user,
-            **{
-                "include_email": email_allowed,
-                "include_optional_fields": True,
-                "include_private_fields": True,
-                "include_profile_fields": True,
-            },
+            user=auth_data.user,
+            include_email=email_allowed,
+            include_optional_fields=True,
+            include_private_fields=True,
+            include_profile_fields=True,
         )
     )
 

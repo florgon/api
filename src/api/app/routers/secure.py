@@ -16,9 +16,11 @@ async def method_secure_check_token(
     token: str, scope: str = "", db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns access token information."""
-    required_permissions = parse_permissions_from_scope(scope)
     auth_data = query_auth_data_from_token(
-        token, db, required_permissions=required_permissions
+        token=token,
+        db=db,
+        required_permissions=parse_permissions_from_scope(scope),
+        request=None,
     )
     return api_success(
         {

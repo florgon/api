@@ -2,7 +2,7 @@ name: Linters (Pylint, MyPy)
 
 on:
   pull_request:
-    branches: [main]
+    branches: ["main", "dev", "staging"]
   workflow_dispatch:
 
 permissions:

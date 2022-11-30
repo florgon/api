@@ -2,30 +2,41 @@
     Oauth API auth routers.
 """
 
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse, RedirectResponse
+
+from app.database.models.oauth_client import OAuthClient
 from app.config import Settings, get_settings
 from app.database import crud
 from app.database.dependencies import Session, get_db
-from app.services.api.errors import ApiErrorCode
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
+from app.services.request.auth import query_auth_data_from_request
 
-# Services.
 from app.services.permissions import (
     Permission,
     normalize_scope,
     parse_permissions_from_scope,
     permissions_get_ttl,
 )
-from app.services.request.session_check_client import session_check_client_by_request
-from app.tokens import AccessToken, SessionToken, OAuthCode
-
-# Grants.
+from app.tokens import AccessToken, OAuthCode
 from app.oauth_grants import resolve_grant
 
-# Libraries.
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse, RedirectResponse
 
 router = APIRouter()
+
+
+def _query_oauth_client(db: Session, client_id: int) -> OAuthClient:
+    """
+    Returns oauth client by id or raises API error if not found or inactive.
+    """
+    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+    if not oauth_client or not oauth_client.is_active:
+        raise ApiErrorException(
+            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
+            "OAuth client not found or deactivated!",
+        )
+    return oauth_client
 
 
 @router.get("/oauth.authorize")
@@ -40,27 +51,8 @@ async def method_oauth_authorize(
 ) -> JSONResponse | RedirectResponse:
     """Redirects to authorization screen."""
 
-    # Query OAuth client.
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-    if not oauth_client or not oauth_client.is_active:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
-        )
-
+    _query_oauth_client(db, client_id)
     if response_type in ("code", "token"):
-        # If response type is valid (Authorization code flow or Implicit flow)
-
-        # client_id - OAuth client unique identifier (Database ID).
-        # state - Should be just passed to the client redirect uri, when OAuth flow finished.
-        # scope - OAuth requested permissions, by Florgon OAuth specification,
-        #         should be separated by comma (,). Listed in `Permission` enum.
-        # response_type - OAuth flow (Authorization code flow or Implicit flow).
-        #                 See documentation, or OAuth allow client method.
-        # redirect_uri - Where user should be redirected after OAuth flow is finished.
-
-        # Redirect to OAuth screen provider (web-interface),
-        # with passing requested OAuth parameters.
         oauth_screen_request_url = (
             f"{settings.auth_oauth_screen_provider_url}"
             f"?client_id={client_id}"
@@ -70,8 +62,6 @@ async def method_oauth_authorize(
             f"&response_type={response_type}"
         )
         return RedirectResponse(url=oauth_screen_request_url)
-
-    # Requested response_type is not exists.
     return api_error(
         ApiErrorCode.API_INVALID_REQUEST,
         "Unknown `response_type` value! Allowed: code, token.",
@@ -99,10 +89,19 @@ async def method_oauth_access_token(
     )
 
 
+csv_file = [[]]
+
+
+def students_fullnames_by_group(group):
+    print(*[row["ФИО"] for row in csv_file if row["группа"] == group.strip()])
+
+
+students_fullnames_by_group("2023")
+
+
 @router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(
     req: Request,
-    session_token: str,
     client_id: int,
     state: str,
     redirect_uri: str,
@@ -115,55 +114,17 @@ async def method_oauth_allow_client(
     Allows access for specified client,
     by returning required information (code or access token) and formatted redirect_to URL.
 
-    :param session_token: Session token, that obtained by authorizing user on Florgon, should be used ONLY by Florgon.
     :param client_id: OAuth client unique identifier (Database ID).
     :param state: Should be just passed to the client redirect uri, when OAuth flow finished.
     :param redirect_uri: Where user should be redirected after OAuth flow is finished.
     :param scope: OAuth requested permissions, by Florgon OAuth specification, should be separated by comma (,). Listed in `Permission` enum.
     :param response_type: OAuth flow (Authorization code flow or Implicit flow). See documentation, or OAuth allow client method.
-
-    :param db: Database session dependency.
-    :param settings: Config settings dependency.
-
-    :returns: API response.
     """
 
-    # Validate session token.
-    session_token_unsigned = SessionToken.decode_unsigned(session_token)
-    session_id = session_token_unsigned.get_session_id()  # pylint: disable=no-member
+    auth_data = query_auth_data_from_request(req=req, db=db, only_session_token=True)
+    oauth_client = _query_oauth_client(db=db, client_id=client_id)
 
-    session = (
-        crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
-    )
-    if not session:
-        return api_error(
-            ApiErrorCode.AUTH_INVALID_TOKEN, "Token has not linked to any session!"
-        )
-    session_check_client_by_request(db, session, req)
-
-    session_token_signed = SessionToken.decode(session_token, key=session.token_secret)
-
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=session_token_signed.get_subject())
-    if not user:
-        return api_error(
-            ApiErrorCode.AUTH_INVALID_CREDENTIALS,
-            "User with given token does not exists!",
-        )
-    if session.owner_id != user.id:
-        return api_error(
-            ApiErrorCode.AUTH_INVALID_TOKEN, "Token session was linked to another user!"
-        )
-
-    # Query OAuth client.
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-
-    # Verification for OAuth client.
-    if not oauth_client or not oauth_client.is_active:
-        return api_error(
-            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
-        )
+    user, session = auth_data.user, auth_data.session
 
     if response_type == "code":
         # Authorization code flow.
