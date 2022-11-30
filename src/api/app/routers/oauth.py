@@ -68,8 +68,8 @@ async def method_oauth_authorize(
     )
 
 
-@router.get("/oauth.accessToken")
-async def method_oauth_access_token(
+@router.post("/oauth.accessToken")
+async def method_oauth_access_token_post(
     req: Request,
     client_id: int,
     client_secret: str,
@@ -87,6 +87,28 @@ async def method_oauth_access_token(
         db=db,
         settings=settings,
     )
+
+
+@router.get("/oauth.accessToken")
+async def method_oauth_access_token_get(
+    req: Request,
+    client_id: int,
+    client_secret: str,
+    grant_type: str | None = None,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Resolves grant to access token."""
+
+    return resolve_grant(
+        grant_type=grant_type,
+        req=req,
+        client_id=client_id,
+        client_secret=client_secret,
+        db=db,
+        settings=settings,
+    )
+
 
 @router.get("/_oauth._allowClient")
 async def method_oauth_allow_client(
