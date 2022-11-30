@@ -18,12 +18,12 @@ from app.services.api.response import api_error
 
 
 def resolve_grant(
-    grant_type: str,
     req: Request,
     client_id: int,
     client_secret: str,
     db: Session,
     settings: Settings,
+    grant_type: str | None = None,
 ) -> JSONResponse:
     """
     Resolves string of the grant type to tokens (access, access+refresh pair).
