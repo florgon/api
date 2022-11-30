@@ -1,6 +1,7 @@
 # Florgon API.
 
-[![Deploy in production](https://github.com/florgon/api/actions/workflows/deploy.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy.yml) \
+[![Deploy (production)](https://github.com/florgon/api/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy-production.yml)
+[![Deploy (staging)](https://github.com/florgon/api/actions/workflows/deploy-staging.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy-staging.yml) \
 [![Tests](https://github.com/florgon/api/actions/workflows/tests.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/tests.yml)
 [![CodeQL](https://github.com/florgon/api/actions/workflows/codeql.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/codeql.yml) \
 [![Linters](https://github.com/florgon/api/actions/workflows/linters.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/linters.yml)
