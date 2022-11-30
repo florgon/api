@@ -17,7 +17,7 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error
 
 
-def resolve_grant(
+async def resolve_grant(
     req: Request,
     client_id: int,
     client_secret: str,
@@ -28,9 +28,12 @@ def resolve_grant(
     """
     Resolves string of the grant type to tokens (access, access+refresh pair).
     """
+    json = await req.json()
     if not grant_type or grant_type == "authorization_code":
-        raw_code_token = req.query_params.get("code", None)
-        redirect_uri = req.query_params.get("redirect_uri", None)
+        raw_code_token = req.query_params.get("code", json.get("code", None))
+        redirect_uri = req.query_params.get(
+            "redirect_uri", json.get("redirect_uri", None)
+        )
         if not raw_code_token:
             return api_error(
                 ApiErrorCode.API_INVALID_REQUEST,

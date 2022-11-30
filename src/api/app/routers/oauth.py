@@ -71,15 +71,23 @@ async def method_oauth_authorize(
 @router.post("/oauth.accessToken")
 async def method_oauth_access_token_post(
     req: Request,
-    client_id: int,
-    client_secret: str,
+    client_id: int | None = None,
+    client_secret: str | None = None,
     grant_type: str | None = None,
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Resolves grant to access token."""
-
-    return resolve_grant(
+    json = await req.json()
+    client_secret = json.get("client_secret", client_secret)
+    client_id = json.get("client_id", client_id)
+    grant_type = json.get("grant_type", grant_type)
+    if not client_id or not client_secret:
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`client_id` and `client_secret` is required!",
+        )
+    return await resolve_grant(
         grant_type=grant_type,
         req=req,
         client_id=client_id,
@@ -100,7 +108,7 @@ async def method_oauth_access_token_get(
 ) -> JSONResponse:
     """Resolves grant to access token."""
 
-    return resolve_grant(
+    return await resolve_grant(
         grant_type=grant_type,
         req=req,
         client_id=client_id,
