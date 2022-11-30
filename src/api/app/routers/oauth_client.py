@@ -97,7 +97,7 @@ async def method_oauth_client_expire_secret(
         req, db, required_permissions=[Permission.oauth_clients]
     )
 
-    oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user_id)
+    oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
     crud.oauth_client.expire(db=db, client=oauth_client)
 
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))
@@ -112,7 +112,7 @@ async def method_oauth_client_update(
         req, db, required_permissions=[Permission.oauth_clients]
     )
     # Query OAuth client.
-    oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user_id)
+    oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
 
     # Updating.
     is_updated = False
@@ -143,7 +143,7 @@ async def method_oauth_client_stats(
     """OAUTH API endpoint for getting oauth authorization client usage data."""
     user_id = query_auth_data_from_request(
         req, db, required_permissions=[Permission.oauth_clients]
-    ).user_id
+    ).user.id
     oauth_client = _query_oauth_client_with_owner(db, client_id, user_id)
 
     return api_success(
