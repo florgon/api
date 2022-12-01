@@ -26,7 +26,7 @@ jobs:
         working-directory: ./src
         run: docker ps -a
       - name: Ping web server.
-        run: curl http://localhost/utils.getServerTime
+        run: curl http://localhost/utils.getServerTime || true
       - name: Display startup logs.
         run: docker logs florgon-api_server_1
       - name: Unit tests (PyTest, Coverage)
