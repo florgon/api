@@ -7,6 +7,7 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from app.database.repositories.users import UsersRepository
+from app.database.repositories.user_sessions import UserSessionsRepository
 from app.database.dependencies import get_repository
 
 from app.config import Settings, get_settings
@@ -21,6 +22,8 @@ from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import (
     query_auth_data_from_request,
+    AuthDataDependency,
+    AuthData,
 )
 from app.services.validators.user import validate_signin_fields, validate_signup_fields
 from app.services.session import publish_new_session_with_token
@@ -31,10 +34,9 @@ router = APIRouter()
 
 @router.get("/_session._getUserInfo")
 async def method_session_get_user_info(
-    req: Request, db: Session = Depends(get_db)
+    auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
 ) -> JSONResponse:
     """Returns user account information by session token, and additional information about token."""
-    auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     return api_success(
         {
             **serialize_user(
@@ -83,10 +85,13 @@ async def method_session_signup(
 
 @router.get("/_session._logout")
 async def method_session_logout(
-    req: Request, revoke_all: bool = False, sid: int = 0, db: Session = Depends(get_db)
+    req: Request,
+    revoke_all: bool = False,
+    sid: int = 0,
+    db: Session = Depends(get_db),
+    auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
 ) -> JSONResponse:
     """Logout user over session (or over all sessions, or specific sessions)."""
-    auth_data = query_auth_data_from_request(req, db, only_session_token=True)
     await RateLimiter(times=1, seconds=15).check(req)
 
     if revoke_all:
@@ -108,14 +113,16 @@ async def method_session_logout(
 
 @router.get("/_session._list", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
 async def method_session_list(
-    req: Request, db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth_data: AuthData = Depends(
+        AuthDataDependency(
+            only_session_token=False, required_permissions=[Permission.sessions]
+        )
+    ),
 ) -> JSONResponse:
     """Returns list of all active sessions."""
     # This is weird, _session method allowed with only access token,
     # And also seems to expose private session information.
-    auth_data = query_auth_data_from_request(
-        req, db, only_session_token=False, required_permissions=[Permission.sessions]
-    )
     current_session = auth_data.session
     sessions = crud.user_session.get_active_by_owner_id(db, current_session.owner_id)
     return api_success(
@@ -180,14 +187,13 @@ async def method_session_signin(
     password: str,
     user_agent: str = Header(""),
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
-    db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
     user = user_repo.get_user_by_login(login)
     validate_signin_fields(user=user, password=password)
     validate_user_tfa_otp_from_request(req, user)
     token, session = publish_new_session_with_token(
-        user=user, user_agent=user_agent, db=db, req=req
+        user=user, user_agent=user_agent, db=user_repo.db, req=req
     )
     return api_success(
         {
