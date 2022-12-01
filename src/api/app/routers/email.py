@@ -132,6 +132,6 @@ async def method_email_confirmation_resend(
         background_tasks,
         email=user.email,
         mention=user.get_mention(),
-        confirmation_link=_generate_confirmation_link(user),
+        confirmation_link=_generate_confirmation_link(user.id),
     )
     return api_success({"email": user.email})
