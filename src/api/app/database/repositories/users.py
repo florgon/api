@@ -4,16 +4,16 @@ from .base import BaseRepository
 
 
 class UsersRepository(BaseRepository):
+    """
+    Users database CRUD repository.
+    """
+
     def __init__(self, db: Session) -> None:
         super().__init__(db)
 
     def get_user_by_email(self, email: str) -> User | None:
         """Returns user by email."""
         return self.db.query(User).filter(User.email == email).first()
-
-    def get_user_by_username(self, username: str) -> User | None:
-        """Returns user by username."""
-        return self.db.query(User).filter(User.username == username).first()
 
     def get_user_by_username(self, username: str) -> User | None:
         """Returns user by username."""

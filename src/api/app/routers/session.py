@@ -7,7 +7,6 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from app.database.repositories.users import UsersRepository
-from app.database.repositories.user_sessions import UserSessionsRepository
 from app.database.dependencies import get_repository
 
 from app.config import Settings, get_settings
@@ -21,7 +20,6 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import (
-    query_auth_data_from_request,
     AuthDataDependency,
     AuthData,
 )

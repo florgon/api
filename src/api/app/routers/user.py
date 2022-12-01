@@ -3,7 +3,6 @@
     Provides API methods (routes) for working with user account.
 """
 
-from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
