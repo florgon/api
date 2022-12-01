@@ -1,15 +1,12 @@
 from app.database.dependencies import Session
 from app.database.models.user import User
-from .base import BaseRepository
+from app.database.repositories.base import BaseRepository
 
 
 class UsersRepository(BaseRepository):
     """
     Users database CRUD repository.
     """
-
-    def __init__(self, db: Session) -> None:
-        super().__init__(db)
 
     def get_user_by_email(self, email: str) -> User | None:
         """Returns user by email."""
