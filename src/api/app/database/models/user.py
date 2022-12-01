@@ -76,6 +76,9 @@ class User(Base):
 
     @hybrid_property
     def full_name(self) -> str:
+        """
+        Returns fullname based on first and last name as property.
+        """
         if self.first_name is not None:
             if self.last_name is not None:
                 return f"{self.first_name} {self.last_name}"

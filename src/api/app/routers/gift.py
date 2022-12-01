@@ -46,7 +46,6 @@ def _apply_gift(db: Session, gift: Gift, user: User) -> None:
                 ApiErrorCode.GIFT_CANNOT_ACCEPTED,
                 "Gift cannot be accepted due to you already being a vip.",
             )
-        user = user
         user.is_vip = True
     else:
         raise ApiErrorException(

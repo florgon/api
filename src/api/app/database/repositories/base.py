@@ -1,3 +1,6 @@
+"""
+    Base repository.
+"""
 from app.database.dependencies import Session
 
 

@@ -22,7 +22,14 @@ def get_db() -> sessionmaker:
 
 
 def get_repository(repo_type: Type[BaseRepository]) -> Callable:
+    """
+    Returns repository dependency (wrapped) with database getter dependency.
+    """
+
     def get_repo(db: Session = Depends(get_db)) -> Type[BaseRepository]:
+        """
+        Dependency itself.
+        """
         return repo_type(db)
 
     return get_repo

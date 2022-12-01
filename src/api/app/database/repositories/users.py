@@ -1,4 +1,7 @@
-from app.database.dependencies import Session
+"""
+    Users repository.
+"""
+
 from app.database.models.user import User
 from app.database.repositories.base import BaseRepository
 

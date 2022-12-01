@@ -41,17 +41,17 @@ def _decode_email_token(token: str) -> EmailToken:
         raise ApiErrorException(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
             "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.",
-        )
+        )  # pylint: disable=raise-missing-from)
     except TokenExpiredError:
         raise ApiErrorException(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
             "Confirmation token expired. Try resend confirmation again.",
-        )
+        )  # pylint: disable=raise-missing-from)
     except TokenWrongTypeError:
         raise ApiErrorException(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
             "Expected token to be a confirmation token, not another type of token.",
-        )
+        )  # pylint: disable=raise-missing-from)
     return email_token
 
 
