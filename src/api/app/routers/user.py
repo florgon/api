@@ -118,21 +118,6 @@ async def method_user_get_profile_info(
     )
 
 
-@router.get("/user.getCounters")
-async def method_user_get_counter(
-    req: Request, db: Session = Depends(get_db)
-) -> JSONResponse:
-    """Returns user account counters (Count of different items, like for badges)."""
-    auth_data = query_auth_data_from_request(req, db)
-    return api_success(
-        {
-            "oauth_clients": crud.oauth_client.get_count_by_owner_id(
-                db, auth_data.user.id
-            )
-        }
-    )
-
-
 @router.get("/user.setInfo")
 async def method_user_set_info(
     req: Request,
