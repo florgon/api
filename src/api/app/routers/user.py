@@ -160,9 +160,19 @@ async def method_user_set_info(
     # and will be rewritten later.
     is_updated = False
     if first_name is not None and first_name != user.first_name:
+        if len(first_name) < 1 or len(first_name) > 20:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "First name should be longer than 1 and shorter than 20!",
+            )
         user.first_name = first_name
         is_updated = True
     if last_name is not None and last_name != user.last_name:
+        if len(last_name) < 1 or len(last_name) > 20:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Last name should be longer than 1 and shorter than 20!",
+            )
         user.last_name = last_name
         is_updated = True
     if sex is not None and sex != user.sex:
@@ -184,6 +194,11 @@ async def method_user_set_info(
         user.privacy_profile_require_auth = privacy_profile_require_auth
         is_updated = True
     if profile_bio is not None and profile_bio != user.profile_bio:
+        if len(profile_bio) < 1 or len(profile_bio) > 250:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Profile bio should be longer than 1 and shorter than 250!",
+            )
         user.profile_bio = profile_bio
         is_updated = True
     if profile_website is not None and profile_website != user.profile_website:
