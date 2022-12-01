@@ -6,7 +6,8 @@
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
 from fastapi.responses import JSONResponse
-
+from app.database.repositories.users import UsersRepository
+from app.database.dependencies import get_repository
 
 from app.config import Settings, get_settings
 from app.database import crud
@@ -132,12 +133,12 @@ async def method_session_request_tfa_otp(
     login: str,
     password: str,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
     # Check credentials.
-    user = crud.user.get_by_login(db=db, login=login)
+    user = user_repo.get_user_by_login(login)
     validate_signin_fields(user=user, password=password)
 
     if not user.security_tfa_enabled:
@@ -178,10 +179,11 @@ async def method_session_signin(
     login: str,
     password: str,
     user_agent: str = Header(""),
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
-    user = crud.user.get_by_login(db=db, login=login)
+    user = user_repo.get_user_by_login(login)
     validate_signin_fields(user=user, password=password)
     validate_user_tfa_otp_from_request(req, user)
     token, session = publish_new_session_with_token(

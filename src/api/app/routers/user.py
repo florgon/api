@@ -14,6 +14,8 @@ from app.services.request import (
     query_auth_data_from_request,
     try_query_auth_data_from_request,
 )
+from app.database.repositories.users import UsersRepository
+from app.database.dependencies import get_repository
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -45,7 +47,7 @@ async def method_user_get_profile_info(
     req: Request,
     user_id: int | None = None,
     username: str | None = None,
-    db: Session = Depends(get_db),
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """Returns user account profile information."""
     profile_user = None
@@ -60,9 +62,9 @@ async def method_user_get_profile_info(
         )
 
     if user_id is not None:
-        profile_user = crud.user.get_by_id(db, user_id)
+        profile_user = user_repo.get_user_by_id(user_id)
     elif username is not None:
-        profile_user = crud.user.get_by_username(db, username)
+        profile_user = user_repo.get_user_by_username(username)
 
     # User.
     if not profile_user:
@@ -77,7 +79,7 @@ async def method_user_get_profile_info(
     if not profile_user.privacy_profile_public or not profile_user.is_active:
         # If not public, or deactivated (check for admin).
         is_authenticated, auth_data = try_query_auth_data_from_request(
-            req, db, allow_external_clients=True
+            req, user_repo.db, allow_external_clients=True
         )
         if is_authenticated:
             is_owner = auth_data.user.id == profile_user.id

@@ -9,9 +9,9 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /srv/www/florgon/api
 
 # Install requirements.
-COPY api/requirements.txt /srv/www/florgon/api/
 RUN apk add build-base
 RUN pip install --upgrade pip
+COPY api/requirements.txt /srv/www/florgon/api/
 RUN pip install --upgrade --no-cache-dir -r requirements.txt
 
 # Copy whole project.
