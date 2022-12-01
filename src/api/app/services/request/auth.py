@@ -6,7 +6,11 @@
 
 from typing import Type
 from datetime import datetime
+from fastapi import Depends
+from fastapi.requests import Request
+from sqlalchemy.orm import Session
 
+from app.database.dependencies import get_db
 from app.database import crud
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
@@ -15,8 +19,32 @@ from app.services.request.auth_data import AuthData
 from app.services.request.session_check_client import session_check_client_by_request
 from app.tokens import AccessToken, BaseToken, SessionToken
 from app.config import get_logger
-from fastapi.requests import Request
-from sqlalchemy.orm import Session
+
+
+class AuthDataDependency:
+    """
+    FastAPI dependency to query auth data.
+    """
+
+    def __init__(
+        self,
+        *,
+        only_session_token: bool = False,
+        required_permissions: list[Permission] | None = None,
+        allow_deactivated: bool = False,
+        allow_external_clients: bool = False,
+        trigger_online_update: bool = True,
+    ):
+        self.kwargs = {
+            "only_session_token": only_session_token,
+            "required_permissions": required_permissions,
+            "allow_deactivated": allow_deactivated,
+            "allow_external_clients": allow_external_clients,
+            "trigger_online_update": trigger_online_update,
+        }
+
+    def __call__(self, req: Request, db: Session = Depends(get_db)):
+        return query_auth_data_from_request(req=req, db=db, **self.kwargs)
 
 
 def query_auth_data_from_token(

@@ -3,7 +3,6 @@
     Provides API methods (routes) for working with user account.
 """
 
-from app.database import crud
 from app.database.dependencies import Session, get_db
 from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
@@ -11,9 +10,12 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import (
-    query_auth_data_from_request,
     try_query_auth_data_from_request,
+    AuthDataDependency,
+    AuthData,
 )
+from app.database.repositories.users import UsersRepository
+from app.database.dependencies import get_repository
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -22,10 +24,9 @@ router = APIRouter()
 
 @router.get("/user.getInfo")
 async def method_user_get_info(
-    req: Request, db: Session = Depends(get_db)
+    auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
     """Returns user account information."""
-    auth_data = query_auth_data_from_request(req, db)
     email_allowed = Permission.email in auth_data.permissions
     return api_success(
         serialize_user(
@@ -45,7 +46,7 @@ async def method_user_get_profile_info(
     req: Request,
     user_id: int | None = None,
     username: str | None = None,
-    db: Session = Depends(get_db),
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """Returns user account profile information."""
     profile_user = None
@@ -60,9 +61,9 @@ async def method_user_get_profile_info(
         )
 
     if user_id is not None:
-        profile_user = crud.user.get_by_id(db, user_id)
+        profile_user = user_repo.get_user_by_id(user_id)
     elif username is not None:
-        profile_user = crud.user.get_by_username(db, username)
+        profile_user = user_repo.get_user_by_username(username)
 
     # User.
     if not profile_user:
@@ -77,7 +78,7 @@ async def method_user_get_profile_info(
     if not profile_user.privacy_profile_public or not profile_user.is_active:
         # If not public, or deactivated (check for admin).
         is_authenticated, auth_data = try_query_auth_data_from_request(
-            req, db, allow_external_clients=True
+            req, user_repo.db, allow_external_clients=True
         )
         if is_authenticated:
             is_owner = auth_data.user.id == profile_user.id
@@ -116,24 +117,8 @@ async def method_user_get_profile_info(
     )
 
 
-@router.get("/user.getCounters")
-async def method_user_get_counter(
-    req: Request, db: Session = Depends(get_db)
-) -> JSONResponse:
-    """Returns user account counters (Count of different items, like for badges)."""
-    auth_data = query_auth_data_from_request(req, db)
-    return api_success(
-        {
-            "oauth_clients": crud.oauth_client.get_count_by_owner_id(
-                db, auth_data.user.id
-            )
-        }
-    )
-
-
 @router.get("/user.setInfo")
 async def method_user_set_info(
-    req: Request,
     first_name: str | None = None,
     last_name: str | None = None,
     sex: bool | None = None,
@@ -145,13 +130,13 @@ async def method_user_set_info(
     profile_social_username_gh: str | None = None,
     profile_social_username_vk: str | None = None,
     profile_social_username_tg: str | None = None,
+    auth_data: AuthData = Depends(
+        AuthDataDependency(required_permissions=[Permission.edit])
+    ),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Updates user account information."""
 
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.edit]
-    )
     user = auth_data.user
 
     # Notice:

@@ -1,3 +1,4 @@
+# pylint: disable=cyclic-import
 """
     Florgon API server `Gunicorn` process manager configuration file.
     All configuration settings that may be required or changes,

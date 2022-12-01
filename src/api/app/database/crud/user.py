@@ -28,22 +28,9 @@ def get_by_ids(db: Session, user_ids: list[int]) -> list[User]:
     return db.query(User).filter(User.id.in_(user_ids)).all()
 
 
-def get_by_email(db: Session, email: str) -> User:
-    """Returns user by it`s email."""
-    return db.query(User).filter(User.email == email).first()
-
-
 def get_by_username(db: Session, username: str) -> User:
     """Returns user by it`s username."""
     return db.query(User).filter(User.username == username).first()
-
-
-def get_by_login(db: Session, login: str) -> User:
-    """Returns user by it`s login."""
-    user = get_by_username(db=db, username=login)
-    if not user:
-        return get_by_email(db=db, email=login)
-    return user
 
 
 def email_confirm(db: Session, user: User):
