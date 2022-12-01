@@ -13,6 +13,10 @@ from app.services.request import (
     query_auth_data_from_request,
     try_query_auth_data_from_request,
 )
+from app.services.request import (
+    AuthDataDependency,
+    AuthData,
+)
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository
 from fastapi import APIRouter, Depends, Request
@@ -23,10 +27,9 @@ router = APIRouter()
 
 @router.get("/user.getInfo")
 async def method_user_get_info(
-    req: Request, db: Session = Depends(get_db)
+    auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
     """Returns user account information."""
-    auth_data = query_auth_data_from_request(req, db)
     email_allowed = Permission.email in auth_data.permissions
     return api_success(
         serialize_user(
@@ -119,7 +122,6 @@ async def method_user_get_profile_info(
 
 @router.get("/user.setInfo")
 async def method_user_set_info(
-    req: Request,
     first_name: str | None = None,
     last_name: str | None = None,
     sex: bool | None = None,
@@ -131,13 +133,13 @@ async def method_user_set_info(
     profile_social_username_gh: str | None = None,
     profile_social_username_vk: str | None = None,
     profile_social_username_tg: str | None = None,
+    auth_data: AuthData = Depends(
+        AuthDataDependency(required_permissions=[Permission.edit])
+    ),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Updates user account information."""
 
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.edit]
-    )
     user = auth_data.user
 
     # Notice:

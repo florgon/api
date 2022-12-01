@@ -6,7 +6,7 @@
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
 from fastapi.responses import JSONResponse
-from app.database.repositories.users import UsersRepository
+from app.database.repositories import UsersRepository
 from app.database.dependencies import get_repository
 
 from app.config import Settings, get_settings
