@@ -74,7 +74,9 @@ class Settings(BaseSettings):
     cors_allow_headers: list[str] = ["*"]
 
     # Gatey.
-    gatey_is_enabled: bool = False
+    gatey_is_enabled: bool = (
+        True  # By default should not fail as will use void transport.
+    )
     gatey_project_id: int | None = None
     gatey_client_secret: str | None = None  # Not preferable.
     gatey_server_secret: str | None = None
@@ -201,6 +203,8 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
         handle_global_exceptions=False,
         global_handler_skip_internal_exceptions=False,
         exceptions_capture_vars=False,
+        buffer_events_for_bulk_sending=False,
+        exceptions_capture_code_context = True,
     )
     gatey_client.capture_message(
         level="INFO",
