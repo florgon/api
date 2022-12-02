@@ -18,7 +18,7 @@ httpx==0.23.1
 
 # Florgon Gatey SDK.
 # (Error logging service).
-gatey-sdk==0.0.4
+gatey-sdk==0.0.5
 
 # ORM with Database engine.
 sqlalchemy==1.4.44  # ORM.
