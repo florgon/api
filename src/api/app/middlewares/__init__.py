@@ -24,7 +24,7 @@ def _add_gatey_middleware(app: FastAPI) -> None:
     """
 
     settings = get_settings()
-    if not settings.gatey_enabled or get_gatey_client() is None:
+    if not settings.gatey_is_enabled or get_gatey_client() is None:
         get_logger().info("Gatey is not enabled or client is None! Skipping adding middleware!")
         return
     
