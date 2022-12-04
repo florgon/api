@@ -203,9 +203,14 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
         handle_global_exceptions=False,
         global_handler_skip_internal_exceptions=False,
         exceptions_capture_vars=False,
-        buffer_events_for_bulk_sending=False,
-        exceptions_capture_code_context = True,
+        buffer_events_for_bulk_sending=True,
+        buffer_events_max_capacity=1,
+        exceptions_capture_code_context=True,
     )
+    if gatey_is_configured and not gatey_client.api.do_auth_check():
+        get_logger().warning("Gatey SDK failed to check Auth!")
+        return None
+
     gatey_client.capture_message(
         level="INFO",
         message="[Florgon API] Server successfully initialized Gatey client (gatey-sdk-py)",
