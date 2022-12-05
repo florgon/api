@@ -202,10 +202,14 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
         check_api_auth_on_init=False,
         handle_global_exceptions=False,
         global_handler_skip_internal_exceptions=False,
-        exceptions_capture_vars=False,
         buffer_events_for_bulk_sending=True,
         buffer_events_max_capacity=1,
+        exceptions_capture_vars=False,
         exceptions_capture_code_context=True,
+        buffer_events_flush_every=10.0,
+        include_runtime_info=True,
+        include_platform_info=True,
+        include_sdk_info=True,
     )
     if gatey_is_configured and not gatey_client.api.do_auth_check():
         get_logger().warning("Gatey SDK failed to check Auth!")

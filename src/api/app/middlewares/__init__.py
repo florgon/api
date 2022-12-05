@@ -25,9 +25,11 @@ def _add_gatey_middleware(app: FastAPI) -> None:
 
     settings = get_settings()
     if not settings.gatey_is_enabled or get_gatey_client() is None:
-        get_logger().info("Gatey is not enabled or client is None! Skipping adding middleware!")
+        get_logger().info(
+            "Gatey is not enabled or client is None! Skipping adding middleware!"
+        )
         return
-    
+
     async def _pre_capture_hook(*_):
         get_logger().info("Got captured Gatey exception! Sending to Gatey client...")
 
@@ -35,8 +37,9 @@ def _add_gatey_middleware(app: FastAPI) -> None:
         GateyStarletteMiddleware,
         client=None,
         client_getter=get_gatey_client,
-        capture_requests_info=False,
         pre_capture_hook=_pre_capture_hook,
+        capture_requests_info=True,
+        capture_reraise_after=True,
     )
 
 
