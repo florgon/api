@@ -176,24 +176,23 @@ class Settings(BaseSettings):
     security_tfa_totp_interval_email: int = 3600
     security_tfa_totp_interval_mobile: int = 30
 
+    # Logging.
+    logging_logger_name: str = "gunicorn.error"
+
 
 def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     """
-    Initializes Gatey client.
+    Initializes Gatey client and returns it.
     """
 
     if not settings.gatey_is_enabled:
         return None
 
-    def _void_transport(_):
-        """Void transport that does nothing if gatey is not configured."""
-        ...
-
     gatey_is_configured = (
         settings.gatey_client_secret is not None
         or settings.gatey_server_secret is not None
     ) and settings.gatey_project_id is not None
-    gatey_transport = None if gatey_is_configured else _void_transport
+    gatey_transport = None if gatey_is_configured else gatey_sdk.VoidTransport
     gatey_client = gatey_sdk.Client(
         transport=gatey_transport,
         project_id=settings.gatey_project_id,
@@ -222,9 +221,9 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     return gatey_client
 
 
-def get_logger():
+def get_logger() -> logging.Logger:
     """
-    Returns logger.
+    Returns Singleton logger object for logging.
     """
     return _logger
 
@@ -243,11 +242,9 @@ def get_gatey_client() -> gatey_sdk.Client:
     return _gatey
 
 
-# Static settings object with single instance.
+# Static objects.
 _settings = Settings()
-
-# Static Gatey error logger.
 _gatey = _init_gatey_client(_settings)
-
-# Static logger.
-_logger = logging.getLogger("gunicorn.error")
+_logger = logging.getLogger(
+    _settings.logging_logger_name if _settings.logging_logger_name else __name__
+)
