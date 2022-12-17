@@ -25,8 +25,13 @@ def convert_email_to_standardized(email: str) -> str:
     """
     Standartizes email by converting same ones.
     """
+
+    # Emails are always lowercase (independant for case)
+    email = email.lower()
+
     if "@" not in email:
         return email
+
     mail_host_domain = email.split("@")[-1]
 
     if mail_host_domain == "gmail.com" and "." in email:
