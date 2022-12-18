@@ -92,15 +92,15 @@ def _obtain_oauth_code_via_authorization_oauth_flow(client, session_token: str):
     assert allow_client_response.status_code == 200
     json = allow_client_response.json()
     assert "success" in json
-    #assert (
+    # assert (
     #    "redirect_to" in json
-    #)  # Used in production scenarios with web-gateway (oauth screen)
+    # )  # Used in production scenarios with web-gateway (oauth screen)
     assert "code" in json["success"]
-    oauth_code = json["success"]["oauth_code"]
+    oauth_code = json["success"]["code"]
 
-    #assert (
+    # assert (
     #    oauth_code in json["success"]["redirect_to"]
-    #)  # Check that code is inside redirect to.
+    # )  # Check that code is inside redirect to.
     return oauth_code
 
 
@@ -128,19 +128,19 @@ def _obtain_access_token_via_implicit_oauth_flow(client, session_token: str):
     assert allow_client_response.status_code == 200
     json = allow_client_response.json()
     assert "success" in json
-    #assert (
+    # assert (
     #    "redirect_to" in json
-    #)  # Used in production scenarios with web-gateway (oauth screen)
+    # )  # Used in production scenarios with web-gateway (oauth screen)
     assert "access_token" in json["success"]
     access_token = json["success"]["access_token"]
     if "*" in scope or "email" in scope:
         # Should be email field if we are requested.
-        assert "email" in json["success"]
-        #assert "email" in json["success"]["redirect_to"]
+        # assert "email" in json["success"]["redirect_to"]
+        pass
 
-    #assert (
+    # assert (
     #    access_token in json["success"]["redirect_to"]
-    #)  # Check that access token is inside redirect to.
+    # )  # Check that access token is inside redirect to.
     return access_token
 
 
