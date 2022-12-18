@@ -3,10 +3,7 @@
 """
 
 from typing import Type, Callable
-
-# For importing Session from dependencies!
-# Do not remove.
-from sqlalchemy.orm import Session  # noqa # pylint: disable=unused-import
+from sqlalchemy.orm import Session
 from fastapi import Depends
 from .core import SessionLocal, sessionmaker
 from .repositories.base import BaseRepository
@@ -19,6 +16,11 @@ def get_db() -> sessionmaker:
         yield db_session
     finally:
         db_session.close()
+
+
+def get_db_as_session() -> Session:
+    """Returns ready session for database (connection session)."""
+    return get_db().__call__()
 
 
 def get_repository(repo_type: Type[BaseRepository]) -> Callable:
