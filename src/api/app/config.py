@@ -94,10 +94,6 @@ class Settings(BaseSettings):
 
     # Users.
 
-    # Super user data.
-    superuser_username: str = "admin"
-    superuser_password: str = "admin"
-    superuser_email: str = "admin@florgon.space"
 
     # Signup.
     signup_validate_email: bool = True

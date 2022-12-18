@@ -30,7 +30,6 @@ def test_read_session_signup_get_user_info(
     )
 
     json = signup_response.json()
-    assert "v" in json
     if signup_response.status_code == 400:
         # If unable to authenticate,
         # check that blocked due to username/email taken.
@@ -53,7 +52,6 @@ def test_read_session_signup_get_user_info(
         "/_session._getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
-    assert "v" in json
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
@@ -63,17 +61,24 @@ def test_read_session_signup_get_user_info(
         "/user.getProfileInfo", params={"username": username}
     )
     json = get_profile_info_response.json()
-    assert "v" in json
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
     assert json["success"]["user"]["username"] == username
 
+    logout_response = client.get(
+        "/_session._logout",
+        params={"session_token": session_token, "revoke_all": False},
+    )
+    json = logout_response.json()
+    assert logout_response.status_code == 200
+    assert "success" in json
 
-def test_read_superuser_signin(
+
+def test_read_session_superuser_signin(
     client,
 ):  # pylint: disable=redefined-outer-name
-    """Check that super user is created."""
+    """Check that super user is created and can be fetched."""
     username = "admin"
     signin_response = client.get(
         "/_session._signin",
@@ -84,7 +89,6 @@ def test_read_superuser_signin(
     )
 
     json = signin_response.json()
-    assert "v" in json
     assert signin_response.status_code == 200
     assert "success" in json
     assert "session_token" in json["success"]
@@ -94,7 +98,6 @@ def test_read_superuser_signin(
         "/_session._getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
-    assert "v" in json
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
@@ -104,8 +107,14 @@ def test_read_superuser_signin(
         "/user.getProfileInfo", params={"username": username}
     )
     json = get_profile_info_response.json()
-    assert "v" in json
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
     assert json["success"]["user"]["username"] == username
+
+    logout_response = client.get(
+        "/_session._logout", params={"session_token": session_token, "revoke_all": True}
+    )
+    json = logout_response.json()
+    assert logout_response.status_code == 200
+    assert "success" in json
