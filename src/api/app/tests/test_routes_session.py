@@ -19,7 +19,7 @@ def test_read_session_signup_get_user_info(
     client,
 ):  # pylint: disable=redefined-outer-name
     """Complex check for signup, get user info, get profile info."""
-    username = "pytest_user"
+    username = "pytestuser"
     signup_response = client.get(
         "/_session._signup",
         params={
@@ -87,13 +87,11 @@ def test_read_superuser_signin(
     assert "v" in json
     assert signin_response.status_code == 200
     assert "success" in json
-    assert "access_token" in json["success"]
-    assert "refresh_token" in json["success"]
-    assert "expires_in" in json["success"]
+    assert "session_token" in json["success"]
 
-    access_token = json["success"]["access_token"]
+    session_token = json["success"]["session_token"]
     get_info_response = client.get(
-        "/user.getInfo", params={"access_token": access_token}
+        "/_session._getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
     assert "v" in json
