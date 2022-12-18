@@ -1,8 +1,8 @@
 """
     Bootstrap database with first queries.
 """
-from api.app.config import get_settings
-from api.app.database.dependencies import Session
+from app.config import get_settings
+from app.database.dependencies import Session
 from app.database.dependencies import get_db
 from app.database.repositories.users import UsersRepository
 
