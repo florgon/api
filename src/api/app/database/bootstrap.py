@@ -2,7 +2,7 @@
     Bootstrap database with first queries.
 """
 from app.config import get_settings
-from app.database.dependencies import Session, get_db_as_session
+from app.database.dependencies import Session, SessionLocal
 from app.database.repositories.users import UsersRepository
 
 
@@ -10,8 +10,9 @@ def create_start_database_entries() -> None:
     """
     Creates startup database entries by query database.
     """
-    db = get_db_as_session()
+    db = SessionLocal()
     _create_superuser_if_not_exists(db=db)
+    db.close()
 
 
 def _create_superuser_if_not_exists(db: Session) -> None:

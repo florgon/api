@@ -18,11 +18,6 @@ def get_db() -> sessionmaker:
         db_session.close()
 
 
-def get_db_as_session() -> Session:
-    """Returns ready session for database (connection session)."""
-    return get_db().__call__()
-
-
 def get_repository(repo_type: Type[BaseRepository]) -> Callable:
     """
     Returns repository dependency (wrapped) with database getter dependency.
