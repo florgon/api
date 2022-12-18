@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.logger import logger as fastapi_logger
 
 from . import database
+from .database.bootstrap import create_start_database_entries
 
 from .config import get_settings, get_logger
 
@@ -64,6 +65,7 @@ def _construct_app() -> FastAPI:
     # Initializing database connection and all ORM stuff.
     if settings.database_create_all:
         database.core.create_all()
+        create_start_database_entries()
 
     # Register all internal stuff as routers/handlers/middlewares etc.
     add_event_handlers(app_instance)

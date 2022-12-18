@@ -19,18 +19,17 @@ def test_read_session_signup_get_user_info(
     client,
 ):  # pylint: disable=redefined-outer-name
     """Complex check for signup, get user info, get profile info."""
-    username = "tester"
+    username = "pytestuser"
     signup_response = client.get(
         "/_session._signup",
         params={
             "username": username,
-            "email": "tester@example.com",
+            "email": "pytest_user@example.com",
             "password": "password",
         },
     )
 
     json = signup_response.json()
-    assert "v" in json
     if signup_response.status_code == 400:
         # If unable to authenticate,
         # check that blocked due to username/email taken.
@@ -53,7 +52,6 @@ def test_read_session_signup_get_user_info(
         "/_session._getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
-    assert "v" in json
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
@@ -63,8 +61,60 @@ def test_read_session_signup_get_user_info(
         "/user.getProfileInfo", params={"username": username}
     )
     json = get_profile_info_response.json()
-    assert "v" in json
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
     assert json["success"]["user"]["username"] == username
+
+    logout_response = client.get(
+        "/_session._logout",
+        params={"session_token": session_token, "revoke_all": False},
+    )
+    json = logout_response.json()
+    assert logout_response.status_code == 200
+    assert "success" in json
+
+
+def test_read_session_superuser_signin(
+    client,
+):  # pylint: disable=redefined-outer-name
+    """Check that super user is created and can be fetched."""
+    username = "admin"
+    signin_response = client.get(
+        "/_session._signin",
+        params={
+            "login": username,
+            "password": "admin",
+        },
+    )
+
+    json = signin_response.json()
+    assert signin_response.status_code == 200
+    assert "success" in json
+    assert "session_token" in json["success"]
+
+    session_token = json["success"]["session_token"]
+    get_info_response = client.get(
+        "/_session._getUserInfo", params={"session_token": session_token}
+    )
+    json = get_info_response.json()
+    assert "success" in json
+    assert "user" in json["success"]
+    assert "username" in json["success"]["user"]
+    assert json["success"]["user"]["username"] == username
+
+    get_profile_info_response = client.get(
+        "/user.getProfileInfo", params={"username": username}
+    )
+    json = get_profile_info_response.json()
+    assert "success" in json
+    assert "user" in json["success"]
+    assert "username" in json["success"]["user"]
+    assert json["success"]["user"]["username"] == username
+
+    logout_response = client.get(
+        "/_session._logout", params={"session_token": session_token, "revoke_all": True}
+    )
+    json = logout_response.json()
+    assert logout_response.status_code == 200
+    assert "success" in json

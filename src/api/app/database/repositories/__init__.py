@@ -6,5 +6,6 @@
 """
 from .base import BaseRepository
 from .users import UsersRepository
+from .oauth_clients import OAuthClientsRepository
 
-__all__ = ["BaseRepository", "UsersRepository"]
+__all__ = ["BaseRepository", "UsersRepository", "OAuthClientsRepository"]

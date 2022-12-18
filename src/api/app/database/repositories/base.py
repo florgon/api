@@ -11,3 +11,7 @@ class BaseRepository:
 
     def __init__(self, db: Session) -> None:
         self.db = db
+        if not isinstance(self.db, Session):
+            raise TypeError(
+                f"`db` should be database Session! Expected session but got: {type(self.db)}"
+            )
