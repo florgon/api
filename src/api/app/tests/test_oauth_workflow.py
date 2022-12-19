@@ -49,8 +49,7 @@ def test_read_oauth_implicit_signin_via_session(
     assert user_set_info_response.status_code == 200
     assert "success" in json
     assert "updated" in json["success"]
-    assert json["success"].get("updated", False) == True
-
+    assert json["success"].get("updated", False)
     user_get_info_response = client.get(
         "/user.getInfo",
         params={"access_token": access_token},

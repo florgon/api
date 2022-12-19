@@ -120,18 +120,7 @@ async def method_user_get_profile_info(
 
 @router.get("/user.setInfo")
 async def method_user_set_info(
-    req: Request,
-    first_name: str | None = None,
-    last_name: str | None = None,
-    sex: bool | None = None,
-    avatar_url: str | None = None,
-    privacy_profile_public: bool | None = None,
-    privacy_profile_require_auth: bool | None = None,
-    profile_bio: str | None = None,
-    profile_website: str | None = None,
-    profile_social_username_gh: str | None = None,
-    profile_social_username_vk: str | None = None,
-    profile_social_username_tg: str | None = None,
+    req: Request, 
     auth_data: AuthData = Depends(
         AuthDataDependency(required_permissions=[Permission.edit])
     ),
@@ -140,9 +129,13 @@ async def method_user_set_info(
     """Updates user account information."""
 
     user = auth_data.user
-    
-    new_fields = {k: v for k, v in req.query_params if v is not None and getattr(user, k, None) != v}
-    
+
+    new_fields = {
+        k: v
+        for k, v in req.query_params.items()
+        if v is not None and getattr(user, k, None) != v
+    }
+
     is_updated = False
     for name, value in new_fields.items():
         if name in ["first_name", "last_name"]:
