@@ -40,15 +40,16 @@ def test_read_oauth_implicit_signin_via_session(
             "first_name": "Admin",
             "last_name": "Admin",
             "sex": 1,
-            "privacy_profile_public": False,
-            "privacy_profile_require_auth": True,
+            "privacy_profile_public": True,
+            "privacy_profile_require_auth": False,
             "profile_bio": "Bio from PyTest",
         },
     )
     json = user_set_info_response.json()
     assert user_set_info_response.status_code == 200
     assert "success" in json
-    assert "updated" in json["success"].get("updated", False) == True
+    assert "updated" in json["success"]
+    assert json["success"].get("updated", False) == True
 
     user_get_info_response = client.get(
         "/user.getInfo",
