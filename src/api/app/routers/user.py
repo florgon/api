@@ -3,6 +3,7 @@
     Provides API methods (routes) for working with user account.
 """
 
+import pydantic
 from app.database.dependencies import Session, get_db
 from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
@@ -119,17 +120,7 @@ async def method_user_get_profile_info(
 
 @router.get("/user.setInfo")
 async def method_user_set_info(
-    first_name: str | None = None,
-    last_name: str | None = None,
-    sex: bool | None = None,
-    avatar_url: str | None = None,
-    privacy_profile_public: bool | None = None,
-    privacy_profile_require_auth: bool | None = None,
-    profile_bio: str | None = None,
-    profile_website: str | None = None,
-    profile_social_username_gh: str | None = None,
-    profile_social_username_vk: str | None = None,
-    profile_social_username_tg: str | None = None,
+    req: Request,
     auth_data: AuthData = Depends(
         AuthDataDependency(required_permissions=[Permission.edit])
     ),
@@ -139,73 +130,33 @@ async def method_user_set_info(
 
     user = auth_data.user
 
-    # Notice:
-    # IK this is trash,
-    # but this is temporary solution,
-    # and will be rewritten later.
+    new_fields = {
+        k: v
+        for k, v in req.query_params.items()
+        if v is not None and getattr(user, k, None) != v
+    }
+
     is_updated = False
-    if first_name is not None and first_name != user.first_name:
-        if len(first_name) < 1 or len(first_name) > 20:
-            return api_error(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "First name should be longer than 1 and shorter than 20!",
-            )
-        user.first_name = first_name
-        is_updated = True
-    if last_name is not None and last_name != user.last_name:
-        if len(last_name) < 1 or len(last_name) > 20:
-            return api_error(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Last name should be longer than 1 and shorter than 20!",
-            )
-        user.last_name = last_name
-        is_updated = True
-    if sex is not None and sex != user.sex:
-        user.sex = sex
-        is_updated = True
-    if avatar_url is not None and avatar_url != user.avatar:
-        user.avatar = avatar_url
-        is_updated = True
-    if (
-        privacy_profile_public is not None
-        and privacy_profile_public != user.privacy_profile_public
-    ):
-        user.privacy_profile_public = privacy_profile_public
-        is_updated = True
-    if (
-        privacy_profile_require_auth is not None
-        and privacy_profile_require_auth != user.privacy_profile_require_auth
-    ):
-        user.privacy_profile_require_auth = privacy_profile_require_auth
-        is_updated = True
-    if profile_bio is not None and profile_bio != user.profile_bio:
-        if len(profile_bio) < 1 or len(profile_bio) > 250:
-            return api_error(
-                ApiErrorCode.API_INVALID_REQUEST,
-                "Profile bio should be longer than 1 and shorter than 250!",
-            )
-        user.profile_bio = profile_bio
-        is_updated = True
-    if profile_website is not None and profile_website != user.profile_website:
-        user.profile_website = profile_website
-        is_updated = True
-    if (
-        profile_social_username_gh is not None
-        and profile_social_username_gh != user.profile_social_username_gh
-    ):
-        user.profile_social_username_gh = profile_social_username_gh
-        is_updated = True
-    if (
-        profile_social_username_vk is not None
-        and profile_social_username_vk != user.profile_social_username_vk
-    ):
-        user.profile_social_username_vk = profile_social_username_vk
-        is_updated = True
-    if (
-        profile_social_username_tg is not None
-        and profile_social_username_tg != user.profile_social_username_tg
-    ):
-        user.profile_social_username_tg = profile_social_username_tg
+    for name, value in new_fields.items():
+        if name in ["first_name", "last_name"]:
+            if len(value) < 1 or len(value) > 20:
+                return api_error(
+                    ApiErrorCode.API_INVALID_REQUEST,
+                    f"{name.replace('_', ' ').capitalize()} should be longer than 1 and shorter than 20!",
+                )
+
+        if name == "profile_bio":
+            if len(value) < 1 or len(value) > 250:
+                return api_error(
+                    ApiErrorCode.API_INVALID_REQUEST,
+                    "Profile bio should be longer than 1 and shorter than 250!",
+                )
+
+        if name in ["sex", "privacy_profile_public", "privacy_profile_require_auth"]:
+            setattr(user, name, pydantic.parse_obj_as(bool, value))
+        else:
+            setattr(user, name, value)
+
         is_updated = True
 
     if is_updated:
