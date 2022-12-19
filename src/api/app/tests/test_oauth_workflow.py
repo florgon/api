@@ -5,8 +5,8 @@
 
 
 import pytest
-from app.app import app
 from fastapi.testclient import TestClient
+from app.app import app
 
 
 @pytest.fixture
@@ -32,6 +32,35 @@ def test_read_oauth_implicit_signin_via_session(
     json = user_get_info_response.json()
     assert user_get_info_response.status_code == 200
     assert "success" in json
+
+    user_set_info_response = client.get(
+        "/user.setInfo",
+        params={
+            "access_token": access_token,
+            "first_name": "Admin",
+            "last_name": "Admin",
+            "sex": 1,
+            "privacy_profile_public": False,
+            "privacy_profile_require_auth": True,
+            "profile_bio": "Bio from PyTest",
+        },
+    )
+    json = user_set_info_response.json()
+    assert user_set_info_response.status_code == 200
+    assert "success" in json
+    assert "updated" in json["success"].get("updated", False) == True
+
+    user_get_info_response = client.get(
+        "/user.getInfo",
+        params={"access_token": access_token},
+    )
+    json = user_get_info_response.json()
+    assert user_get_info_response.status_code == 200
+    assert "success" in json
+    assert "user" in json["success"]
+    user = json["success"]["user"]
+    assert user.get("first_name", "") == "Admin"
+    assert user.get("last_name", "") == "Admin"
 
     # Logout after all stuff.
     _logout_request(client, session_token)
