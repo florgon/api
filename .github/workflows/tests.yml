@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build containers (Docker-Compose)
         working-directory: ./src
-        run: docker-compose up -d --build
+        run: docker-compose -f ./docker-compose-testing.yml up -d --build
       - name: Check docker containers
         working-directory: ./src
         run: docker ps -a

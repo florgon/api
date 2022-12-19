@@ -34,3 +34,7 @@ pyotp==2.8.0  # OTP for 2FA. Used for email and mobile 2FA process.
 
 # Testing and OAuth providers (make request to OAuth provider OAuth code resolver).
 requests==2.28.1  # Make requests to server.
+
+# CI/CD, Testing.
+pytest==7.2.0  # Unit tests.
+pytest-cov==4.0.0  # Tests coverage.
