@@ -120,7 +120,7 @@ async def method_user_get_profile_info(
 
 @router.get("/user.setInfo")
 async def method_user_set_info(
-    req: Request, 
+    req: Request,
     auth_data: AuthData = Depends(
         AuthDataDependency(required_permissions=[Permission.edit])
     ),
