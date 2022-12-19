@@ -23,7 +23,12 @@ from app.services.request import (
     AuthDataDependency,
     AuthData,
 )
-from app.services.validators.user import validate_signin_fields, validate_signup_fields
+
+from app.services.validators.user import (
+    validate_signin_fields,
+    validate_signup_fields,
+    convert_email_to_standardized,
+)
 from app.services.session import publish_new_session_with_token
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
 
@@ -66,6 +71,9 @@ async def method_session_signup(
             ApiErrorCode.API_FORBIDDEN,
             "User signup closed (Registration forbidden by server administrator)",
         )
+
+    # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
+    email = convert_email_to_standardized(email)
 
     validate_signup_fields(db, username, email, password)
     user = crud.user.create(db=db, email=email, username=username, password=password)
@@ -187,7 +195,12 @@ async def method_session_signin(
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
+
     user = user_repo.get_user_by_login(login)
+    if not user and "@" in login:
+        # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
+        user = user_repo.get_user_by_login(login=convert_email_to_standardized(login))
+
     validate_signin_fields(user=user, password=password)
     validate_user_tfa_otp_from_request(req, user)
     token, session = publish_new_session_with_token(

@@ -82,7 +82,7 @@ class User(Base):
         if self.first_name is not None:
             if self.last_name is not None:
                 return f"{self.first_name} {self.last_name}"
-            return self.fist_name
+            return self.first_name
         if self.last_name is not None:
             return f"{self.last_name}"
         return ""

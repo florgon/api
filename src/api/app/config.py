@@ -27,48 +27,32 @@ class Settings(BaseSettings):
     database_dsn: PostgresDsn
     # If true, will create all metadata (Tables) at start of the server.
     database_create_all: bool = True
-    # Pool recycle for ORM (Database).
     database_pool_recycle: int = 3600
-    # Timeout for database pool.
     database_pool_timeout: int = 10
-    # Max overflow for database pool.
     database_max_overflow: int = 0
-    # Pool size for database pool.
     database_pool_size: int = 20
 
     # Prometheus (Grafana)
     prometheus_metrics_exposed: bool = False
 
     # Mail.
-
-    # If false, email will be disabled and not even sent.
     mail_enabled: bool = False
-    # Optional name for email (Like: "Florgon <noreply@florgon.space>")
     mail_from_name: str | None = None
-    # Mail from email.
     mail_from: EmailStr = "noreply@florgon.space"
-    # Mail server authentication.
     mail_server: str = ""
     mail_password: str = ""
     mail_username: str = ""
-    # Mail server configuration.
     mail_port: int = 587
     mail_starttls: bool = False
     mail_ssl_tls: bool = True
     mail_use_credentials: bool = True
     mail_validate_certs: bool = True
-    # Utils.
     mail_debug: conint(gt=-1, lt=2) = 0
 
     # CORS.
-
-    # If true, will add CORS middleware.
     cors_enabled: bool = True
-    # Will allow to send Authorization header.
     cors_allow_credentials: bool = True
-    # Max age for CORS.
     cors_max_age: int = 600
-    # Allowed CORS stuff.
     cors_allow_origins: list[str] = ["*"]
     cors_allow_methods: list[str] = ["GET", "HEAD"]
     cors_allow_headers: list[str] = ["*"]
@@ -82,10 +66,7 @@ class Settings(BaseSettings):
     gatey_server_secret: str | None = None
 
     # Cache.
-
-    # Redis connection string.
     cache_dsn: RedisDsn
-    # Encoding for Redis.
     cache_encoding: str = "utf-8"
 
     # Requests limiter.
@@ -113,13 +94,10 @@ class Settings(BaseSettings):
 
     # Users.
 
-    # If true, will validate email field when sign-up
+    # Signup.
     signup_validate_email: bool = True
-    # If true, will reject all usernames with uppercase symbols.
     signup_username_reject_uppercase: bool = True
-    # If true will reject all usernames with non alphabetic characters.
     signup_username_reject_nonalpha: bool = True
-    # If false will reject all signup requests.
     signup_open_registration: bool = True
 
     # Authentication.
@@ -132,17 +110,15 @@ class Settings(BaseSettings):
     auth_oauth_screen_provider_url: str = "https://florgon.space/oauth/authorize"
     # If true will enable 2FA with email when user verifies email.
     auth_enable_tfa_on_email_verification: bool = True
-    # External VK OAuth service configuration.
+    # External OAuth.
     auth_ext_oauth_vk_enabled: bool = False
     auth_ext_oauth_vk_client_id: str = ""
     auth_ext_oauth_vk_client_secret: str = ""
     auth_ext_oauth_vk_redirect_uri: str = "/oauth/ext/vk/callback"
-    # External GitHub OAuth service configuration
     auth_ext_oauth_github_enabled: bool = False
     auth_ext_oauth_github_client_id: str = ""
     auth_ext_oauth_github_client_secret: str = ""
     auth_ext_oauth_github_redirect_uri: str = "/oauth/ext/github/callback"
-    # External Yandex OAuth service configuration
     auth_ext_oauth_yandex_enabled: bool = False
     auth_ext_oauth_yandex_client_id: str = ""
     auth_ext_oauth_yandex_client_secret: str = ""
@@ -156,8 +132,6 @@ class Settings(BaseSettings):
     proxy_url_domain: str = "http://localhost"
 
     # Admin.
-
-    # If true, will disallow access to admin methods even if admin.
     admin_methods_disabled: bool = False
 
     # Security.
@@ -176,24 +150,23 @@ class Settings(BaseSettings):
     security_tfa_totp_interval_email: int = 3600
     security_tfa_totp_interval_mobile: int = 30
 
+    # Logging.
+    logging_logger_name: str = "gunicorn.error"
+
 
 def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     """
-    Initializes Gatey client.
+    Initializes Gatey client and returns it.
     """
 
     if not settings.gatey_is_enabled:
         return None
 
-    def _void_transport(_):
-        """Void transport that does nothing if gatey is not configured."""
-        ...
-
     gatey_is_configured = (
         settings.gatey_client_secret is not None
         or settings.gatey_server_secret is not None
     ) and settings.gatey_project_id is not None
-    gatey_transport = None if gatey_is_configured else _void_transport
+    gatey_transport = None if gatey_is_configured else gatey_sdk.VoidTransport
     gatey_client = gatey_sdk.Client(
         transport=gatey_transport,
         project_id=settings.gatey_project_id,
@@ -222,9 +195,9 @@ def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     return gatey_client
 
 
-def get_logger():
+def get_logger() -> logging.Logger:
     """
-    Returns logger.
+    Returns Singleton logger object for logging.
     """
     return _logger
 
@@ -243,11 +216,9 @@ def get_gatey_client() -> gatey_sdk.Client:
     return _gatey
 
 
-# Static settings object with single instance.
+# Static objects.
 _settings = Settings()
-
-# Static Gatey error logger.
 _gatey = _init_gatey_client(_settings)
-
-# Static logger.
-_logger = logging.getLogger("gunicorn.error")
+_logger = logging.getLogger(
+    _settings.logging_logger_name if _settings.logging_logger_name else __name__
+)

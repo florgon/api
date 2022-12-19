@@ -3,10 +3,7 @@
 """
 
 from typing import Type, Callable
-
-# For importing Session from dependencies!
-# Do not remove.
-from sqlalchemy.orm import Session  # noqa # pylint: disable=unused-import
+from sqlalchemy.orm import Session
 from fastapi import Depends
 from .core import SessionLocal, sessionmaker
 from .repositories.base import BaseRepository

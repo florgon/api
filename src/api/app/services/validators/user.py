@@ -12,6 +12,45 @@ from app.database.models.user import User
 from app.services.passwords import check_password
 from app.database.dependencies import Session
 
+_MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
+    "yandex.ru": "ya.ru",
+    "yandex.com": "ya.ru",
+    "yandex.ua": "ya.ru",
+    "yandex.by": "ya.ru",
+    "yandex.kz": "ya.ru",
+}
+
+
+def convert_email_to_standardized(email: str) -> str:
+    """
+    Standartizes email by converting same ones.
+    """
+
+    # Emails are always lowercase (independant for case)
+    email = email.lower()
+
+    if "@" not in email:
+        return email
+
+    mail_host_domain = email.split("@")[-1]
+
+    if mail_host_domain == "gmail.com" and "." in email:
+        # `abc@gmail.com` is same as `a.b.c@gmail.com`
+        mail_host_user = email.split("@")
+        mail_host_user.pop()
+        mail_host_user = ("".join(mail_host_user)).replace(".", "")
+        email = f"{mail_host_user}@{mail_host_domain}"
+
+    if mail_host_domain in _MAPPED_EMAIL_DOMAINS_STANDARDIZED:
+        # Something like `yandex.ru` is same as `ya.ru` (mail domains)
+        standardized_email = email.split("@")
+        standardized_email.pop()
+        standardized_email = "@".join(
+            standardized_email + [_MAPPED_EMAIL_DOMAINS_STANDARDIZED[mail_host_domain]]
+        )
+        return standardized_email
+    return email
+
 
 def validate_password_field(password: str) -> None:
     """
