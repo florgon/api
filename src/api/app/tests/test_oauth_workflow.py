@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 """
     Tests session API methods and overall auth process(?).
 """
@@ -42,7 +43,7 @@ def test_read_oauth_authorization_code_signin_via_session(
     """Does OAuth process with session sign-in and obtain access token (uses super user and super client)."""
 
     session_token = _signin_with_superuser(client)
-    access_token = _obtain_access_token_from_oauth_code_grant(
+    _obtain_access_token_from_oauth_code_grant(
         client,
         oauth_code=_obtain_oauth_code_via_authorization_oauth_flow(
             client, session_token
@@ -105,6 +106,15 @@ def _obtain_oauth_code_via_authorization_oauth_flow(client, session_token: str):
 
 
 def _obtain_access_token_from_oauth_code_grant(client, oauth_code: str) -> str:
+    client.get(
+        "/oauth.accessToken",
+        params={
+            "code": oauth_code,
+            "client_id": 1,
+            "client_secret": "secret",
+            "redirect_uri": "http://localhost",
+        },
+    )
     return ""
 
 

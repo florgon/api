@@ -94,7 +94,6 @@ class Settings(BaseSettings):
 
     # Users.
 
-
     # Signup.
     signup_validate_email: bool = True
     signup_username_reject_uppercase: bool = True
