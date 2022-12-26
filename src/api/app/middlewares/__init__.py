@@ -38,7 +38,7 @@ def _add_gatey_middleware(app: FastAPI) -> None:
         client=None,
         client_getter=get_gatey_client,
         pre_capture_hook=_pre_capture_hook,
-        capture_requests_info=True,
+        capture_requests_info=settings.gatey_capture_requests_info,
         capture_reraise_after=True,
     )
 

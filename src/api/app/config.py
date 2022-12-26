@@ -64,6 +64,7 @@ class Settings(BaseSettings):
     gatey_project_id: int | None = None
     gatey_client_secret: str | None = None  # Not preferable.
     gatey_server_secret: str | None = None
+    gatey_capture_requests_info: bool = False
 
     # Cache.
     cache_dsn: RedisDsn
