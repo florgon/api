@@ -2,61 +2,18 @@
     Secure API router.
     Provides API methods (routes) for working with server-side with client apps servers.
 """
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from app.services.api.errors import ApiErrorCode
-from app.database.dependencies import Session, get_db
 from app.services.api.response import api_error, api_success
-from app.services.permissions import parse_permissions_from_scope
-from app.services.request import (
-    query_auth_data_from_token,
-    AuthDataDependency,
+from app.services.request.auth import (
+    AuthDataFromTokenWithScopeDependency,
     AuthData,
 )
 
 
 router = APIRouter()
-
-
-class AuthDataFromTokenWithScopeDependency(AuthDataDependency):
-    """
-    FastAPI dependency to query auth data DTO from token within request with scope from user GET fields.
-    """
-
-    def __init__(
-        self,
-        *,
-        only_session_token: bool = False,
-        allow_deactivated: bool = False,
-        allow_external_clients: bool = False,
-        trigger_online_update: bool = True,
-    ):
-        self.kwargs = {
-            "only_session_token": only_session_token,
-            "allow_deactivated": allow_deactivated,
-            "allow_external_clients": allow_external_clients,
-            "trigger_online_update": trigger_online_update,
-        }
-
-    def __call__(
-        self,
-        request: Request,
-        token: str,
-        scope: str = "",
-        db: Session = Depends(get_db),
-    ) -> AuthData:
-        """
-        Calls dependency with request params.
-        Will return auth data DTO.
-        """
-        return query_auth_data_from_token(
-            token=token,
-            db=db,
-            required_permissions=parse_permissions_from_scope(scope),
-            request=request,
-            **self.kwargs,
-        )
 
 
 @router.route("/secure.checkAccessToken", methods=["GET"])
