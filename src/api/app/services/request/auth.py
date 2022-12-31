@@ -56,20 +56,15 @@ class AuthDataFromTokenWithScopeDependency:
         self,
         *,
         only_session_token: bool = False,
-        allow_deactivated: bool = False,
-        allow_external_clients: bool = False,
         trigger_online_update: bool = True,
     ):
         self.kwargs = {
             "only_session_token": only_session_token,
-            "allow_deactivated": allow_deactivated,
-            "allow_external_clients": allow_external_clients,
             "trigger_online_update": trigger_online_update,
         }
 
     def __call__(
         self,
-        request: Request,
         token: str,
         scope: str = "",
         db: Session = Depends(get_db),
@@ -82,7 +77,9 @@ class AuthDataFromTokenWithScopeDependency:
             token=token,
             db=db,
             required_permissions=parse_permissions_from_scope(scope),
-            request=request,
+            only_session_token=False,
+            allow_external_clients=True,
+            request=None,
             **self.kwargs,
         )
 
