@@ -17,7 +17,7 @@ from app.services.request.auth import (
 router = APIRouter()
 
 
-@router.route("/secure.checkAccessToken", methods=["GET"])
+@router.get("/secure.checkAccessToken")
 async def method_secure_check_access_token(
     token: str, scope: str = "", db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -46,7 +46,7 @@ async def method_secure_check_access_token(
     )
 
 
-@router.route("/secure.checkRefreshToken", methods=["GET"])
+@router.get("/secure.checkRefreshToken")
 async def method_secure_check_refresh_token() -> JSONResponse:
     """
     Returns information about refresh (only) token.
@@ -57,7 +57,7 @@ async def method_secure_check_refresh_token() -> JSONResponse:
     )
 
 
-@router.route("/secure.checkSessionToken", methods=["GET"])
+@router.get("/secure.checkSessionToken")
 async def method_secure_check_session_token() -> JSONResponse:
     """
     Returns information about session (only) token.
