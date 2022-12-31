@@ -21,7 +21,6 @@ async def method_secure_check_access_token(
     auth_data: AuthData = Depends(
         AuthDataFromTokenWithScopeDependency(
             only_session_token=False,
-            allow_external_clients=True,
             trigger_online_update=True,
         )
     ),
