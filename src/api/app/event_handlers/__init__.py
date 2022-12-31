@@ -7,7 +7,7 @@
 from fastapi import FastAPI
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
-    prometheus_instrumentator_installed = False
+    prometheus_instrumentator_installed = True
 except ImportError:
     prometheus_instrumentator_installed = False
 
