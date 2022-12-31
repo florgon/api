@@ -47,43 +47,6 @@ class AuthDataDependency:
         return query_auth_data_from_request(req=req, db=db, **self.kwargs)
 
 
-class AuthDataFromTokenWithScopeDependency:
-    """
-    FastAPI dependency to query auth data DTO from token within request with scope from user GET fields.
-    """
-
-    def __init__(
-        self,
-        *,
-        only_session_token: bool = False,
-        trigger_online_update: bool = True,
-    ):
-        self.kwargs = {
-            "only_session_token": only_session_token,
-            "trigger_online_update": trigger_online_update,
-        }
-
-    def __call__(
-        self,
-        token: str,
-        scope: str = "",
-        db: Session = Depends(get_db),
-    ):
-        """
-        Calls dependency with request params.
-        Will return auth data DTO.
-        """
-        return query_auth_data_from_token(
-            token=token,
-            db=db,
-            required_permissions=parse_permissions_from_scope(scope),
-            only_session_token=False,
-            allow_external_clients=True,
-            request=None,
-            **self.kwargs,
-        )
-
-
 def query_auth_data_from_token(
     token: str,
     db: Session,

@@ -7,9 +7,10 @@ from fastapi.responses import JSONResponse
 
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
+from app.database.dependencies import Session, get_db
 from app.services.request.auth import (
-    AuthDataFromTokenWithScopeDependency,
-    AuthData,
+    query_auth_data_from_token,
+    parse_permissions_from_scope,
 )
 
 
@@ -18,19 +19,19 @@ router = APIRouter()
 
 @router.route("/secure.checkAccessToken", methods=["GET"])
 async def method_secure_check_access_token(
-    auth_data: AuthData = Depends(
-        AuthDataFromTokenWithScopeDependency(
-            only_session_token=False,
-            trigger_online_update=True,
-        )
-    ),
+    token: str, scope: str = "", db: Session = Depends(get_db)
 ) -> JSONResponse:
     """
     Returns information about access (only) token.
     Can be used for external services that may request to check token from their end-users and request some permissions,
     the check will pass almost as internal decoding.
     """
-
+    auth_data = query_auth_data_from_token(
+        token=token,
+        db=db,
+        required_permissions=parse_permissions_from_scope(scope),
+        request=None,
+    )
     # Information that is NOT shown to the end-user:
     # - Session ID.
 
