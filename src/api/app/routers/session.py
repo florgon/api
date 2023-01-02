@@ -55,7 +55,9 @@ async def method_session_get_user_info(
     )
 
 
-@router.get("/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))])
+@router.post(
+    "/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))]
+)
 async def method_session_signup(
     req: Request,
     username: str,
@@ -184,7 +186,7 @@ async def method_session_request_tfa_otp(
     return api_success({"tfa_device": tfa_device, "tfa_otp_is_sent": tfa_otp_is_sent})
 
 
-@router.get(
+@router.post(
     "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
 )
 async def method_session_signin(
