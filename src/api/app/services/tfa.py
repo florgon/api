@@ -10,7 +10,7 @@ from app.config import get_settings
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 
 
-def validate_user_tfa_otp_from_request(req: Request, user: User):
+def validate_user_tfa_otp_from_request(tfa_otp: str, user: User):
     """
     Raises API error if user is required to send 2FA otp key.
     """
@@ -20,7 +20,6 @@ def validate_user_tfa_otp_from_request(req: Request, user: User):
     settings = get_settings()
 
     # Request 2FA OTP, raise error with continue information.
-    tfa_otp = req.query_params.get("tfa_otp")
     if not tfa_otp:
         raise ApiErrorException(
             ApiErrorCode.AUTH_TFA_OTP_REQUIRED,
