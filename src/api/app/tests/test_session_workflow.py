@@ -22,7 +22,7 @@ def test_read_session_signup_get_user_info(
     username = "pytestuser"
     signup_response = client.get(
         "/_session._signup",
-        params={
+        json={
             "username": username,
             "email": "pytest_user@example.com",
             "password": "password",
@@ -82,7 +82,7 @@ def test_read_session_superuser_signin(
     username = "admin"
     signin_response = client.get(
         "/_session._signin",
-        params={
+        json={
             "login": username,
             "password": "admin",
         },

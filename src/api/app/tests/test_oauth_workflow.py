@@ -88,9 +88,9 @@ def test_read_oauth_authorization_code_signin_via_session(
 
 def _signin_with_superuser(client) -> str:
     username = "admin"
-    signin_response = client.get(
+    signin_response = client.post(
         "/_session._signin",
-        params={
+        json={
             "login": username,
             "password": "admin",
         },
