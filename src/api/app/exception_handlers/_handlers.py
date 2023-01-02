@@ -39,6 +39,14 @@ async def not_found_handler(_, __):
     )
 
 
+async def method_not_allowed(_, __):
+    """Handler for FastAPI HTTP method not allowed."""
+    return api_error(
+        ApiErrorCode.API_METHOD_NOT_ALLOWED,
+        "HTTP method not allowed for this API method!",
+    )
+
+
 async def internal_server_error_handler(_, __):
     """Handler for FastAPI internal server error."""
     return api_error(
