@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     cors_allow_credentials: bool = True
     cors_max_age: int = 600
     cors_allow_origins: list[str] = ["*"]
-    cors_allow_methods: list[str] = ["GET", "HEAD"]
+    cors_allow_methods: list[str] = ["GET", "POST", "DELETE", "PUT", "PATCH", "HEAD"]
     cors_allow_headers: list[str] = ["*"]
 
     # Gatey.

@@ -55,12 +55,11 @@ async def method_session_get_user_info(
     )
 
 
-@router.get("/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))])
+@router.post(
+    "/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))]
+)
 async def method_session_signup(
     req: Request,
-    username: str,
-    email: str,
-    password: str,
     user_agent: str = Header(""),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -72,6 +71,21 @@ async def method_session_signup(
             "User signup closed (Registration forbidden by server administrator)",
         )
 
+    body_json = await req.json()
+    if (
+        "username" not in body_json
+        or "email" not in body_json
+        or "password" not in body_json
+    ):
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`username`, `email` and `password` fields are required!",
+        )
+    username, email, password = (
+        body_json.get("username"),
+        body_json.get("email"),
+        body_json.get("password"),
+    )
     # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
     email = convert_email_to_standardized(email)
 
@@ -184,17 +198,27 @@ async def method_session_request_tfa_otp(
     return api_success({"tfa_device": tfa_device, "tfa_otp_is_sent": tfa_otp_is_sent})
 
 
-@router.get(
+@router.post(
     "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
 )
 async def method_session_signin(
     req: Request,
-    login: str,
-    password: str,
     user_agent: str = Header(""),
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
+
+    body_json = await req.json()
+    if "login" not in body_json or "password" not in body_json:
+        return api_error(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`login` and `password` fields are required!",
+        )
+    login, password, tfa_otp = (
+        body_json.get("login"),
+        body_json.get("password"),
+        body_json.get("tfa_otp", None),
+    )
 
     user = user_repo.get_user_by_login(login)
     if not user and "@" in login:
@@ -202,7 +226,7 @@ async def method_session_signin(
         user = user_repo.get_user_by_login(login=convert_email_to_standardized(login))
 
     validate_signin_fields(user=user, password=password)
-    validate_user_tfa_otp_from_request(req, user)
+    validate_user_tfa_otp_from_request(tfa_otp, user)
     token, session = publish_new_session_with_token(
         user=user, user_agent=user_agent, db=user_repo.db, req=req
     )

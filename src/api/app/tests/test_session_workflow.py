@@ -20,9 +20,9 @@ def test_read_session_signup_get_user_info(
 ):  # pylint: disable=redefined-outer-name
     """Complex check for signup, get user info, get profile info."""
     username = "pytestuser"
-    signup_response = client.get(
+    signup_response = client.post(
         "/_session._signup",
-        params={
+        json={
             "username": username,
             "email": "pytest_user@example.com",
             "password": "password",
@@ -80,9 +80,9 @@ def test_read_session_superuser_signin(
 ):  # pylint: disable=redefined-outer-name
     """Check that super user is created and can be fetched."""
     username = "admin"
-    signin_response = client.get(
+    signin_response = client.post(
         "/_session._signin",
-        params={
+        json={
             "login": username,
             "password": "admin",
         },
