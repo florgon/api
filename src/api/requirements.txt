@@ -1,11 +1,11 @@
 # Florgon API server requirements.
 
 # Web framework (FastAPI).
-fastapi==0.87.0
+fastapi==0.88.0
 
 # Mail wrapper for FastAPI.
 # used to send email messages.
-fastapi_mail==1.2.2
+fastapi_mail==1.2.4
 
 # Prometheus monitoring.
 prometheus-fastapi-instrumentator==5.9.1
