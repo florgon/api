@@ -10,7 +10,7 @@ from app.services.passwords import check_password, get_hashed_password
 class TestPasswordsUnit(unittest.TestCase):
     """Check password unit (hashes)"""
 
-    def test_passwords(self):
+    def test_password_hash_method_0(self):
         """Check that password hashed correcly and does not allow to pass non-strings."""
         test_password = "mypassword"
         with self.assertRaises(TypeError):
@@ -25,7 +25,9 @@ class TestPasswordsUnit(unittest.TestCase):
             get_hashed_password(test_password, hash_method=0),
         )
 
-        # Hash method 1 (second).
+    def test_password_hash_method_1(self):
+        """Check that password hashed correcly and does not allow to pass non-strings."""
+        test_password = "mypassword"
         self.assertTrue(
             check_password(
                 test_password, get_hashed_password(test_password, hash_method=1)
