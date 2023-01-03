@@ -17,7 +17,9 @@ class TestPasswordsUnit(unittest.TestCase):
             check_password(32, 64, hash_method=0)  # noqa
         self.assertTrue(
             check_password(
-                test_password, get_hashed_password(test_password, hash_method=0)
+                password=test_password,
+                hashed_password=get_hashed_password(test_password, hash_method=0),
+                hash_method=0,
             )
         )
         self.assertEqual(
@@ -30,7 +32,9 @@ class TestPasswordsUnit(unittest.TestCase):
         test_password = "mypassword"
         self.assertTrue(
             check_password(
-                test_password, get_hashed_password(test_password, hash_method=1)
+                password=test_password,
+                hashed_password=get_hashed_password(test_password, hash_method=1),
+                hash_method=1,
             )
         )
         self.assertEqual(
