@@ -17,7 +17,7 @@ def get_hashed_password(password: str, *, hash_method: int | None = 1) -> str:
         pass
     return hashlib.scrypt(
         password=password.encode(), salt=os.urandom(16), n=2**10, r=8, p=1
-    ).decode()
+    ).decode(encoding="latin-1")
 
 
 def check_password(
