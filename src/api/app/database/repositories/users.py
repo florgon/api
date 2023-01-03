@@ -34,7 +34,9 @@ class UsersRepository(BaseRepository):
     def create(self, username: str, email: str, password: str) -> User:
         """Creates user with given credentials."""
         user = User(
-            username=username, email=email, password=get_hashed_password(password)
+            username=username,
+            email=email,
+            password=get_hashed_password(password, hash_method=None),
         )
 
         self.db.add(user)

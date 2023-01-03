@@ -14,10 +14,26 @@ class TestPasswordsUnit(unittest.TestCase):
         """Check that password hashed correcly and does not allow to pass non-strings."""
         test_password = "mypassword"
         with self.assertRaises(TypeError):
-            check_password(32, 64)  # noqa
+            check_password(32, 64, hash_method=0)  # noqa
         self.assertTrue(
-            check_password(test_password, get_hashed_password(test_password))
+            check_password(
+                test_password, get_hashed_password(test_password, hash_method=0)
+            )
         )
         self.assertEqual(
-            get_hashed_password(test_password), get_hashed_password(test_password)
+            get_hashed_password(test_password, hash_method=0),
+            get_hashed_password(test_password, hash_method=0),
         )
+
+        # Hash method 1 (second).
+        self.assertTrue(
+            check_password(
+                test_password, get_hashed_password(test_password, hash_method=1)
+            )
+        )
+        self.assertEqual(
+            get_hashed_password(test_password, hash_method=1),
+            get_hashed_password(test_password, hash_method=1),
+        )
+        with self.assertRaises(TypeError):
+            check_password(32, 64, hash_method=1)  # noqa

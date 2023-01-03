@@ -87,7 +87,7 @@ async def method_security_user_password_change_request_tfa_otp(
 
     # Check password.
     validate_password_field(new_password)
-    if not check_password(current_password, user.password):
+    if not check_password(current_password, user.password, user.security_hash_method):
         return api_error(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
             "Current password is not same with one that you passed!",
@@ -149,7 +149,9 @@ async def method_security_user_change_password(
     # Check password and TFA.
     validate_user_tfa_otp_from_request(req, user)
     validate_password_field(new_password)
-    passwords_is_same = check_password(current_password, user.password)
+    passwords_is_same = check_password(
+        current_password, user.password, user.security_hash_method
+    )
     if passwords_is_same:
         return api_error(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -162,7 +164,8 @@ async def method_security_user_change_password(
         )
 
     # Change password.
-    user.password = get_hashed_password(new_password)
+    user.password = get_hashed_password(new_password, hash_method=None)
+    user.security_hash_method = 1
     db.commit()
 
     # Logout from all devices except this.

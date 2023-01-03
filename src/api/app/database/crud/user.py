@@ -59,7 +59,11 @@ def create(db: Session, username: str, email: str, password: str) -> User:
     """Creates user with given credentials."""
 
     # Create new user.
-    user = User(username=username, email=email, password=get_hashed_password(password))
+    user = User(
+        username=username,
+        email=email,
+        password=get_hashed_password(password, hash_method=None),
+    )
 
     # Apply user in database.
     db.add(user)
