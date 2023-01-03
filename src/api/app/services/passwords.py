@@ -15,7 +15,9 @@ def get_hashed_password(password: str, *, hash_method: int | None = 1) -> str:
     if hash_method == 1:
         # Latest hash method.
         pass
-    return hashlib.scrypt(password=password.encode(), salt=os.urandom(16), n=2**10)
+    return hashlib.scrypt(
+        password=password.encode(), salt=os.urandom(16), n=2**16, r=8, p=1
+    ).decode()
 
 
 def check_password(
