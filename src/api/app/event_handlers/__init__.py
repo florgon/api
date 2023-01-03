@@ -5,8 +5,10 @@
 """
 
 from fastapi import FastAPI
+
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
+
     prometheus_instrumentator_installed = True
 except ImportError:
     prometheus_instrumentator_installed = False
@@ -28,4 +30,6 @@ def add_event_handlers(app: FastAPI) -> None:
                 lambda: Instrumentator().instrument(app).expose(app),
             )
         else:
-            get_logger().warn("You are enabled `prometheus_metrics_exposed` but `prometheus_fastapi_instrumentator` is not installed in system!")
+            get_logger().warn(
+                "You are enabled `prometheus_metrics_exposed` but `prometheus_fastapi_instrumentator` is not installed in system!"
+            )
