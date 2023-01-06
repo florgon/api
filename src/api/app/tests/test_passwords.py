@@ -37,7 +37,7 @@ class TestPasswordsUnit(unittest.TestCase):
                 hash_method=1,
             )
         )
-        self.assertEqual(
+        self.assertNotEqual(
             get_hashed_password(test_password, hash_method=1),
             get_hashed_password(test_password, hash_method=1),
         )
