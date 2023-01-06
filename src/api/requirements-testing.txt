@@ -11,7 +11,7 @@ fastapi_mail==1.2.4
 # server process manager.
 uvicorn==0.20.0
 gunicorn==20.1.0
-httpx==0.23.2
+httpx==0.23.3
 
 # Florgon Gatey SDK.
 # (Error logging service).
