@@ -23,11 +23,13 @@ def _create_superuser_if_not_exists(db: Session) -> None:
     repo = UsersRepository(db=db)
     user = repo.get_user_by_username(username="admin")
     if not user:
-        user = repo.create(
-            username="admin",
-            email="admin@admin.com",
-            password="admin",
-        )
+        user = None
+        while user is None:
+            user = repo.create(
+                username="admin",
+                email="admin@admin.com",
+                password="admin",
+            )
         user.is_admin = True
         user.is_verified = True
         repo.db.add(user)

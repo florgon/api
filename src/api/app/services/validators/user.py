@@ -133,7 +133,11 @@ def validate_signup_fields(
 def validate_signin_fields(user: User, password: str) -> None:
     """Validates that all fields passes signin base validation, or raises API error if not."""
 
-    if not user or not check_password(password=password, hashed_password=user.password):
+    if not user or not check_password(
+        password=password,
+        hashed_password=user.password,
+        hash_method=user.security_hash_method,
+    ):
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
             "Invalid credentials for authentication.",

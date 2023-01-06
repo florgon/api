@@ -46,6 +46,7 @@ class User(Base):
     # Security.
     security_tfa_enabled = Column(Boolean, nullable=False, default=False)
     security_tfa_secret_key = Column(String, nullable=True, default=None)
+    security_hash_method = Column(Integer, default=1, nullable=False)
 
     # Public profile.
     profile_bio = Column(Text, nullable=True)

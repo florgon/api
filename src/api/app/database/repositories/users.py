@@ -4,7 +4,7 @@
 
 from app.database.models.user import User
 from app.database.repositories.base import BaseRepository
-from app.services.passwords import get_hashed_password
+from app.services.passwords import get_hashed_password, HashingError
 
 
 class UsersRepository(BaseRepository):
@@ -31,10 +31,17 @@ class UsersRepository(BaseRepository):
         """Returns user by ID."""
         return self.db.query(User).filter(User.id == user_id).first()
 
-    def create(self, username: str, email: str, password: str) -> User:
+    def create(self, username: str, email: str, password: str) -> User | None:
         """Creates user with given credentials."""
+        # Create new user.
+        try:
+            hashed_password = get_hashed_password(password, hash_method=None)
+        except HashingError:
+            return None
         user = User(
-            username=username, email=email, password=get_hashed_password(password)
+            username=username,
+            email=email,
+            password=hashed_password,
         )
 
         self.db.add(user)

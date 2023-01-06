@@ -91,6 +91,11 @@ async def method_session_signup(
 
     validate_signup_fields(db, username, email, password)
     user = crud.user.create(db=db, email=email, username=username, password=password)
+    if not user:
+        return api_error(
+            ApiErrorCode.API_TRY_AGAIN_LATER,
+            "Unable to create account at this time, please try again later.",
+        )
     token, session = publish_new_session_with_token(
         user=user, user_agent=user_agent, db=db, req=req
     )
