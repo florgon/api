@@ -64,6 +64,23 @@ def device_cache_key_builder(
     )
 
 
+def plain_cache_key_builder(
+    func: Callable,
+    namespace: str | None = "",
+    request: Request | None = None,
+    response: Response | None = None,
+    args: tuple | None = None,
+    kwargs: dict | None = None,
+) -> str:
+    """
+    Key builder for routes that has auth.
+    Uses token for caching.
+    """
+    return _cache_key_builder_internal_cacher(
+        [], func, namespace, request, response, args, kwargs
+    )
+
+
 def _cache_key_builder_internal_cacher(
     additional_cached_tags: list[str],
     func: Callable,

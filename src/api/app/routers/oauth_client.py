@@ -5,7 +5,9 @@
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-
+from fastapi_cache.decorator import cache
+from fastapi_cache import FastAPICache
+from app.services.cache import JSONResponseCoder, plain_cache_key_builder
 from app.database import crud
 from app.database.dependencies import get_db
 from app.database.models.oauth_client import OAuthClient
@@ -74,6 +76,12 @@ async def method_oauth_client_list(
 
 
 @router.get("/oauthClient.get")
+@cache(
+    expire=60,
+    coder=JSONResponseCoder,
+    key_builder=plain_cache_key_builder,
+    namespace="routers_oauth_clients_getter",
+)
 async def method_oauth_client_get(
     client_id: int, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -127,6 +135,7 @@ async def method_oauth_client_update(
 
     if is_updated:
         db.commit()
+        FastAPICache.clear("routers_oauth_clients_getter")
 
     return api_success(
         {
