@@ -4,6 +4,9 @@
 """
 
 import pydantic
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
+from app.services.cache import JSONResponseCoder, authenticated_cache_key_builder
 from app.database.dependencies import Session, get_db
 from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
@@ -15,6 +18,7 @@ from app.services.request import (
     AuthDataDependency,
     AuthData,
 )
+
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository
 from fastapi import APIRouter, Depends, Request
@@ -24,6 +28,12 @@ router = APIRouter()
 
 
 @router.get("/user.getInfo")
+@cache(
+    expire=60,
+    coder=JSONResponseCoder,
+    key_builder=authenticated_cache_key_builder,
+    namespace="routers_user_info_getter",
+)
 async def method_user_get_info(
     auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
@@ -161,6 +171,7 @@ async def method_user_set_info(
 
     if is_updated:
         db.commit()
+        FastAPICache.clear("routers_user_info_getter")
 
     return api_success(
         {
