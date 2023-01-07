@@ -2,9 +2,7 @@
 
 # Web framework (FastAPI).
 fastapi==0.88.0
-
-# Mail wrapper for FastAPI.
-# used to send email messages.
+fastapi-cache2[redis]==0.1.9
 fastapi_mail==1.2.4
 
 # ASGI server worker with

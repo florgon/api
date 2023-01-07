@@ -109,7 +109,7 @@ def query_auth_data_from_request(
     """
 
     # Get token from request and query data from it as external token.
-    token = _get_token_from_request(req, only_session_token)
+    token = get_token_from_request(req, only_session_token)
     return query_auth_data_from_token(
         token,
         db,
@@ -156,7 +156,7 @@ def try_query_auth_data_from_request(
         return False, None
 
 
-def _get_token_from_request(req: Request, only_session_token: bool) -> str:
+def get_token_from_request(req: Request, only_session_token: bool) -> str:
     """
     Returns token from request.
     :param req: Request itself.
