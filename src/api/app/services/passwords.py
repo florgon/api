@@ -9,7 +9,7 @@ class HashingError(Exception):
     pass
 
 
-def get_hashed_password(password: str, *, hash_method: int | None = 1) -> str:
+def get_hashed_password(password: str, *, hash_method: int | None = 0) -> str:
     """Returns hashed password."""
     if not isinstance(password, str):
         raise TypeError("Password must be a string!")
@@ -20,7 +20,7 @@ def get_hashed_password(password: str, *, hash_method: int | None = 1) -> str:
 
 
 def check_password(
-    password: str, hashed_password: str, *, hash_method: int | None = 1
+    password: str, hashed_password: str, *, hash_method: int | None = 0
 ) -> bool:
     """Returns is password and hashed one is same."""
     if not isinstance(password, str) or not isinstance(hashed_password, str):

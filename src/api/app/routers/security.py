@@ -165,7 +165,7 @@ async def method_security_user_change_password(
 
     # Change password.
     user.password = get_hashed_password(new_password, hash_method=None)
-    user.security_hash_method = 1
+    user.security_hash_method = 0
     db.commit()
 
     # Logout from all devices except this.
