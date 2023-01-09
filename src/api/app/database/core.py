@@ -10,7 +10,7 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
-
+from sqlalchemy.exc import IntegrityError
 
 # Database engine.
 settings = Settings()
@@ -34,4 +34,8 @@ Base = declarative_base(metadata=metadata)
 
 def create_all():
     """Creates all database metadata."""
-    metadata.create_all(bind=engine)
+    try:
+        metadata.create_all(bind=engine)
+    except IntegrityError:
+        # TODO: Add logging? (should be there is any circular import?)
+        pass
