@@ -4,7 +4,6 @@
 fastapi==0.88.0
 fastapi-cache2[redis]==0.1.9
 fastapi_mail==1.2.4
-prometheus-fastapi-instrumentator==5.9.1
 
 # ASGI server worker with
 # server process manager.
