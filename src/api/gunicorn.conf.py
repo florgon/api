@@ -66,7 +66,9 @@ max_requests = 32_000  # (Default: 0, no restart) Number of requests, after whic
 max_requests_jitter = (
     1_000  # Jitter for `max_requests` to not restart all workers at once.
 )
-timeout = 30  # Timeout after which worker request process marked as dead and restarts.
+timeout = int(
+    getenv("GUNICORN_TIMEOUT", "30")
+)  # Timeout after which worker request process marked as dead and restarts.
 graceful_timeout = timeout  # Timeout to finish requests after exit.
 keepalive = 2  # (Default: 2). Should be increased to 1-5 if being behing load balancer.
 
