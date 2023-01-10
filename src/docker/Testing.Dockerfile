@@ -15,5 +15,8 @@ COPY api/requirements.txt /srv/www/florgon/api/
 COPY api/requirements-testing.txt /srv/www/florgon/api/
 RUN pip install --upgrade --no-cache-dir -r requirements-testing.txt
 
+# Envs.
+ENV GUNICORN_LOGLEVEL "debug"
+
 COPY . /srv/www/florgon/api/
 CMD ["gunicorn", "app.app:app", "-c", "gunicorn.conf.py"]

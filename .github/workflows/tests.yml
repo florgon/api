@@ -22,6 +22,8 @@ jobs:
       - name: Check docker containers
         working-directory: ./src
         run: docker ps -a
+      - name: Display startup logs.
+        run: docker logs florgon-api_server_1
       - name: Check docker containers (After wait for start)
         working-directory: ./src
         run: docker ps -a
