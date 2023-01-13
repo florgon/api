@@ -11,8 +11,8 @@ WORKDIR /srv/www/florgon/api
 # Install requirements.
 RUN apk add build-base
 RUN pip install --upgrade pip
-COPY api/requirements.txt /srv/www/florgon/api/
-COPY api/requirements-production.txt /srv/www/florgon/api/
+COPY docker/requirements/requirements.txt /srv/www/florgon/api/
+COPY docker/requirements/requirements-production.txt /srv/www/florgon/api/
 RUN pip install --upgrade --no-cache-dir -r requirements-production.txt
 
 # Copy whole project.
