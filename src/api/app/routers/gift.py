@@ -3,29 +3,33 @@
     Provides API methods (routes) for working gifts.
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from app.database import crud
-from app.database.dependencies import Session, get_db
+from app.database.dependencies import Session
 from app.database.models.gift import Gift, GiftRewardType
 from app.database.models.user import User
 from app.services.api.response import api_success
 from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.services.request import query_auth_data_from_request
 from app.services.limiter.depends import RateLimiter
-
+from app.database.repositories import GiftsRepository
+from app.database.dependencies import get_repository
+from app.services.request.auth import AuthDataDependency
 
 router = APIRouter()
 
 
-def _query_gift(db: Session, promocode: str) -> Gift:
-    gift = crud.gift.get_by_promocode(db, promocode=promocode) if promocode else None
+def _query_gift(gifts_repo: GiftsRepository, promocode: str) -> Gift:
+    """
+    Queries gift by promocode, which is active and can be used for any user (except validations by reward type).
+    """
+    gift = gifts_repo.get_by_promocode(promocode=promocode) if promocode else None
     if not gift:
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST, "Gift not found, or invalid promocode."
         )
 
-    if crud.gift_use.get_uses(db, gift.id) >= gift.max_uses:
+    if crud.gift_use.get_uses(gifts_repo.db, gift.id) >= gift.max_uses:
         raise ApiErrorException(ApiErrorCode.GIFT_USED, "Gift already used max times.")
 
     if not gift.is_active:
@@ -59,18 +63,25 @@ def _apply_gift(db: Session, gift: Gift, user: User) -> None:
     db.commit()
 
 
-@router.get("/gift.accept")
+def _query_and_accept_gift(
+    gifts_repo: GiftsRepository, acceptor: User, promocode: str
+) -> None:
+    """
+    Queries and accepts gift by promocode if it is active and valid.
+    """
+    gift = _query_gift(gifts_repo=gifts_repo, promocode=promocode)
+    _apply_gift(gifts_repo.db, gift, acceptor)
+
+
+@router.get("/gift.accept", dependencies=[Depends(RateLimiter(times=10, minutes=5))])
 async def method_gift_accept(
-    req: Request,
-    db: Session = Depends(get_db),
+    auth_data=Depends(AuthDataDependency()),
+    gifts_repo=Depends(get_repository(GiftsRepository)),
     promocode: str | None = None,
 ) -> JSONResponse:
     """Accepts gift."""
 
-    user = query_auth_data_from_request(req, db).user
-    await RateLimiter(times=10, minutes=5).check(req)
-
-    gift = _query_gift(db=db, promocode=promocode)
-    _apply_gift(db, gift, user)
-
+    _query_and_accept_gift(
+        gifts_repo=gifts_repo, acceptor=auth_data.user, promocode=promocode
+    )
     return api_success({"gift": {"status": "accepted"}})

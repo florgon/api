@@ -22,7 +22,7 @@ class OAuthClientsRepository(BaseRepository):
         return token_urlsafe(32)
 
     def create(self, owner_id: int, display_name: str) -> OAuthClient:
-        """Creates user with given credentials."""
+        """Creates new oauth client."""
         oauth_client = OAuthClient(
             secret=self.generate_secret(), owner_id=owner_id, display_name=display_name
         )

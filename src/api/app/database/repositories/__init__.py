@@ -7,5 +7,11 @@
 from .base import BaseRepository
 from .users import UsersRepository
 from .oauth_clients import OAuthClientsRepository
+from .gifts import GiftsRepository
 
-__all__ = ["BaseRepository", "UsersRepository", "OAuthClientsRepository"]
+__all__ = [
+    "BaseRepository",
+    "UsersRepository",
+    "OAuthClientsRepository",
+    "GiftsRepository",
+]
