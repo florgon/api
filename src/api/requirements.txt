@@ -28,4 +28,4 @@ pyjwt==2.5.0  # JWTokens implementation for the base token.
 pyotp==2.8.0  # OTP for 2FA. Used for email and mobile 2FA process.
 
 # OAuth providers (make request to OAuth provider OAuth code resolver).
-requests==2.28.1  # Make requests to server.
+requests==2.28.2  # Make requests to server.
