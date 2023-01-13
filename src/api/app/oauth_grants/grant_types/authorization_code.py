@@ -149,7 +149,7 @@ def _query_user_data_from_raw_code_token(
 
 def encode_tokens_pair(
     code_token: OAuthCode, session: UserSession, user: User, settings: Settings
-):
+) -> TokensPair:
     """
     Returns encoded tokens pair.
     """
@@ -177,7 +177,10 @@ def encode_tokens_pair(
     ).encode(key=session.token_secret)
 
     return TokensPair(
-        access_token_ttl, access_token_permissions, access_token, refresh_token
+        access_ttl=access_token_ttl,
+        access_permissions=access_token_permissions,
+        access_token=access_token,
+        refresh_token=refresh_token,
     )
 
 
@@ -204,7 +207,7 @@ def oauth_authorization_code_grant(
         {
             "access_token": tokens_pair.access_token,
             "refresh_token": tokens_pair.refresh_token,
-            "expires_in": tokens_pair.access_token,
+            "expires_in": tokens_pair.access_ttl,
             "user_id": user.id,
         }
         | ({"email": user.email} if send_email_field else {})
