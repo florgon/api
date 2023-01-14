@@ -40,15 +40,24 @@ class ExternalOAuthService:
         authorize_url_params = self._build_authorize_url_params()
         return f"{self.oauth_screen_provider_url}?{authorize_url_params}&scope="
 
-    def resolve_code_to_token(self, code: str) -> str | None:
+    def resolve_code_to_token(self, code: str) -> tuple[str, dict] | None:
         """
         Resolves code (OAuth) to token (access) by sending requests to auth server.
         """
         resolve_response = self._request_code_resolver(code=code)
-        token = resolve_response.json().get("token")
-        if not isinstance(token, str):
+
+        # Try to process resolver response as JSON.
+        try:
+            resolve_response_json = resolve_response.json()
+        except requests.exceptions.JSONDecodeError:
             return None
-        return str(token)
+
+        # Get valid token.
+        resolver_token = resolve_response_json.get("token")
+        if not isinstance(resolver_token, str):
+            return None
+
+        return str(resolver_token), resolve_response_json
 
     def get_resolve_code_url(self, code: str) -> str:
         """

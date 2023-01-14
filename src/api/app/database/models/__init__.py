@@ -10,6 +10,7 @@ from . import (
     user,
     user_agent,
     user_session,
+    user_linked_accounts,
     oauth_code,
 )
 
@@ -21,5 +22,6 @@ __all__ = [
     "user",
     "user_agent",
     "user_session",
+    "user_linked_accounts",
     "oauth_code",
 ]
