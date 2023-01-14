@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from app.config import get_settings
 from app.database import crud
 from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
+from app.services.api.response import api_error, api_success
 from app.services.ext_oauth.github_provider import GithubOauthService
 from app.services.ext_oauth.vk_provider import VkOauthService
 from app.services.ext_oauth.yandex_provider import YandexOauthService
@@ -100,46 +100,43 @@ async def method_ext_oauth_yandex_request_signin() -> JSONResponse:
     return RedirectResponse(url=authorize_url)
 
 
-@router.get("/extOauthVk.signinWithCode")
+@router.get("/extOauthVk.resolveSignin")
 async def method_ext_oauth_vk_signin_with_code(code: str) -> JSONResponse:
     """OAuth with external OAuth VK provider."""
 
-    resolver_response = _build_vk_oauth_service().resolve_code_to_token(code=code)
+    resolver_response = _build_vk_oauth_service().resolve_code(code=code)
     if resolver_response is None:
         return api_error(
             ApiErrorCode.API_UNKNOWN_ERROR,
             "Code resolver respond with unexpected data!",
         )
 
-    _, resolve_json = resolver_response
-    return resolve_json
+    return api_success({"resolver_response": resolver_response})
 
 
-@router.get("/extOauthGitHub.signinWithCode")
+@router.get("/extOauthGitHub.resolveSignin")
 async def method_ext_oauth_vk_signin_with_code(code: str) -> JSONResponse:
     """OAuth with external OAuth GitHub provider."""
 
-    resolver_response = _build_github_oauth_service().resolve_code_to_token(code=code)
+    resolver_response = _build_github_oauth_service().resolve_code(code=code)
     if resolver_response is None:
         return api_error(
             ApiErrorCode.API_UNKNOWN_ERROR,
             "Code resolver respond with unexpected data!",
         )
 
-    _, resolve_json = resolver_response
-    return resolve_json
+    return api_success({"resolver_response": resolver_response})
 
 
-@router.get("/extOauthYandex.signinWithCode")
+@router.get("/extOauthYandex.resolveSignin")
 async def method_ext_oauth_yandex_signin_with_code(code: str) -> JSONResponse:
     """OAuth with external OAuth Yandex provider."""
 
-    resolver_response = _build_yandex_oauth_service().resolve_code_to_token(code=code)
+    resolver_response = _build_yandex_oauth_service().resolve_code(code=code)
     if resolver_response is None:
         return api_error(
             ApiErrorCode.API_UNKNOWN_ERROR,
             "Code resolver respond with unexpected data!",
         )
 
-    _, resolve_json = resolver_response
-    return resolve_json
+    return api_success({"resolver_response": resolver_response})
