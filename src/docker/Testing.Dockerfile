@@ -15,5 +15,9 @@ COPY docker/requirements/requirements.txt /srv/www/florgon/api/
 COPY docker/requirements/requirements-testing.txt /srv/www/florgon/api/
 RUN pip install --upgrade --no-cache-dir -r requirements-testing.txt
 
+# Envs.
+ENV GUNICORN_LOGLEVEL "debug"
+ENV GUNICORN_TIMEOUT "300"
+
 COPY . /srv/www/florgon/api/
 CMD ["gunicorn", "app.app:app", "-c", "gunicorn.conf.py"]

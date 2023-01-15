@@ -75,6 +75,10 @@ class Settings(BaseSettings):
     # TODO 07.31.22: Allow to handle requests limiter disable better, and do not connect to Redis if not required.
     requests_limiter_enabled: bool = True
 
+    # Requests && other Cache.
+    fastapi_cache_enable: bool = False
+    fastapi_cache_use_inmemory_backend: bool = False
+
     # OpenAPI.
 
     # If false, will disable OpenAPI.
