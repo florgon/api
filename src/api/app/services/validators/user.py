@@ -142,3 +142,8 @@ def validate_signin_fields(user: User, password: str) -> None:
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
             "Invalid credentials for authentication.",
         )
+    if not user.is_active:
+        raise ApiErrorException(
+            ApiErrorCode.USER_DEACTIVATED,
+            "Unable to sign-in as user was frozen (deactivated or blocked).",
+        )
