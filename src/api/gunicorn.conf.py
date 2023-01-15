@@ -1,3 +1,4 @@
+# pylint: disable=cyclic-import
 """
     Florgon API server `Gunicorn` process manager configuration file.
     All configuration settings that may be required or changes,
@@ -14,6 +15,7 @@
 # See `workers` field.
 # Generally in range (2-4 x ${NUM_CORES}).
 from multiprocessing import cpu_count
+from os import getenv
 
 # TODO 07.31.22: Read more about logs.
 # TODO 07.31.22: Proxy headers in access log format.
@@ -28,9 +30,9 @@ _log_to_stdout = True
 # https://docs.gunicorn.org/en/latest/settings.html#logging
 accesslog = "-" if _log_to_stdout else None
 errorlog = "-" if _log_to_stdout else None
-loglevel = (
-    "info"  # (Default: Info) One of those: debug, info, warning, error, critical.
-)
+loglevel = getenv(
+    "GUNICORN_LOGLEVEL", "info"
+)  # (Default: Info) One of those: debug, info, warning, error, critical.
 capture_output = (
     False if _log_to_stdout else False
 )  # (Default: False) Redirect stdout/stderr to specified file in errorlog.
@@ -64,7 +66,9 @@ max_requests = 32_000  # (Default: 0, no restart) Number of requests, after whic
 max_requests_jitter = (
     1_000  # Jitter for `max_requests` to not restart all workers at once.
 )
-timeout = 30  # Timeout after which worker request process marked as dead and restarts.
+timeout = int(
+    getenv("GUNICORN_TIMEOUT", "30")
+)  # Timeout after which worker request process marked as dead and restarts.
 graceful_timeout = timeout  # Timeout to finish requests after exit.
 keepalive = 2  # (Default: 2). Should be increased to 1-5 if being behing load balancer.
 

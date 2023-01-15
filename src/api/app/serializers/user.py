@@ -4,6 +4,7 @@
 
 
 import time
+from typing import Any
 
 from app.database.models.user import User
 
@@ -11,19 +12,21 @@ from app.database.models.user import User
 def serialize(
     user: User,
     *,
+    in_list: bool = False,
     include_email: bool = False,
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
     include_profile_fields: bool = False
-):
+) -> dict[str, Any]:
     """Returns dict object for API response with serialized user data."""
-    serialized_user = {
+    serialized_user: dict[str, Any] = {
         "id": user.id,
         "username": user.username,
         "avatar": user.avatar,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "sex": 0 if user.is_female() else 1,
+        "full_name": user.full_name,
+        "sex": int(user.sex),
     }
 
     if include_profile_fields:
@@ -47,7 +50,9 @@ def serialize(
     if include_optional_fields:
         time_online = user.time_online
         serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
-        serialized_user["time_online"] = time.mktime(time_online.timetuple()) if time_online else None
+        serialized_user["time_online"] = (
+            time.mktime(time_online.timetuple()) if time_online else None
+        )
         serialized_user["states"] = {"is_active": user.is_active, "is_vip": user.is_vip}
 
         if include_private_fields:
@@ -55,7 +60,36 @@ def serialize(
                 serialized_user["states"]["is_admin"] = user.is_admin
             serialized_user["states"]["is_confirmed"] = user.is_verified
 
+    if in_list:
+        return serialized_user
+
     return {"user": serialized_user}
 
 
+def serialize_list(
+    users: list[User],
+    *,
+    include_email: bool = False,
+    include_optional_fields: bool = False,
+    include_private_fields: bool = False,
+    include_profile_fields: bool = False
+) -> dict[str, Any]:
+    """Returns dict object for API response with serialized users list data."""
+
+    return {
+        "users": [
+            serialize(
+                user,
+                in_list=True,
+                include_email=include_email,
+                include_optional_fields=include_optional_fields,
+                include_private_fields=include_private_fields,
+                include_profile_fields=include_profile_fields,
+            )
+            for user in users
+        ]
+    }
+
+
 serialize_user = serialize
+serialize_users = serialize_list

@@ -3,6 +3,7 @@
     (FastAPI exception handlers)
 """
 
+from app.config import get_logger
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error
 
@@ -26,6 +27,7 @@ async def too_many_requests_handler(_, exception):
 
 async def api_error_exception_handler(_, e: ApiErrorException):
     """Handler for FastAPI pydantic exceptions."""
+    get_logger().info(f"[ApiErrorException] Code: {e.api_code}, Message: {e.message}!")
     return api_error(e.api_code, e.message, e.data)
 
 
@@ -34,6 +36,14 @@ async def not_found_handler(_, __):
     return api_error(
         ApiErrorCode.API_METHOD_NOT_FOUND,
         "Method not found! Please read documentation.",
+    )
+
+
+async def method_not_allowed(_, __):
+    """Handler for FastAPI HTTP method not allowed."""
+    return api_error(
+        ApiErrorCode.API_METHOD_NOT_ALLOWED,
+        "HTTP method not allowed for this API method!",
     )
 
 

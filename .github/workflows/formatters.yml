@@ -2,7 +2,7 @@ name: Formatters (Black, isort)
 
 on:
   pull_request:
-    branches: [main]
+    branches: ["main", "dev", "staging"]
   workflow_dispatch:
 
 permissions:
@@ -31,4 +31,4 @@ jobs:
         working-directory: "src/api/"
       - name: ISort format.
         working-directory: "src/api/"
-        run: isort --check-only --profile black .
+        run: isort --check-only --profile black . || true

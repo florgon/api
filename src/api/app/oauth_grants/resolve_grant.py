@@ -1,6 +1,7 @@
 """
     Resolves from grant_type string name grant type resolver.
 """
+from urllib.parse import parse_qs
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -17,20 +18,35 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error
 
 
-def resolve_grant(
-    grant_type: str,
+async def resolve_grant(
     req: Request,
     client_id: int,
     client_secret: str,
     db: Session,
     settings: Settings,
+    grant_type: str | None = None,
 ) -> JSONResponse:
     """
     Resolves string of the grant type to tokens (access, access+refresh pair).
     """
+    body_query = parse_qs((await req.body()).decode(encoding="UTF-8"))
     if not grant_type or grant_type == "authorization_code":
+        raw_code_token = req.query_params.get("code", body_query.get("code", [None])[0])
+        redirect_uri = req.query_params.get(
+            "redirect_uri", body_query.get("redirect_uri", [None])[0]
+        )
+        if not raw_code_token:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "`code` required for `authorization_code` grant type!",
+            )
+        if not redirect_uri:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "`redirect_uri` required for `authorization_code` grant type!",
+            )
         return oauth_authorization_code_grant(
-            req, client_id, client_secret, db, settings
+            raw_code_token, redirect_uri, client_id, client_secret, db, settings
         )
 
     if grant_type == "refresh_token":

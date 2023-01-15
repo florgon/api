@@ -11,11 +11,11 @@ services:
   database:
     image: postgres:14-alpine
     hostname: florgon-api
-    restart: always
+    restart: unless-stopped
     volumes:
       - ../db:/var/lib/postgresql/data
     env_file:
-      - .database.env
+      - ./docker/configs/.database.env
     networks:
       - florgon-api
     command:
@@ -24,28 +24,32 @@ services:
       - "max_connections=1000" # SHOW max_connections;
       - "-c" # Buffer size for database bufferization.
       - "shared_buffers=128MB" # SHOW shared_buffers;
+
   database-poller:
     image: edoburu/pgbouncer
+    restart: unless-stopped
     env_file:
-      - .database.env
+      - ./docker/configs/.database.env
     depends_on:
       - database
     networks:
       - florgon-api
+
   cache:
     image: redis:7-alpine
     hostname: florgon-api
-    restart: always
+    restart: unless-stopped
     command: redis-server
     volumes:
       - ../cache:/data
     networks:
       - florgon-api
+
   server:
     hostname: florgon-api
-    restart: always
+    restart: unless-stopped
     env_file:
-      - .server.env
+      - ./docker/configs/.server.env
     volumes:
       - ./api:/srv/www/florgon/api
     ports:
@@ -59,7 +63,10 @@ services:
       - cache
     networks:
       - florgon-api
-    build: .
+    build:
+      context: ./
+      dockerfile: $PWD/docker/Dockerfile
 
 networks:
   florgon-api:
+    name: florgon-api

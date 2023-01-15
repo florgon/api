@@ -1,5 +1,5 @@
 """
-    User database model.
+    OAuth client database model.
 """
 
 # Core model base.

@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: "server"
+
+rule_files:
+
+scrape_configs:
+  - job_name: "prometheus"
+
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "server"
+    dns_sd_configs:
+      - names: ["server"]
+        port: 80
+        type: A
+        refresh_interval: 5s

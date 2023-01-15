@@ -4,25 +4,10 @@
     And middlewares itself.
 """
 
-from starlette.types import ASGIApp, Receive, Scope, Send
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.config import get_settings
-
-
-class GateyMiddleware:
-    """Gatey (error) logging middleware."""
-
-    def __init__(
-        self,
-        app: ASGIApp,
-    ) -> None:
-        self.app = app
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        await self.app(scope, receive, send)
-        return
+from gatey_sdk.integrations.starlette import GateyStarletteMiddleware
+from app.config import get_settings, get_gatey_client, get_logger
 
 
 def add_middlewares(app: FastAPI) -> None:
@@ -37,7 +22,25 @@ def _add_gatey_middleware(app: FastAPI) -> None:
     """
     Registers Gatey logging middleware.
     """
-    app.add_middleware(GateyMiddleware)
+
+    settings = get_settings()
+    if not settings.gatey_is_enabled or get_gatey_client() is None:
+        get_logger().info(
+            "Gatey is not enabled or client is None! Skipping adding middleware!"
+        )
+        return
+
+    async def _pre_capture_hook(*_):
+        get_logger().info("Got captured Gatey exception! Sending to Gatey client...")
+
+    app.add_middleware(
+        GateyStarletteMiddleware,
+        client=None,
+        client_getter=get_gatey_client,
+        pre_capture_hook=_pre_capture_hook,
+        capture_requests_info=settings.gatey_capture_requests_info,
+        capture_reraise_after=True,
+    )
 
 
 def _add_cors_middleware(app: FastAPI) -> None:
@@ -51,6 +54,7 @@ def _add_cors_middleware(app: FastAPI) -> None:
     """
     settings = get_settings()
     if not settings.cors_enabled:
+        get_logger().info("CORS is not enabled! Please notice that!")
         return
 
     app.add_middleware(

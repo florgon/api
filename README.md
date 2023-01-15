@@ -1,6 +1,7 @@
 # Florgon API.
 
-[![Deploy in production](https://github.com/florgon/api/actions/workflows/deploy.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy.yml) \
+[![Deploy (production)](https://github.com/florgon/api/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy-production.yml)
+[![Deploy (staging)](https://github.com/florgon/api/actions/workflows/deploy-staging.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/deploy-staging.yml) \
 [![Tests](https://github.com/florgon/api/actions/workflows/tests.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/tests.yml)
 [![CodeQL](https://github.com/florgon/api/actions/workflows/codeql.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/codeql.yml) \
 [![Linters](https://github.com/florgon/api/actions/workflows/linters.yml/badge.svg)](https://github.com/florgon/api/actions/workflows/linters.yml)
@@ -23,20 +24,20 @@ API server for Florgon services (Florgon API).
 - Email verification system.
 - VIP system (with promocodes).
 - Upload system (With upload server).
-- Blog system.
 
 ### See in action.
 
-API deployed and used in production [here](https://api.florgon.space/) (API endpoint).
+API deployed and used in production [here](https://api.florgon.space/v1) (API endpoint).
 
 ### Technologies.
 
-- Python (FastAPI, SQLAlchemy).
+- Python (FastAPI, SQLAlchemy)
 - PostgreSQL (with pgBouncer)
 - Redis (Handle requests limit)
-- Docker (with Docker-Compose),
+- Docker (with Docker-Compose)
 - Uvicorn (with Gunicorn)
 - PyTest (GitHub workflows)
+- Grafana + Prometheus (Metrics)
 
 # Docs.
 
@@ -54,3 +55,8 @@ API error codes: [`/docs/api/API_ERROR_CODES.md`](/docs/api/API_ERROR_CODES.md)
 ### Other.
 
 Integrating Florgon OAuth: [`/docs/OAUTH.md`](/docs/OAUTH.md)
+
+# Tested on...
+
+Docker engine: v20._ \
+Docker compose: v2._

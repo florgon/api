@@ -1,9 +1,9 @@
-name: Deploy in production
+name: Deploy in staging
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [dev]
     paths:
       - "src/**"
 
@@ -13,12 +13,12 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Deploy
-    environment: Production
+    name: Deploy in staging
+    environment: Staging
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Deploy on production server
+      - name: Deploy on staging server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_SSH_HOST }}
@@ -27,7 +27,4 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_SECRET }}
           port: ${{ secrets.DEPLOY_SSH_PORT }}
           script: |
-            cd /srv/api/api
-            git pull
-            cd src
-            docker-compose up -d --build
+            bash /srv/florgon/scripts/deploy/apis/api/staging.sh

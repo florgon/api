@@ -2,12 +2,10 @@
     User database model.
 """
 
-# Core model base.
 from app.database.core import Base
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
-
-# ORM.
 from sqlalchemy.sql import func
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class User(Base):
@@ -48,6 +46,7 @@ class User(Base):
     # Security.
     security_tfa_enabled = Column(Boolean, nullable=False, default=False)
     security_tfa_secret_key = Column(String, nullable=True, default=None)
+    security_hash_method = Column(Integer, default=0, nullable=False)
 
     # Public profile.
     profile_bio = Column(Text, nullable=True)
@@ -75,3 +74,16 @@ class User(Base):
         if self.first_name:
             return f"{self.first_name}"
         return f"@{self.username}"
+
+    @hybrid_property
+    def full_name(self) -> str:
+        """
+        Returns fullname based on first and last name as property.
+        """
+        if self.first_name is not None:
+            if self.last_name is not None:
+                return f"{self.first_name} {self.last_name}"
+            return self.first_name
+        if self.last_name is not None:
+            return f"{self.last_name}"
+        return ""

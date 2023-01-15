@@ -22,7 +22,7 @@ class ExternalOAuthService:
     code_resolver_provider_url = ""
     code_resolver_http_method: Literal["GET", "POST"] = "GET"
 
-    def __init__(self, client_id: str, client_secret: str, client_redirect_uri: str):
+    def __init__(self, client_id: int, client_secret: str, client_redirect_uri: str):
         """
         :param client_id: OAuth client ID.
         :param client_secret: OAuth client secret.
@@ -40,15 +40,28 @@ class ExternalOAuthService:
         authorize_url_params = self._build_authorize_url_params()
         return f"{self.oauth_screen_provider_url}?{authorize_url_params}&scope="
 
-    def resolve_code_to_token(self, code: str) -> str | None:
+    def resolve_code(self, code: str) -> dict | None:
         """
-        Resolves code (OAuth) to token (access) by sending requests to auth server.
+        Resolves code (OAuth) to response by sending requests to auth server.
         """
         resolve_response = self._request_code_resolver(code=code)
-        token = resolve_response.json().get("token")
-        if not isinstance(token, str):
+
+        # Try to process resolver response as JSON.
+        try:
+            resolve_response_json = resolve_response.json()
+        except requests.exceptions.JSONDecodeError:
             return None
-        return str(token)
+
+        return resolve_response_json
+
+    def resolve_code_to_user_id(self, code: str) -> int | None:
+        """
+        Returns user id from oauth code by resolving code response.
+        """
+        resolve_response = self.resolve_code(code=code)
+        if resolve_response is None:
+            return None
+        return resolve_response.get("user_id")
 
     def get_resolve_code_url(self, code: str) -> str:
         """

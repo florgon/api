@@ -1,5 +1,5 @@
-db
-cache
+/db
+/cache
 *.pyc
 .idea
 .vscode

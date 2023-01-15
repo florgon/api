@@ -1,0 +1,7 @@
+# Florgon API server requirements.
+
+# Inheritance.
+-r requirements.txt
+
+# Web framework (FastAPI).
+prometheus-fastapi-instrumentator==5.9.1

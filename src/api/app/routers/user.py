@@ -3,7 +3,10 @@
     Provides API methods (routes) for working with user account.
 """
 
-from app.database import crud
+import pydantic
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
+from app.services.cache import JSONResponseCoder, authenticated_cache_key_builder
 from app.database.dependencies import Session, get_db
 from app.serializers.user import serialize_user
 from app.services.api.errors import ApiErrorCode
@@ -11,9 +14,13 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import (
-    query_auth_data_from_request,
     try_query_auth_data_from_request,
+    AuthDataDependency,
+    AuthData,
 )
+
+from app.database.repositories.users import UsersRepository
+from app.database.dependencies import get_repository
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -21,21 +28,24 @@ router = APIRouter()
 
 
 @router.get("/user.getInfo")
+@cache(
+    expire=60,
+    coder=JSONResponseCoder,
+    key_builder=authenticated_cache_key_builder,
+    namespace="routers_user_info_getter",
+)
 async def method_user_get_info(
-    req: Request, db: Session = Depends(get_db)
+    auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
     """Returns user account information."""
-    auth_data = query_auth_data_from_request(req, db)
     email_allowed = Permission.email in auth_data.permissions
     return api_success(
         serialize_user(
-            auth_data.user,
-            **{
-                "include_email": email_allowed,
-                "include_optional_fields": True,
-                "include_private_fields": True,
-                "include_profile_fields": True,
-            },
+            user=auth_data.user,
+            include_email=email_allowed,
+            include_optional_fields=True,
+            include_private_fields=True,
+            include_profile_fields=True,
         )
     )
 
@@ -47,7 +57,7 @@ async def method_user_get_profile_info(
     req: Request,
     user_id: int | None = None,
     username: str | None = None,
-    db: Session = Depends(get_db),
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """Returns user account profile information."""
     profile_user = None
@@ -62,9 +72,9 @@ async def method_user_get_profile_info(
         )
 
     if user_id is not None:
-        profile_user = crud.user.get_by_id(db, user_id)
+        profile_user = user_repo.get_user_by_id(user_id)
     elif username is not None:
-        profile_user = crud.user.get_by_username(db, username)
+        profile_user = user_repo.get_user_by_username(username)
 
     # User.
     if not profile_user:
@@ -79,7 +89,7 @@ async def method_user_get_profile_info(
     if not profile_user.privacy_profile_public or not profile_user.is_active:
         # If not public, or deactivated (check for admin).
         is_authenticated, auth_data = try_query_auth_data_from_request(
-            req, db, allow_external_clients=True
+            req, user_repo.db, allow_external_clients=True
         )
         if is_authenticated:
             is_owner = auth_data.user.id == profile_user.id
@@ -118,100 +128,50 @@ async def method_user_get_profile_info(
     )
 
 
-@router.get("/user.getCounters")
-async def method_user_get_counter(
-    req: Request, db: Session = Depends(get_db)
-) -> JSONResponse:
-    """Returns user account counters (Count of different items, like for badges)."""
-    auth_data = query_auth_data_from_request(req, db)
-    return api_success(
-        {
-            "oauth_clients": crud.oauth_client.get_count_by_owner_id(
-                db, auth_data.user.id
-            )
-        }
-    )
-
-
 @router.get("/user.setInfo")
 async def method_user_set_info(
     req: Request,
-    first_name: str | None = None,
-    last_name: str | None = None,
-    sex: bool | None = None,
-    avatar_url: str | None = None,
-    privacy_profile_public: bool | None = None,
-    privacy_profile_require_auth: bool | None = None,
-    profile_bio: str | None = None,
-    profile_website: str | None = None,
-    profile_social_username_gh: str | None = None,
-    profile_social_username_vk: str | None = None,
-    profile_social_username_tg: str | None = None,
+    auth_data: AuthData = Depends(
+        AuthDataDependency(required_permissions=[Permission.edit])
+    ),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Updates user account information."""
 
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.edit]
-    )
     user = auth_data.user
 
-    # Notice:
-    # IK this is trash,
-    # but this is temporary solution,
-    # and will be rewritten later.
+    new_fields = {
+        k: v
+        for k, v in req.query_params.items()
+        if v is not None and getattr(user, k, None) != v
+    }
+
     is_updated = False
-    if first_name is not None and first_name != user.first_name:
-        user.first_name = first_name
-        is_updated = True
-    if last_name is not None and last_name != user.last_name:
-        user.last_name = last_name
-        is_updated = True
-    if sex is not None and sex != user.sex:
-        user.sex = sex
-        is_updated = True
-    if avatar_url is not None and avatar_url != user.avatar:
-        user.avatar = avatar_url
-        is_updated = True
-    if (
-        privacy_profile_public is not None
-        and privacy_profile_public != user.privacy_profile_public
-    ):
-        user.privacy_profile_public = privacy_profile_public
-        is_updated = True
-    if (
-        privacy_profile_require_auth is not None
-        and privacy_profile_require_auth != user.privacy_profile_require_auth
-    ):
-        user.privacy_profile_require_auth = privacy_profile_require_auth
-        is_updated = True
-    if profile_bio is not None and profile_bio != user.profile_bio:
-        user.profile_bio = profile_bio
-        is_updated = True
-    if profile_website is not None and profile_website != user.profile_website:
-        user.profile_website = profile_website
-        is_updated = True
-    if (
-        profile_social_username_gh is not None
-        and profile_social_username_gh != user.profile_social_username_gh
-    ):
-        user.profile_social_username_gh = profile_social_username_gh
-        is_updated = True
-    if (
-        profile_social_username_vk is not None
-        and profile_social_username_vk != user.profile_social_username_vk
-    ):
-        user.profile_social_username_vk = profile_social_username_vk
-        is_updated = True
-    if (
-        profile_social_username_tg is not None
-        and profile_social_username_tg != user.profile_social_username_tg
-    ):
-        user.profile_social_username_tg = profile_social_username_tg
+    for name, value in new_fields.items():
+        if name in ["first_name", "last_name"]:
+            if len(value) < 1 or len(value) > 20:
+                return api_error(
+                    ApiErrorCode.API_INVALID_REQUEST,
+                    f"{name.replace('_', ' ').capitalize()} should be longer than 1 and shorter than 20!",
+                )
+
+        if name == "profile_bio":
+            if len(value) < 1 or len(value) > 250:
+                return api_error(
+                    ApiErrorCode.API_INVALID_REQUEST,
+                    "Profile bio should be longer than 1 and shorter than 250!",
+                )
+
+        if name in ["sex", "privacy_profile_public", "privacy_profile_require_auth"]:
+            setattr(user, name, pydantic.parse_obj_as(bool, value))
+        else:
+            setattr(user, name, value)
+
         is_updated = True
 
     if is_updated:
         db.commit()
+        FastAPICache.clear("routers_user_info_getter")
 
     return api_success(
         {

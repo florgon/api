@@ -6,7 +6,11 @@
 
 from typing import Type
 from datetime import datetime
+from fastapi import Depends
+from fastapi.requests import Request
+from sqlalchemy.orm import Session
 
+from app.database.dependencies import get_db
 from app.database import crud
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
@@ -14,8 +18,33 @@ from app.services.permissions import Permission, parse_permissions_from_scope
 from app.services.request.auth_data import AuthData
 from app.services.request.session_check_client import session_check_client_by_request
 from app.tokens import AccessToken, BaseToken, SessionToken
-from fastapi.requests import Request
-from sqlalchemy.orm import Session
+from app.config import get_logger
+
+
+class AuthDataDependency:
+    """
+    FastAPI dependency to query auth data.
+    """
+
+    def __init__(
+        self,
+        *,
+        only_session_token: bool = False,
+        required_permissions: list[Permission] | None = None,
+        allow_deactivated: bool = False,
+        allow_external_clients: bool = False,
+        trigger_online_update: bool = True,
+    ):
+        self.kwargs = {
+            "only_session_token": only_session_token,
+            "required_permissions": required_permissions,
+            "allow_deactivated": allow_deactivated,
+            "allow_external_clients": allow_external_clients,
+            "trigger_online_update": trigger_online_update,
+        }
+
+    def __call__(self, req: Request, db: Session = Depends(get_db)):
+        return query_auth_data_from_request(req=req, db=db, **self.kwargs)
 
 
 def query_auth_data_from_token(
@@ -80,7 +109,7 @@ def query_auth_data_from_request(
     """
 
     # Get token from request and query data from it as external token.
-    token = _get_token_from_request(req, only_session_token)
+    token = get_token_from_request(req, only_session_token)
     return query_auth_data_from_token(
         token,
         db,
@@ -127,7 +156,7 @@ def try_query_auth_data_from_request(
         return False, None
 
 
-def _get_token_from_request(req: Request, only_session_token: bool) -> str:
+def get_token_from_request(req: Request, only_session_token: bool) -> str:
     """
     Returns token from request.
     :param req: Request itself.
@@ -333,6 +362,7 @@ def _raise_integrity_check_error():
     """
     Raises authentication system integrity check error.
     """
+    get_logger().info("Got catched authentication system integrity check failure!")
     raise ApiErrorException(
         ApiErrorCode.AUTH_INVALID_TOKEN,
         "Authentication system integrity check failed!",

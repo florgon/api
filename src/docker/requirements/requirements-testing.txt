@@ -1,0 +1,8 @@
+# Florgon API server requirements.
+
+# Inheritance.
+-r requirements.txt
+
+# CI/CD, Testing.
+pytest==7.2.0  # Unit tests.
+pytest-cov==4.0.0  # Tests coverage.
