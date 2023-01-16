@@ -20,6 +20,9 @@ sqlalchemy==1.4.45  # ORM.
 psycopg2-binary==2.9.5  # SQL Engine (PostgreSQL engine core).
 aioredis==2.0.1  # Async Redis engine.
 
+# Database migrations.
+alembic==1.9.2 
+
 # Some utils libraries.
 validate_email==1.3  # Used for sign-up process.
 
