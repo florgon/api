@@ -1,6 +1,7 @@
 """
     Database core. Contains engine, ORM related stuff.
 """
+from pathlib import Path
 
 # Settings.
 from app.config import Settings
@@ -11,6 +12,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.exc import IntegrityError
+from alembic.command import upgrade
+from alembic.config import Config
+
+
 
 # Database engine.
 settings = Settings()
@@ -33,9 +38,12 @@ Base = declarative_base(metadata=metadata)
 
 
 def create_all():
-    """Creates all database metadata."""
-    try:
-        metadata.create_all(bind=engine)
-    except IntegrityError:
-        # TODO: Add logging? (should be there is any circular import?)
-        pass
+    """Creates all database metadata by running migrations."""
+    root_dir = Path().resolve()
+    migrations_dir = root_dir / "migrations"
+    config_file = root_dir / "alembic.ini"
+
+    config = Config(file_=config_file)
+    config.set_main_option("script_location", str(migrations_dir))
+
+    upgrade(config, "head")
