@@ -17,6 +17,3 @@ RUN pip install --upgrade --no-cache-dir -r requirements-production.txt
 
 # Copy whole project.
 COPY . /srv/www/florgon/api/
-
-# Run project.
-CMD ["gunicorn", "app.app:app", "-c", "gunicorn.conf.py"]
