@@ -50,7 +50,9 @@ services:
     restart: always
     env_file:
       - ./docker/configs/.server.env
-    build: .
+    build:
+      context: ./
+      dockerfile: $PWD/docker/Dockerfile
     command: celery --app=app.worker.worker worker --loglevel=info -B -s /srv/www/florgon/worker/celerybeat-schedule
     volumes:
       - ../worker:/srv/www/florgon/worker
@@ -86,6 +88,7 @@ services:
       context: ./
       dockerfile: $PWD/docker/Production.Dockerfile
     command: gunicorn app.app:app -c gunicorn.conf.py
+
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped
