@@ -13,7 +13,7 @@ from app.database.dependencies import get_db, Session
 from app.email.messages import send_custom_email
 from app.services.user_query_filter import query_users_by_filter_query
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 def send_emails_for_recepients(

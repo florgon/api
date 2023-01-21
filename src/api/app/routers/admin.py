@@ -20,7 +20,7 @@ from app.serializers.user import serialize_users, serialize_user
 from app.services.user_query_filter import query_users_by_filter_query
 from app.database.models.user import User
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 async def validate_admin_method_allowed(req: Request, db: Session) -> None:

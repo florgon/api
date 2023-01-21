@@ -32,7 +32,7 @@ from app.services.validators.user import (
 from app.services.session import publish_new_session_with_token
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 @router.get("/_session._getUserInfo")

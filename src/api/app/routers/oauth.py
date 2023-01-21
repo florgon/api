@@ -120,7 +120,7 @@ async def method_oauth_access_token_get(
     )
 
 
-@router.get("/_oauth._allowClient")
+@router.get("/_oauth._allowClient", include_in_schema=False)
 async def method_oauth_allow_client(
     req: Request,
     client_id: int,

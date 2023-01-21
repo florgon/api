@@ -16,7 +16,7 @@ from app.database.repositories import GiftsRepository
 from app.database.dependencies import get_repository
 from app.services.request.auth import AuthDataDependency
 
-router = APIRouter()
+router = APIRouter(tags=["gift"])
 
 
 def _query_gift(gifts_repo: GiftsRepository, promocode: str) -> Gift:
@@ -73,7 +73,10 @@ def _query_and_accept_gift(
     _apply_gift(gifts_repo.db, gift, acceptor)
 
 
-@router.get("/gift.accept", dependencies=[Depends(RateLimiter(times=10, minutes=5))])
+@router.get(
+    "/gift.accept",
+    dependencies=[Depends(RateLimiter(times=10, minutes=5))],
+)
 async def method_gift_accept(
     auth_data=Depends(AuthDataDependency()),
     gifts_repo=Depends(get_repository(GiftsRepository)),

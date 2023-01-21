@@ -13,7 +13,7 @@ from app.services.ext_oauth.github_provider import GithubOauthService
 from app.services.ext_oauth.vk_provider import VkOauthService
 from app.services.ext_oauth.yandex_provider import YandexOauthService
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 def _build_vk_oauth_service(vk_oauth_display: str | None = None) -> VkOauthService:

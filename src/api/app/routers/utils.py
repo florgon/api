@@ -9,7 +9,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from app.services.api.response import api_success
 
-router = APIRouter()
+router = APIRouter(tags=["utils"])
 
 
 @router.get("/utils.getServerTime")

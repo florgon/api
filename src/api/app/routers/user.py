@@ -24,7 +24,7 @@ from app.database.dependencies import get_repository
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-router = APIRouter()
+router = APIRouter(tags=["user"])
 
 
 @router.get("/user.getInfo")

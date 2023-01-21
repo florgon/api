@@ -20,7 +20,7 @@ from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
 
 
-router = APIRouter()
+router = APIRouter(tags=["oauthClient"])
 
 
 def _query_oauth_client_with_owner(

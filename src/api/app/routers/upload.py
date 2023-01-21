@@ -14,7 +14,7 @@ from app.services.request import query_auth_data_from_request
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
-router = APIRouter()
+router = APIRouter(tags=["upload"], deprecated=True)
 
 
 @router.get("/upload.getPhotoUploadServer")

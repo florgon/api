@@ -17,7 +17,7 @@ from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_ot
 from app.services.limiter.depends import RateLimiter
 from app.database import crud
 
-router = APIRouter()
+router = APIRouter(tags=["security"], include_in_schema=False)
 
 
 @router.get("/security.getInfo")

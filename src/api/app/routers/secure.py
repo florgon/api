@@ -46,7 +46,7 @@ async def method_secure_check_access_token(
     )
 
 
-@router.get("/secure.checkRefreshToken")
+@router.get("/secure.checkRefreshToken", deprecated=True)
 async def method_secure_check_refresh_token() -> JSONResponse:
     """
     Returns information about refresh (only) token.
@@ -57,7 +57,7 @@ async def method_secure_check_refresh_token() -> JSONResponse:
     )
 
 
-@router.get("/secure.checkSessionToken")
+@router.get("/secure.checkSessionToken", deprecated=True)
 async def method_secure_check_session_token() -> JSONResponse:
     """
     Returns information about session (only) token.

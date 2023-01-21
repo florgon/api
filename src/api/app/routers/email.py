@@ -24,7 +24,7 @@ from app.tokens.exceptions import (
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.responses import JSONResponse
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 # TODO: Allow specify URL for email confirmation.
