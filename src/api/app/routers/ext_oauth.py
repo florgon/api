@@ -6,8 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.config import get_settings
-from app.database import crud
-from app.services.api.errors import ApiErrorCode
+from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.ext_oauth.github_provider import GithubOauthService
 from app.services.ext_oauth.vk_provider import VkOauthService
@@ -23,7 +22,7 @@ def _build_vk_oauth_service(vk_oauth_display: str | None = None) -> VkOauthServi
     settings = get_settings()
 
     if not settings.auth_ext_oauth_vk_enabled:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN,
             "VK OAuth currently disabled by server administrators.",
         )
@@ -43,7 +42,7 @@ def _build_yandex_oauth_service() -> YandexOauthService:
     settings = get_settings()
 
     if not settings.auth_ext_oauth_yandex_enabled:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN,
             "Yandex OAuth currently disabled by server administrators.",
         )
@@ -64,7 +63,7 @@ def _build_github_oauth_service() -> GithubOauthService:
     settings = get_settings()
 
     if not settings.auth_ext_oauth_github_enabled:
-        return api_error(
+        raise ApiErrorException(
             ApiErrorCode.API_FORBIDDEN,
             "GitHub OAuth currently disabled by server administrators.",
         )
