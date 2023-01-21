@@ -25,7 +25,7 @@ from app.tokens import AccessToken, OAuthCode
 from app.oauth_grants import resolve_grant
 
 
-router = APIRouter()
+router = APIRouter(tags=["oauth"])
 
 
 def _query_oauth_client(db: Session, client_id: int) -> OAuthClient:

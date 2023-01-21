@@ -14,7 +14,7 @@ def get_hashed_password(password: str, *, hash_method: int | None = 0) -> str:
     if not isinstance(password, str):
         raise TypeError("Password must be a string!")
 
-    if hash_method == 0:
+    if hash_method == 0 or hash_method is None:
         return _hash_method_hash_0_sha256(password)
     return _hash_method_hash_1_scrypt(password, do_verification=True)
 
@@ -26,7 +26,7 @@ def check_password(
     if not isinstance(password, str) or not isinstance(hashed_password, str):
         raise TypeError("Passwords must be a string!")
 
-    if hash_method == 0:
+    if hash_method == 0 or hash_method is None:
         return _hash_method_verify_0_sha256(password, hashed_password)
     return _hash_method_verify_1_scrypt(password, hashed_password)
 
@@ -58,12 +58,12 @@ def _hash_method_hash_1_scrypt(password: str, do_verification: bool = True) -> s
             password, _generate_encoded_urandom_salt()
         )
 
-        if not check_password(password, hashed_password):
-            raise HashingError(
-                "Failed to hash password, due to reaching limit for re-hashing and can`t get valid hash for the given password!"
-            )
+        if check_password(password, hashed_password):
+            return hashed_password
 
-        return hashed_password
+    raise HashingError(
+        "Failed to hash password, due to reaching limit for re-hashing and can`t get valid hash for the given password!"
+    )
 
 
 def _hash_method_verify_1_scrypt(password: str, hashed_password: str):

@@ -14,7 +14,7 @@ from app.services.request.auth import (
 )
 
 
-router = APIRouter()
+router = APIRouter(tags=["secure"])
 
 
 @router.get("/secure.checkAccessToken")

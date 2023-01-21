@@ -53,10 +53,13 @@ def _construct_app() -> FastAPI:
         title=settings.openapi_title,
         version=settings.openapi_version,
         description=settings.openapi_description,
-        openapi_prefix=settings.openapi_prefix,
-        openapi_url=settings.openapi_url if settings.openapi_enabled else None,
         docs_url=settings.openapi_docs_url if settings.openapi_enabled else None,
         redoc_url=settings.openapi_redoc_url if settings.openapi_enabled else None,
+        openapi_prefix=settings.openapi_prefix,
+        openapi_url=settings.openapi_url if settings.openapi_enabled else None,
+        openapi_tags=[
+            {"name": "security", "description": "Requires `security` permission!"},
+        ]
         # Other.
         root_path=settings.fastapi_root_path,
         root_path_in_servers=True,
