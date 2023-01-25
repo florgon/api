@@ -64,7 +64,7 @@ def _construct_app() -> FastAPI:
 
     # Initializing database connection and all ORM stuff.
     if settings.database_create_all:
-        database.core.create_all()
+        database.core.create_all(use_sqlalchemy_metadata=settings.database_create_all_use_metadata)
         create_start_database_entries()
 
     # Register all internal stuff as routers/handlers/middlewares etc.

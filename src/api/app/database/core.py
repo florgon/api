@@ -16,7 +16,6 @@ from alembic.command import upgrade
 from alembic.config import Config
 
 
-
 # Database engine.
 settings = Settings()
 engine = create_engine(
@@ -37,13 +36,23 @@ SessionLocal = sessionmaker(
 Base = declarative_base(metadata=metadata)
 
 
-def create_all():
-    """Creates all database metadata by running migrations."""
-    root_dir = Path().resolve()
-    migrations_dir = root_dir / "migrations"
-    config_file = root_dir / "alembic.ini"
+def create_all(use_sqlalchemy_metadata: bool = False):
+    """
+    Creates all database metadata by running migrations.
+    :param bool use_sqlalchemy_metadata: if True, uses metadata.create_all function instead of migrations 
+    """
+    if use_sqlalchemy_metadata:
+        try:
+            metadata.create_all(bind=engine)
+        except IntegrityError:
+            # TODO: Add logging? (should be there is any circular import?)
+            pass
+    else:
+        root_dir = Path().resolve()
+        migrations_dir = root_dir / "migrations"
+        config_file = root_dir / "alembic.ini"
 
-    config = Config(file_=config_file)
-    config.set_main_option("script_location", str(migrations_dir))
+        config = Config(file_=config_file)
+        config.set_main_option("script_location", str(migrations_dir))
 
-    upgrade(config, "head")
+        upgrade(config, "head")
