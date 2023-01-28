@@ -141,7 +141,7 @@ async def method_session_list(
     db: Session = Depends(get_db),
     auth_data: AuthData = Depends(
         AuthDataDependency(
-            only_session_token=False, required_permissions=[Permission.sessions]
+            only_session_token=False, required_permissions={Permission.sessions}
         )
     ),
 ) -> JSONResponse:

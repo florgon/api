@@ -33,7 +33,7 @@ async def validate_admin_method_allowed(req: Request, db: Session) -> None:
         )
 
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.admin]
+        req, db, required_permissions={Permission.admin}
     )
     if not auth_data.user.is_admin:
         raise ApiErrorException(

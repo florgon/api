@@ -30,7 +30,7 @@ class TokensPair:
     """Refresh + Access encoded tokens pair."""
 
     access_ttl: float | int
-    access_permissions: list[Permission]
+    access_permissions: set[Permission]
     access_token: str
     refresh_token: str
 
