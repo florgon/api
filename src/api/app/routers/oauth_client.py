@@ -46,7 +46,7 @@ async def method_oauth_client_new(
 ) -> JSONResponse:
     """Creates new OAuth client"""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
     if not auth_data.user.is_verified:
         return api_error(
@@ -67,7 +67,7 @@ async def method_oauth_client_list(
 ) -> JSONResponse:
     """Returns list of user owned OAuth clients."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
     oauth_clients = crud.oauth_client.get_by_owner_id(db=db, owner_id=auth_data.user.id)
     return api_success(
@@ -102,7 +102,7 @@ async def method_oauth_client_expire_secret(
 ) -> JSONResponse:
     """OAUTH API endpoint for expiring client secret."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
 
     oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
@@ -117,7 +117,7 @@ async def method_oauth_client_update(
 ) -> JSONResponse:
     """OAUTH API endpoint for updating client information."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
     # Query OAuth client.
     oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
@@ -151,7 +151,7 @@ async def method_oauth_client_stats(
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client usage data."""
     user_id = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     ).user.id
     oauth_client = _query_oauth_client_with_owner(db, client_id, user_id)
 

@@ -14,14 +14,14 @@ class AuthData:
     user: User
     token: BaseToken
     session: UserSession
-    permissions: list[Permission] | None
+    permissions: set[Permission] | None
 
     def __init__(
         self,
         token: BaseToken,
         session: UserSession,
         user: User | None = None,
-        permissions: list[Permission] | None = None,
+        permissions: set[Permission] | None = None,
     ) -> None:
         """
         :param user: User database model object.
@@ -33,8 +33,11 @@ class AuthData:
         self.session = session
 
         # Parse permission once.
-        self.permissions = (
-            permissions
-            if permissions is not None
-            else parse_permissions_from_scope(token.get_scope())
+        self.permissions = permissions or parse_permissions_from_scope(
+            token.get_scope()
         )
+
+        if not isinstance(self.permissions, set):
+            raise TypeError(
+                "Permissions for AuthData should be set of the permissions!"
+            )

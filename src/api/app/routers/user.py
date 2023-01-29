@@ -132,7 +132,7 @@ async def method_user_get_profile_info(
 async def method_user_set_info(
     req: Request,
     auth_data: AuthData = Depends(
-        AuthDataDependency(required_permissions=[Permission.edit])
+        AuthDataDependency(required_permissions={Permission.edit})
     ),
     db: Session = Depends(get_db),
 ) -> JSONResponse:

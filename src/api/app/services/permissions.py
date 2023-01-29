@@ -4,6 +4,7 @@
     Read more at docs: https://florgon.space/dev/apis/auth
 """
 from enum import Enum
+from typing import Iterable
 
 
 class Permission(Enum):
@@ -46,7 +47,7 @@ def __scope_to_permission_code(scope: str):
     )
 
 
-def __parse_permissions_from_code(code: str) -> list[Permission]:
+def __parse_permissions_from_code(code: str) -> set[Permission]:
     """
     TBD. Not documented and not used.
     """
@@ -58,7 +59,7 @@ def __parse_permissions_from_code(code: str) -> list[Permission]:
             continue
         code_bit_permission = __CODE_PERMISSIONS_ORDER[code_bit_index]
         permissions.append(code_bit_permission)
-    return permissions
+    return set(permissions)
 
 
 def normalize_scope(scope: str) -> str:
@@ -72,7 +73,7 @@ def normalize_scope(scope: str) -> str:
     )
 
 
-def parse_permissions_from_scope(scope: str) -> list[Permission]:
+def parse_permissions_from_scope(scope: str) -> set[Permission]:
     """
     Returns list of permissions from scope, by parsing it.
     """
@@ -80,16 +81,14 @@ def parse_permissions_from_scope(scope: str) -> list[Permission]:
         raise TypeError("Scope must be a string!")
     if SCOPE_PERMISSION_GRANT_ALL_TAG in scope:
         return SCOPE_ALL_PERMISSIONS
-    return list(
-        {
-            Permission(permission)
-            for permission in scope.split(SCOPE_PERMISSION_SEPARATOR)
-            if (permission and permission in SCOPE_ALLOWED_PERMISSIONS)
-        }
-    )
+    return {
+        Permission(permission)
+        for permission in scope.split(SCOPE_PERMISSION_SEPARATOR)
+        if (permission and permission in SCOPE_ALLOWED_PERMISSIONS)
+    }
 
 
-def permissions_get_ttl(permissions: list[Permission], default_ttl: int) -> int:
+def permissions_get_ttl(permissions: set[Permission], default_ttl: int) -> int:
     """
     Returns TTL for token, based on given permissions list.
     """

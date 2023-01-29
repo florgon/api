@@ -26,7 +26,7 @@ async def method_security_get_info(
 ) -> JSONResponse:
     """Returns security information about current user."""
     user = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
+        req, db, required_permissions={Permission.security}
     ).user
     return api_success(
         {
@@ -46,7 +46,7 @@ async def method_security_user_enable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Enables TFA for the current user."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
+    query_auth_data_from_request(req, db, required_permissions={Permission.security})
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (2FA not implemented).",
@@ -58,7 +58,7 @@ async def method_security_user_disable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Disables TFA for the current user."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
+    query_auth_data_from_request(req, db, required_permissions={Permission.security})
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (2FA not implemented).",
@@ -75,7 +75,7 @@ async def method_security_user_password_change_request_tfa_otp(
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
     user = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
+        req, db, required_permissions={Permission.security}
     ).user
     current_password = req.query_params.get("current_password")
     new_password = req.query_params.get("new_password")
@@ -135,7 +135,7 @@ async def method_security_user_change_password(
 ) -> JSONResponse:
     """Requests change password for the current user."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
+        req, db, required_permissions={Permission.security}
     )
     user = auth_data.user
     current_password = req.query_params.get("current_password")
