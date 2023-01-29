@@ -222,8 +222,9 @@ def get_gatey_client() -> gatey_sdk.Client:
 
 
 # Static objects.
+# (Order should be same like now!)
 _settings = Settings()
-_gatey = _init_gatey_client(_settings)
 _logger = logging.getLogger(
     _settings.logging_logger_name if _settings.logging_logger_name else __name__
 )
+_gatey = _init_gatey_client(_settings)
