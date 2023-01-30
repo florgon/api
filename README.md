@@ -37,7 +37,9 @@ API deployed and used in production [here](https://api.florgon.space/v1) (API en
 - Docker (with Docker-Compose)
 - Uvicorn (with Gunicorn)
 - PyTest (GitHub workflows)
+- Celery (With Redis broker and backend)
 - Grafana + Prometheus (Metrics)
+- Alembic (TBD)
 
 # Docs.
 
