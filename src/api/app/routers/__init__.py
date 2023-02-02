@@ -14,7 +14,6 @@ from . import (
     secure,
     security,
     session,
-    upload,
     user,
     utils,
     mailings,
@@ -37,7 +36,6 @@ def include_routers(app: FastAPI) -> None:
         ext_oauth,
         admin,
         security,
-        upload,
         gift,
         mailings,
     ]:

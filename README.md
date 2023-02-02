@@ -23,7 +23,6 @@ API server for Florgon services (Florgon API).
 - Administrators stuff.
 - Email verification system.
 - VIP system (with promocodes).
-- Upload system (With upload server).
 
 ### See in action.
 
