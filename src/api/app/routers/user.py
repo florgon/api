@@ -13,6 +13,7 @@ from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
+from app.services.orm import edit_orm_instance_fields
 from app.services.request import (
     try_query_auth_data_from_request,
     AuthDataDependency,
@@ -130,44 +131,46 @@ async def method_user_get_profile_info(
 
 @router.get("/user.setInfo")
 async def method_user_set_info(
-    req: Request,
     auth_data: AuthData = Depends(
         AuthDataDependency(required_permissions={Permission.edit})
     ),
+    first_name: str | None = None,
+    last_name: str | None = None,
+    sex: bool | None = None,
+    privacy_profile_public: bool | None = None,
+    privacy_profile_require_auth: bool | None = None,
+    profile_bio: str | None = None,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Updates user account information."""
 
     user = auth_data.user
 
-    new_fields = {
-        k: v
-        for k, v in req.query_params.items()
-        if v is not None and getattr(user, k, None) != v
-    }
+    for value in (first_name, last_name):
+        if value and (len(value) < 1 or len(value) > 20):
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                f"First/last name should be longer than 1 and shorter than 20!",
+            )
 
-    is_updated = False
-    for name, value in new_fields.items():
-        if name in ["first_name", "last_name"]:
-            if len(value) < 1 or len(value) > 20:
-                return api_error(
-                    ApiErrorCode.API_INVALID_REQUEST,
-                    f"{name.replace('_', ' ').capitalize()} should be longer than 1 and shorter than 20!",
-                )
+    if profile_bio:
+        if len(profile_bio) < 1 or len(profile_bio) > 250:
+            return api_error(
+                ApiErrorCode.API_INVALID_REQUEST,
+                "Profile bio should be longer than 1 and shorter than 250!",
+            )
 
-        if name == "profile_bio":
-            if len(value) < 1 or len(value) > 250:
-                return api_error(
-                    ApiErrorCode.API_INVALID_REQUEST,
-                    "Profile bio should be longer than 1 and shorter than 250!",
-                )
-
-        if name in ["sex", "privacy_profile_public", "privacy_profile_require_auth"]:
-            setattr(user, name, pydantic.parse_obj_as(bool, value))
-        else:
-            setattr(user, name, value)
-
-        is_updated = True
+    is_updated = edit_orm_instance_fields(
+        user,
+        {
+            "first_name": first_name,
+            "last_name": last_name,
+            "sex": sex,
+            "profile_bio": privacy_profile_public,
+            "privacy_profile_require_auth": privacy_profile_require_auth,
+        },
+        allow_undefined=False,
+    )
 
     if is_updated:
         db.commit()

@@ -16,6 +16,7 @@ from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
+from app.services.orm import edit_orm_instance_fields
 
 from app.services.request import query_auth_data_from_request
 
@@ -123,16 +124,14 @@ async def method_oauth_client_update(
     oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
 
     # Updating.
-    is_updated = False
-    display_name = req.query_params.get("display_name")
-    display_avatar_url = req.query_params.get("display_avatar_url")
-    if display_name and display_name != oauth_client.display_name:
-        oauth_client.display_name = display_name
-        is_updated = True
-    if display_avatar_url and display_avatar_url != oauth_client.display_avatar:
-        oauth_client.display_avatar = display_avatar_url
-        is_updated = True
-
+    is_updated = edit_orm_instance_fields(
+        oauth_client,
+        {
+            "display_avatar": req.query_params.get("display_avatar_url"),
+            "display_name": req.query_params.get("display_name"),
+        },
+        allow_undefined=False,
+    )
     if is_updated:
         db.commit()
         FastAPICache.clear("routers_oauth_clients_getter")
