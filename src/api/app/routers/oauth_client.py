@@ -96,9 +96,7 @@ async def method_oauth_client_get_linked(
                         client_user.oauth_client, display_secret=False
                     ),
                     **{
-                        "requested_scope": time.mktime(
-                            client_user.requested_scope.timetuple()
-                        ),
+                        "requested_scope": client_user.requested_scope,
                         "requested_at": time.mktime(
                             client_user.time_created.timetuple()
                         ),
