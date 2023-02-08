@@ -102,7 +102,9 @@ async def method_oauth_client_get_linked(
                         ),
                         "request_updated_at": time.mktime(
                             client_user.time_updated.timetuple()
-                        ),
+                        )
+                        if client_user.time_updated
+                        else None,
                     },
                 }
                 for client_user in oauth_client_users
