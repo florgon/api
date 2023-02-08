@@ -147,6 +147,7 @@ async def method_oauth_allow_client(
 
     user, session = auth_data.user, auth_data.session
 
+    response = None
     if response_type == "code":
         # Authorization code flow.
         # Gives code, that required to be decoded using OAuth resolve method at server-side using client secret value.
@@ -175,17 +176,12 @@ async def method_oauth_allow_client(
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
 
-        # Log statistics.
-        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
-
-        return api_success(
-            {
-                # Stores URL where to redirect, after allowing specified client,
-                # Client should be redirected here, to finish OAuth flow.
-                "redirect_to": redirect_to,
-                "code": code,
-            }
-        )
+        response = {
+            # Stores URL where to redirect, after allowing specified client,
+            # Client should be redirected here, to finish OAuth flow.
+            "redirect_to": redirect_to,
+            "code": code,
+        }
 
     if response_type == "token":
         # Implicit authorization flow.
@@ -223,20 +219,48 @@ async def method_oauth_allow_client(
             f"&expires_in={access_token_ttl}{redirect_to_email_param}"
         )
 
-        # Log statistics.
-        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
+        response = {
+            # Stores URL where to redirect, after allowing specified client,
+            # Client should be redirected here, to finish OAuth flow.
+            "redirect_to": redirect_to,
+            "access_token": access_token,
+        }
 
-        return api_success(
-            {
-                # Stores URL where to redirect, after allowing specified client,
-                # Client should be redirected here, to finish OAuth flow.
-                "redirect_to": redirect_to,
-                "access_token": access_token,
-            }
+    if response:
+        # Log statistics and save oauth user.
+        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
+        crud.oauth_client_user.create_if_not_exists(
+            db, user_id=user.id, client_id=oauth_client.id, scope=normalize_scope(scope)
         )
+        return api_success(response)
 
     # Requested response_type is not exists.
     return api_error(
         ApiErrorCode.API_INVALID_REQUEST,
         "Unknown `response_type` value! Allowed: code, token.",
+    )
+
+
+@router.get("/_oauth._clientIsLinked", include_in_schema=False)
+async def method_oauth_client_is_linked(
+    req: Request,
+    client_id: int,
+    scope: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Returns is requested client is linked to user or not.
+    """
+    auth_data = query_auth_data_from_request(req=req, db=db, only_session_token=True)
+    _query_oauth_client(db=db, client_id=client_id)
+    oauth_client_user = crud.oauth_client_user.get_by_user_id(
+        db, user_id=auth_data.user.id
+    )
+
+    return api_success(
+        {
+            "is_linked": oauth_client_user is not None
+            and parse_permissions_from_scope(oauth_client_user.requested_scope)
+            == parse_permissions_from_scope(scope),
+        }
     )

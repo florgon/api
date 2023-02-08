@@ -7,6 +7,7 @@ from . import (
     gift_use,
     oauth_client,
     oauth_client_use,
+    oauth_client_user,
     user,
     user_agent,
     user_session,
@@ -23,5 +24,6 @@ __all__ = [
     "user_agent",
     "user_session",
     "user_linked_accounts",
+    "oauth_client_user",
     "oauth_code",
 ]

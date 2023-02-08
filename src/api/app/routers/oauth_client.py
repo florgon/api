@@ -15,7 +15,7 @@ from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
-from app.services.permissions import Permission
+from app.services.permissions import Permission, parse_permissions_from_scope
 
 from app.services.request import query_auth_data_from_request
 
@@ -75,6 +75,61 @@ async def method_oauth_client_list(
     )
 
 
+@router.get("/oauthClient.getLinked")
+async def method_oauth_client_get_linked(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """OAUTH API endpoint for getting linked oauth clients."""
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions={Permission.oauth_clients}
+    )
+    oauth_client_users = crud.oauth_client_user.get_by_user_id(
+        db, user_id=auth_data.user.id
+    )
+
+    return api_success(
+        {
+            "linked_oauth_clients": [
+                {
+                    **serialize_oauth_client(
+                        client_user.oauth_client, display_secret=False
+                    ),
+                    **{
+                        "requested_scope": client_user.requested_scope,
+                        "requested_at": client_user.time_created,
+                        "request_updated_at": client_user.time_updated,
+                    },
+                }
+                for client_user in oauth_client_users
+            ]
+        }
+    )
+
+
+@router.get("/oauthClient.unlink")
+async def method_oauth_client_unlink(
+    client_id: int, req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """OAUTH API endpoint for unlinking linked oauth clients."""
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions={Permission.oauth_clients}
+    )
+    oauth_client_user = crud.oauth_client_user.get_by_client_and_user_id(
+        db, user_id=auth_data.user.id, client_id=client_id
+    )
+    if not oauth_client_user or not oauth_client_user.is_active:
+        return api_error(
+            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
+            "OAuth client not linked!",
+        )
+
+    oauth_client_user.is_active = False
+    db.add(oauth_client_user)
+    db.commit()
+
+    return api_success({"unlinked_client_id": oauth_client_user.client_id})
+
+
 @router.get("/oauthClient.get")
 @cache(
     expire=60,
@@ -83,7 +138,11 @@ async def method_oauth_client_list(
     namespace="routers_oauth_clients_getter",
 )
 async def method_oauth_client_get(
-    client_id: int, db: Session = Depends(get_db)
+    req: Request,
+    client_id: int,
+    check_is_linked: bool = False,
+    scope: str = "",
+    db: Session = Depends(get_db),
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client data."""
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
@@ -93,7 +152,21 @@ async def method_oauth_client_get(
             "OAuth client not found or deactivated!",
         )
 
-    return api_success(serialize_oauth_client(oauth_client, display_secret=False))
+    response = serialize_oauth_client(oauth_client, display_secret=False)
+    if check_is_linked:
+        auth_data = query_auth_data_from_request(
+            req=req, db=db, only_session_token=True
+        )
+        oauth_client_user = crud.oauth_client_user.get_by_client_and_user_id(
+            db, client_id=client_id, user_id=auth_data.user.id
+        )
+        response |= {
+            "is_linked": oauth_client_user is not None
+            and parse_permissions_from_scope(oauth_client_user.requested_scope)
+            == parse_permissions_from_scope(scope),
+        }
+
+    return api_success(response)
 
 
 @router.get("/oauthClient.expireSecret")
