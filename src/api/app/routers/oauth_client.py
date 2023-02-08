@@ -2,6 +2,7 @@
     Oauth API auth routers.
 """
 
+import time
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -95,9 +96,15 @@ async def method_oauth_client_get_linked(
                         client_user.oauth_client, display_secret=False
                     ),
                     **{
-                        "requested_scope": client_user.requested_scope,
-                        "requested_at": client_user.time_created,
-                        "request_updated_at": client_user.time_updated,
+                        "requested_scope": time.mktime(
+                            client_user.requested_scope.timetuple()
+                        ),
+                        "requested_at": time.mktime(
+                            client_user.time_created.timetuple()
+                        ),
+                        "request_updated_at": time.mktime(
+                            client_user.time_updated.timetuple()
+                        ),
                     },
                 }
                 for client_user in oauth_client_users
