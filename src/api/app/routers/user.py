@@ -171,7 +171,7 @@ async def method_user_set_info(
 
     if is_updated:
         db.commit()
-        FastAPICache.clear("routers_user_info_getter")
+        await FastAPICache.clear("routers_user_info_getter")
 
     return api_success(
         {

@@ -215,7 +215,7 @@ async def method_oauth_client_update(
 
     if is_updated:
         db.commit()
-        FastAPICache.clear("routers_oauth_clients_getter")
+        await FastAPICache.clear("routers_oauth_clients_getter")
 
     return api_success(
         {
