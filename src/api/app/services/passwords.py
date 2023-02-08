@@ -58,7 +58,7 @@ def _hash_method_hash_1_scrypt(password: str, do_verification: bool = True) -> s
             password, _generate_encoded_urandom_salt()
         )
 
-        if check_password(password, hashed_password):
+        if check_password(password, hashed_password, hash_method=1):
             return hashed_password
 
     raise HashingError(
