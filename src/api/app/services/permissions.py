@@ -3,8 +3,8 @@
     OAuth permissions.
     Read more at docs: https://florgon.space/dev/apis/auth
 """
-from enum import Enum
 from typing import Iterable
+from enum import Enum
 
 
 class Permission(Enum):

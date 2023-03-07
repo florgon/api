@@ -1,9 +1,9 @@
 """
     Bootstrap database with first queries.
 """
-from app.database.dependencies import Session, SessionLocal
 from app.database.repositories.users import UsersRepository
 from app.database.repositories.oauth_clients import OAuthClientsRepository, OAuthClient
+from app.database.dependencies import SessionLocal, Session
 
 
 def create_start_database_entries() -> None:

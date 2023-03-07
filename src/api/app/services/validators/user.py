@@ -4,13 +4,12 @@
 
 from validate_email import validate_email
 
-
-from app.config import get_settings, Settings
-from app.database import crud
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.database.models.user import User
 from app.services.passwords import check_password
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.models.user import User
 from app.database.dependencies import Session
+from app.database import crud
+from app.config import get_settings, Settings
 
 _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
     "yandex.ru": "ya.ru",

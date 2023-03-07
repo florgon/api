@@ -4,8 +4,9 @@
 
 import unittest
 
-from app.database.core import SessionLocal
 from sqlalchemy import text
+
+from app.database.core import SessionLocal
 
 
 class TestDatabaseUnit(unittest.TestCase):

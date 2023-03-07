@@ -1,8 +1,8 @@
 """
     Password service for hashing and validating passwords.
 """
-import hashlib
 import os
+import hashlib
 
 
 class HashingError(Exception):

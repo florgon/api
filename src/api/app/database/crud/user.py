@@ -4,11 +4,13 @@
 """
 
 from datetime import datetime
-from app.config import get_settings
-from app.database.models.user import User
-from app.services.passwords import get_hashed_password, HashingError
-from pyotp import random_base32
+
 from sqlalchemy.orm import Session
+from pyotp import random_base32
+
+from app.services.passwords import get_hashed_password, HashingError
+from app.database.models.user import User
+from app.config import get_settings
 
 
 def get_all(db: Session) -> list[User]:

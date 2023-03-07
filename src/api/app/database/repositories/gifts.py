@@ -4,8 +4,9 @@
 """
 
 from secrets import token_urlsafe
-from app.database.models.gift import Gift, GiftRewardType
+
 from app.database.repositories.base import BaseRepository
+from app.database.models.gift import GiftRewardType, Gift
 
 
 class GiftsRepository(BaseRepository):

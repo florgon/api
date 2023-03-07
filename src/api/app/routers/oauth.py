@@ -4,26 +4,24 @@
 
 from urllib.parse import parse_qs
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import Request, Depends, APIRouter
 
-from app.database.models.oauth_client import OAuthClient
-from app.config import Settings, get_settings
-from app.database import crud
-from app.database.dependencies import Session, get_db
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_error, api_success
+from app.tokens import OAuthCode, AccessToken
 from app.services.request.auth import query_auth_data_from_request
-
 from app.services.permissions import (
-    Permission,
-    normalize_scope,
-    parse_permissions_from_scope,
     permissions_get_ttl,
+    parse_permissions_from_scope,
+    normalize_scope,
+    Permission,
 )
-from app.tokens import AccessToken, OAuthCode
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.oauth_grants import resolve_grant
-
+from app.database.models.oauth_client import OAuthClient
+from app.database.dependencies import get_db, Session
+from app.database import crud
+from app.config import get_settings, Settings
 
 router = APIRouter(tags=["oauth"])
 

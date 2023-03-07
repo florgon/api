@@ -4,6 +4,7 @@
 """
 
 from sqlalchemy.orm import Session
+
 from app.database.models.oauth_client_user import OAuthClientUser
 
 

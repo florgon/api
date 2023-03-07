@@ -6,8 +6,8 @@
     Some sort of abstract class.
 """
 
-from typing import Any
 import time
+from typing import Any
 
 import jwt
 

@@ -3,12 +3,12 @@
     Resolves password grant.
 """
 
-from app.config import Settings
-from app.database.dependencies import Session
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
-
 from fastapi import Request
+
+from app.services.api.response import api_error
+from app.services.api.errors import ApiErrorCode
+from app.database.dependencies import Session
+from app.config import Settings
 
 
 def oauth_password_grant(

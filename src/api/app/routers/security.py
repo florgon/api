@@ -3,18 +3,18 @@
     Provides API methods (routes) for working with user security.
 """
 
-from fastapi import APIRouter, Depends, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, BackgroundTasks, APIRouter
 
-from app.database.dependencies import Session, get_db
-from app.services.api.response import ApiErrorCode, api_error, api_success
-from app.services.permissions import Permission
-from app.services.request import query_auth_data_from_request
-from app.services.passwords import check_password, get_hashed_password
 from app.services.validators.user import validate_password_field
-from app.email import messages as email_messages
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
+from app.services.request import query_auth_data_from_request
+from app.services.permissions import Permission
+from app.services.passwords import get_hashed_password, check_password
 from app.services.limiter.depends import RateLimiter
+from app.services.api.response import api_success, api_error, ApiErrorCode
+from app.email import messages as email_messages
+from app.database.dependencies import get_db, Session
 from app.database import crud
 
 router = APIRouter(tags=["security"], include_in_schema=False)

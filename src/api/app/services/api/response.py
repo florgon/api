@@ -4,8 +4,8 @@
 
 from fastapi.responses import JSONResponse
 
-from .errors import ApiErrorCode
 from .version import API_VERSION
+from .errors import ApiErrorCode
 
 
 def api_error(

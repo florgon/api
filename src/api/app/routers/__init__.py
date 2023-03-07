@@ -3,20 +3,22 @@
 """
 
 from fastapi import FastAPI
+
 from app.config import get_settings
+
 from . import (
-    admin,
-    email,
-    ext_oauth,
-    gift,
-    oauth,
-    oauth_client,
-    secure,
-    security,
-    session,
-    user,
     utils,
+    user,
+    session,
+    security,
+    secure,
+    oauth_client,
+    oauth,
     mailings,
+    gift,
+    ext_oauth,
+    email,
+    admin,
 )
 
 

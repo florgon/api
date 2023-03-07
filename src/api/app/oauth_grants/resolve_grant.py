@@ -2,20 +2,23 @@
     Resolves from grant_type string name grant type resolver.
 """
 from urllib.parse import parse_qs
-from fastapi import Request
-from fastapi.responses import JSONResponse
 
-# Grants.
-from .grant_types.authorization_code import oauth_authorization_code_grant
+from fastapi.responses import JSONResponse
+from fastapi import Request
+
+from app.services.api.response import api_error
+from app.services.api.errors import ApiErrorCode
+from app.database.dependencies import Session
+
+# App.
+from app.config import Settings
+
 from .grant_types.refresh_token import oauth_refresh_token_grant
 from .grant_types.password import oauth_password_grant
 from .grant_types.client_credentials import oauth_client_credentials_grant
 
-# App.
-from app.config import Settings
-from app.database.dependencies import Session
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
+# Grants.
+from .grant_types.authorization_code import oauth_authorization_code_grant
 
 
 async def resolve_grant(

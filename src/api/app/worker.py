@@ -10,11 +10,11 @@
 """
 import os
 
-from celery import Celery
-from celery.schedules import crontab
 from celery.utils.log import get_task_logger
-from app.database.core import SessionLocal
+from celery.schedules import crontab
+from celery import Celery
 
+from app.database.core import SessionLocal
 
 worker_cache_dsn = os.environ.get("CACHE_DSN", "redis://cache:6379/")
 worker = Celery(__name__, broker=worker_cache_dsn, backend=worker_cache_dsn)

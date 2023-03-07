@@ -2,9 +2,9 @@
     OAuth client user (linked oauth client to user) database model.
 """
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Boolean, String
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from sqlalchemy import String, Integer, ForeignKey, DateTime, Column, Boolean
 
 from app.database.core import Base
 

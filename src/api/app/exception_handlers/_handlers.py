@@ -3,9 +3,9 @@
     (FastAPI exception handlers)
 """
 
-from app.config import get_logger
-from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.config import get_logger
 
 
 async def validation_exception_handler(_, exception):

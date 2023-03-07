@@ -2,17 +2,16 @@
     Secure API router.
     Provides API methods (routes) for working with server-side with client apps servers.
 """
-from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from fastapi import Depends, APIRouter
 
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error, api_success
-from app.database.dependencies import Session, get_db
 from app.services.request.auth import (
     query_auth_data_from_token,
     parse_permissions_from_scope,
 )
-
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorCode
+from app.database.dependencies import get_db, Session
 
 router = APIRouter(tags=["secure"])
 

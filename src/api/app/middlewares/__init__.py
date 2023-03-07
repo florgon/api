@@ -4,10 +4,11 @@
     And middlewares itself.
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from gatey_sdk.integrations.starlette import GateyStarletteMiddleware
-from app.config import get_settings, get_gatey_client, get_logger
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
+
+from app.config import get_settings, get_logger, get_gatey_client
 
 
 def add_middlewares(app: FastAPI) -> None:

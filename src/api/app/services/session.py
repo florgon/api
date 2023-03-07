@@ -3,15 +3,14 @@
 """
 
 from fastapi import Request
-from app.database.models.user_session import UserSession
-from app.config import get_settings
-from app.database import crud
-from app.database.dependencies import Session
-from app.services.request import (
-    get_client_host_from_request,
-)
+
 from app.tokens import SessionToken
+from app.services.request import get_client_host_from_request
+from app.database.models.user_session import UserSession
 from app.database.models.user import User
+from app.database.dependencies import Session
+from app.database import crud
+from app.config import get_settings
 
 
 def publish_new_session_with_token(

@@ -4,14 +4,14 @@
 """
 
 from pydantic import EmailStr
-from fastapi import APIRouter, Request, Depends, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, BackgroundTasks, APIRouter
 
-from app.services.api.response import api_error, ApiErrorCode, api_success
-from app.services.request.auth import query_auth_data_from_request
-from app.database.dependencies import get_db, Session
-from app.email.messages import send_custom_email
 from app.services.user_query_filter import query_users_by_filter_query
+from app.services.request.auth import query_auth_data_from_request
+from app.services.api.response import api_success, api_error, ApiErrorCode
+from app.email.messages import send_custom_email
+from app.database.dependencies import get_db, Session
 
 router = APIRouter(include_in_schema=False)
 

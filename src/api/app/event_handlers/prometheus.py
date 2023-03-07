@@ -13,6 +13,7 @@ else:
     prometheus_instrumentator_installed = True
 
 from fastapi import FastAPI
+
 from app.config import get_settings, get_logger
 
 
