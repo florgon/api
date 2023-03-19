@@ -8,7 +8,6 @@
 
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, BackgroundTasks, APIRouter
-
 from app.tokens.exceptions import (
     TokenWrongTypeError,
     TokenInvalidSignatureError,
@@ -73,7 +72,7 @@ def _generate_confirmation_link(user_id: int) -> str:
     #    settings.proxy_url_prefix + "/_emailConfirmation.confirm",
     # )
 
-    confirmation_endpoint = "https://florgon.space/email/verify"
+    confirmation_endpoint = "https://florgon.com/email/verify"
     return f"{confirmation_endpoint}?cft={confirmation_token}"
 
 

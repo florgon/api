@@ -1,3 +1,3 @@
 # API methods.
 
-[Read more at documentation](https://florgon.space/dev/apis/auth)
+[Read more at documentation](https://florgon.com/dev/apis/auth)

@@ -1,7 +1,7 @@
 """
     Permission service, works with scope, permissions.
     OAuth permissions.
-    Read more at docs: https://florgon.space/dev/apis/auth
+    Read more at docs: https://florgon.com/dev/apis/auth
 """
 from typing import Iterable
 from enum import Enum

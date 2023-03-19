@@ -26,7 +26,7 @@ API server for Florgon services (Florgon API).
 
 ### See in action.
 
-API deployed and used in production [here](https://api.florgon.space/v1) (API endpoint).
+API deployed and used in production [here](https://api.florgon.com/v1) (API endpoint).
 
 ### Technologies.
 

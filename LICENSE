@@ -2,25 +2,25 @@ Business Source License 1.1
 
 Parameters
 
-Licensor:             Florgon Solutions
-Licensed Work:        Florgon API
-                      The Licensed Work is (c) 2022 Florgon Solutions
+Licensor: Florgon Solutions
+Licensed Work: Florgon API
+The Licensed Work is (c) 2022 Florgon Solutions
 Additional Use Grant: You may make use of the Licensed Work, provided that you do
-                      not use the Licensed Work for an Application Programming
-                      Interface Service.
+not use the Licensed Work for an Application Programming
+Interface Service.
 
-                      An "Application Programming Interface Service" 
-                      is a commercial offering that allows third parties 
-                      (other than your employees and contractors) to access the 
-                      functionality of the Licensed Work so that such third parties 
+                      An "Application Programming Interface Service"
+                      is a commercial offering that allows third parties
+                      (other than your employees and contractors) to access the
+                      functionality of the Licensed Work so that such third parties
                       directly benefit from the API features of the Licensed Work.
 
-Change Date:          2025-08-03
+Change Date: 2025-08-03
 
-Change License:       MIT License
+Change License: MIT License
 
 For information about alternative licensing arrangements for the Software,
-please contact: support@florgon.space
+please contact: support@florgon.com
 
 Notice
 
@@ -31,7 +31,7 @@ under an Open Source License, as stated in this License.
 License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
 "Business Source License" is a trademark of MariaDB Corporation Ab.
 
------------------------------------------------------------------------------
+---
 
 Business Source License 1.1
 

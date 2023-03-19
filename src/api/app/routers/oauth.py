@@ -6,7 +6,6 @@ from urllib.parse import parse_qs
 
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi import Request, Depends, APIRouter
-
 from app.tokens import OAuthCode, AccessToken
 from app.services.request.auth import query_auth_data_from_request
 from app.services.permissions import (
@@ -150,7 +149,7 @@ async def method_oauth_allow_client(
         # Authorization code flow.
         # Gives code, that required to be decoded using OAuth resolve method at server-side using client secret value.
         # Should be used when there is server-side, which can resolve authorization code.
-        # Read more about Florgon OAuth: https://florgon.space/dev/oauth
+        # Read more about Florgon OAuth: https://florgon.com/dev/oauth
 
         # Encoding OAuth code.
         # Code should be resolved at server-side at redirect_uri, using resolve OAuth method.
@@ -185,7 +184,7 @@ async def method_oauth_allow_client(
         # Implicit authorization flow.
         # Simply, gives access token inside hash-link.
         # Should be used when there is no server-side, which can resolve authorization code.
-        # Read more about Florgon OAuth: https://florgon.space/dev/oauth
+        # Read more about Florgon OAuth: https://florgon.com/dev/oauth
 
         # Encoding access token.
         # Access token have infinity TTL, if there is scope permission given for no expiration date.

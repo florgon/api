@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     # Mail.
     mail_enabled: bool = False
     mail_from_name: str | None = None
-    mail_from: EmailStr = "noreply@florgon.space"
+    mail_from: EmailStr = "noreply@florgon.com"
     mail_server: str = ""
     mail_password: str = ""
     mail_username: str = ""
@@ -112,7 +112,7 @@ class Settings(BaseSettings):
     # If true, will block all requests for sessions opened from another user agent (except exception cases).
     auth_reject_wrong_user_agent: bool = True
     # URL of the OAuth screen provider.
-    auth_oauth_screen_provider_url: str = "https://florgon.space/oauth/authorize"
+    auth_oauth_screen_provider_url: str = "https://florgon.com/oauth/authorize"
     # If true will enable 2FA with email when user verifies email.
     auth_enable_tfa_on_email_verification: bool = True
     # External OAuth.
