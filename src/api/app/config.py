@@ -158,6 +158,10 @@ class Settings(BaseSettings):
     # Logging.
     logging_logger_name: str = "gunicorn.error"
 
+    # Service.
+    service_is_under_maintenance: bool = True
+    is_under_debug_environment: bool = True
+
 
 def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
     """
