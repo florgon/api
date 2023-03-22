@@ -7,7 +7,6 @@
 import secrets
 
 from sqlalchemy.orm import Session
-
 from app.database.models.user_session import UserSession
 from app.database.models.user_agent import UserAgent
 from app.database.crud.user_agent import (
@@ -109,7 +108,11 @@ def get_last(db: Session) -> UserSession:
 
 
 def get_or_create_new(
-    db: Session, owner_id: int, client_host: str, client_user_agent: str
+    db: Session,
+    owner_id: int,
+    client_host: str,
+    client_user_agent: str,
+    client_geo_country: str,
 ) -> UserSession:
     """Returns user session or creates a new one."""
 
@@ -130,6 +133,7 @@ def get_or_create_new(
         token_secret=session_token_secret,
         ip_address=client_host,
         user_agent_id=user_agent_id,
+        geo_country=client_geo_country,
     )
 
     # Apply user session in database.

@@ -3,9 +3,8 @@
 """
 
 from fastapi import Request
-
 from app.tokens import SessionToken
-from app.services.request import get_client_host_from_request
+from app.services.request import get_country_from_request, get_client_host_from_request
 from app.database.models.user_session import UserSession
 from app.database.models.user import User
 from app.database.dependencies import Session
@@ -39,7 +38,8 @@ def _publish_new_session(owner_id: int, req: Request, db: Session, user_agent: s
     """
     session_user_agent = user_agent
     session_client_host = get_client_host_from_request(req)
+    session_geo_country = get_country_from_request(req)
     session = crud.user_session.get_or_create_new(
-        db, owner_id, session_client_host, session_user_agent
+        db, owner_id, session_client_host, session_user_agent, session_geo_country
     )
     return session

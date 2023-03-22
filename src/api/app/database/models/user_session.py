@@ -22,6 +22,7 @@ class UserSession(Base):
 
     ip_address = Column(String(12), nullable=False)
     user_agent_id = Column(Integer, ForeignKey("user_agents.id"), nullable=False)
+    geo_country = Column(String(2), nullable=True)
 
     is_active = Column(Boolean, nullable=False, default=True)
 
