@@ -18,6 +18,7 @@ def serialize(session: UserSession, db: Session, in_list: bool = False):
     serialized_session = {
         "id": session.id,
         "ip": session.ip_address,
+        "geo_country": session.geo_country,
         "user_agent": user_agent_string,
         "created_at": time.mktime(session.time_created.timetuple()),
         "is_active": session.is_active,
