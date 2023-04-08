@@ -5,13 +5,13 @@
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 # Imports.
 from sqlalchemy import create_engine, MetaData
 
 # Settings.
-from app.config import Settings
+from app.config import get_logger, Settings
 
 # Database engine.
 settings = Settings()
@@ -37,6 +37,7 @@ def create_all():
     """Creates all database metadata."""
     try:
         metadata.create_all(bind=engine)
-    except IntegrityError:
-        # TODO: Add logging? (should be there is any circular import?)
-        pass
+    except (IntegrityError, OperationalError) as e:
+        get_logger().error(
+            f"[database_core] Failed to do `create_all` as metadata returned `{e}`"
+        )

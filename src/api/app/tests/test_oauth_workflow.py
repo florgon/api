@@ -6,7 +6,7 @@
 
 import pytest
 from fastapi.testclient import TestClient
-
+from app.database.bootstrap import SUPERUSER_USERNAME, SUPERUSER_PASSWORD
 from app.app import app
 
 
@@ -88,12 +88,11 @@ def test_read_oauth_authorization_code_signin_via_session(
 
 
 def _signin_with_superuser(client) -> str:
-    username = "admin"
     signin_response = client.post(
         "/_session._signin",
         json={
-            "login": username,
-            "password": "admin",
+            "login": SUPERUSER_USERNAME,
+            "password": SUPERUSER_PASSWORD,
         },
     )
     json = signin_response.json()

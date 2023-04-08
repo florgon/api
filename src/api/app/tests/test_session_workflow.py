@@ -5,7 +5,7 @@
 
 import pytest
 from fastapi.testclient import TestClient
-
+from app.database.bootstrap import SUPERUSER_USERNAME, SUPERUSER_PASSWORD
 from app.app import app
 
 
@@ -80,12 +80,11 @@ def test_read_session_superuser_signin(
     client,
 ):  # pylint: disable=redefined-outer-name
     """Check that super user is created and can be fetched."""
-    username = "admin"
     signin_response = client.post(
         "/_session._signin",
         json={
-            "login": username,
-            "password": "admin",
+            "login": SUPERUSER_USERNAME,
+            "password": SUPERUSER_PASSWORD,
         },
     )
 
@@ -102,16 +101,16 @@ def test_read_session_superuser_signin(
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
-    assert json["success"]["user"]["username"] == username
+    assert json["success"]["user"]["username"] == SUPERUSER_USERNAME
 
     get_profile_info_response = client.get(
-        "/user.getProfileInfo", params={"username": username}
+        "/user.getProfileInfo", params={"username": SUPERUSER_USERNAME}
     )
     json = get_profile_info_response.json()
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
-    assert json["success"]["user"]["username"] == username
+    assert json["success"]["user"]["username"] == SUPERUSER_USERNAME
 
     logout_response = client.get(
         "/_session._logout", params={"session_token": session_token, "revoke_all": True}
