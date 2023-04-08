@@ -95,3 +95,7 @@ def _payload_to_json_bytes(payload_data: dict) -> bytes:
         obj=payload_data,
         allow_nan=False,
     ).encode("utf-8")
+
+
+if __name__ == "__main__":
+    send_http_webhook_event("florgon.com", event_type="some", data={})
