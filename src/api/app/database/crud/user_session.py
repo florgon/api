@@ -65,6 +65,18 @@ def get_by_ip_address_and_user_agent(
     )
 
 
+def get_by_ip_address(
+    db: Session, ip_address: str, active_only: bool = False, limit: int = -1
+) -> list[UserSession]:
+    """Returns session by ip address."""
+    query = db.query(UserSession).filter(UserSession.ip_address == ip_address)
+    if active_only:
+        query.filter(UserSession.is_active == True)
+    if limit >= 1:
+        query.limit(limit)
+    return query.all()
+
+
 def get_count(db: Session) -> int:
     """Returns total count of session in the database."""
     return db.query(UserSession).count()
