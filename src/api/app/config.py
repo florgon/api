@@ -104,6 +104,10 @@ class Settings(BaseSettings):
     signup_username_reject_uppercase: bool = True
     signup_username_reject_nonalpha: bool = True
     signup_open_registration: bool = True
+    signup_multiaccounting_dissalowed: bool = True
+    # Weird name, means multiaccounting blocked only for signup requests for blocked accounts (sessions).
+    # Dissalows creating new account only for users that was blocked and trying to create new account.
+    signup_multiaccounting_only_for_non_bypass: bool = False
 
     # Authentication.
     # Two options below, controls session suspicious check.

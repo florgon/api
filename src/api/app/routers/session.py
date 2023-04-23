@@ -13,6 +13,7 @@ from app.services.validators.user import (
 )
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
 from app.services.session import publish_new_session_with_token
+from app.services.request.signup_host_allowance import validate_signup_host_allowance
 from app.services.request import AuthDataDependency, AuthData
 from app.services.permissions import Permission
 from app.services.limiter.depends import RateLimiter
@@ -71,6 +72,7 @@ async def method_session_signup(
             ApiErrorCode.API_INVALID_REQUEST,
             "`username`, `email` and `password` fields are required!",
         )
+
     username, email, password = (
         payload.get("username"),
         payload.get("email"),
@@ -79,6 +81,7 @@ async def method_session_signup(
     # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
     email = convert_email_to_standardized(email)
 
+    validate_signup_host_allowance(db=db, request=req)
     validate_signup_fields(db, username, email, password)
     user = crud.user.create(db=db, email=email, username=username, password=password)
     if not user:
