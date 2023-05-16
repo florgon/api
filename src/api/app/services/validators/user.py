@@ -20,6 +20,13 @@ _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
 }
 
 
+def normalize_phone_number(phone_number: str) -> str:
+    """
+    Remove all non-digits from phone_number.
+    """
+    return "".join([ch for ch in phone_number if ch.isdigit()])
+
+
 def convert_email_to_standardized(email: str) -> str:
     """
     Standartizes email by converting same ones.

@@ -19,6 +19,7 @@ from app.services.limiter.depends import RateLimiter
 from app.services.cache import authenticated_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
+from app.services.validators.user import normalize_phone_number
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository, get_db, Session
@@ -159,6 +160,19 @@ async def method_user_set_info(
                 return api_error(
                     ApiErrorCode.API_INVALID_REQUEST,
                     "Profile bio should be longer than 1 and shorter than 250!",
+                )
+
+        if name == "phone_number":
+            if len(value) < 11 or len(value) > 30:
+                return api_error(
+                    ApiErrorCode.API_INVALID_REQUEST,
+                    "Phone number should be longer than 10 and shorter than 31!",
+                )
+            value = normalize_phone_number(value)
+            if len(value) <= 10 or len(value) >= 14:
+                return api_error(
+                    ApiErrorCode.API_INVALID_REQUEST,
+                    "Phone number should contain more than 10 digits and less then 14 digits!",
                 )
 
         if name in ["sex", "privacy_profile_public", "privacy_profile_require_auth"]:

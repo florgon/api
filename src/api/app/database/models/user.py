@@ -19,7 +19,7 @@ class User(Base):
 
     # Sensitive information.
     email = Column(String, unique=True, index=True, nullable=False)
-    phone = Column(String(18), nullable=True)
+    phone_number = Column(String(18), nullable=True, unique=True)
 
     # Display.
     username = Column(String, unique=True, index=True, nullable=False)
