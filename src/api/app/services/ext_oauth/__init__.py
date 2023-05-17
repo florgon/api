@@ -2,4 +2,4 @@
     External OAuth providers service.
 """
 
-from . import github_provider, vk_provider, yandex_provider
+from . import yandex_provider, vk_provider, github_provider

@@ -2,12 +2,12 @@
     OAuth client use database model.
 """
 
-# Core model base.
-from app.database.core import Base
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
-
 # ORM.
 from sqlalchemy.sql import func
+from sqlalchemy import Integer, ForeignKey, DateTime, Column
+
+# Core model base.
+from app.database.core import Base
 
 
 class OAuthClientUse(Base):
@@ -20,7 +20,7 @@ class OAuthClientUse(Base):
 
     # Use data.
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    client_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    client_id = Column(Integer, ForeignKey("oauth_clients.id"), nullable=False)
 
     # Time.
     time_created = Column(

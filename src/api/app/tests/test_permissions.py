@@ -5,9 +5,9 @@
 import unittest
 
 from app.services.permissions import (
-    Permission,
-    normalize_scope,
     parse_permissions_from_scope,
+    normalize_scope,
+    Permission,
 )
 
 
@@ -17,7 +17,7 @@ class TestPermissionsUnit(unittest.TestCase):
     def test_normalization(self):
         """Tests scope normalization."""
         with self.assertRaises(TypeError):
-            normalize_scope([Permission.email])  # noqa
+            normalize_scope({Permission.email})  # noqa
         self.assertEqual(normalize_scope(""), "")
         self.assertEqual(normalize_scope("email"), "email")
         self.assertEqual(normalize_scope("email,  email"), "email")
@@ -26,12 +26,12 @@ class TestPermissionsUnit(unittest.TestCase):
     def test_parse(self):
         """Checking main parsing feature (scope to permissions list)."""
         with self.assertRaises(TypeError):
-            parse_permissions_from_scope([Permission.email])  # noqa
-        self.assertIsInstance(parse_permissions_from_scope(""), list)
-        self.assertEqual(parse_permissions_from_scope(""), [])
-        self.assertEqual(parse_permissions_from_scope("email"), [Permission.email])
+            parse_permissions_from_scope({Permission.email})  # noqa
+        self.assertIsInstance(parse_permissions_from_scope(""), set)
+        self.assertEqual(parse_permissions_from_scope(""), set())
+        self.assertEqual(parse_permissions_from_scope("email"), {Permission.email})
         self.assertEqual(
-            parse_permissions_from_scope("email,  email"), [Permission.email]
+            parse_permissions_from_scope("email,  email"), {Permission.email}
         )
-        self.assertEqual(parse_permissions_from_scope("\nemail, \remail"), [])
+        self.assertEqual(parse_permissions_from_scope("\nemail, \remail"), set())
         self.assertTrue(Permission.email in parse_permissions_from_scope("*"))

@@ -3,8 +3,9 @@
     OAuth code CRUD utils for the database.
 """
 
-from app.database.models.oauth_code import OAuthCode
 from sqlalchemy.orm import Session
+
+from app.database.models.oauth_code import OAuthCode
 
 
 def create(db: Session, user_id: int, client_id: int, session_id: int) -> OAuthCode:

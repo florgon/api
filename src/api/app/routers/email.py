@@ -6,25 +6,25 @@
 
 # import urllib.parse
 
-from app.config import get_settings
-from app.database import crud
-from app.database.dependencies import Session, get_db
-from app.email import messages
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_error, api_success
-from app.services.limiter.depends import RateLimiter
-from app.services.request import query_auth_data_from_request
-from app.tokens import EmailToken
-from app.tokens.exceptions import (
-    TokenExpiredError,
-    TokenInvalidError,
-    TokenInvalidSignatureError,
-    TokenWrongTypeError,
-)
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, BackgroundTasks, APIRouter
+from app.tokens.exceptions import (
+    TokenWrongTypeError,
+    TokenInvalidSignatureError,
+    TokenInvalidError,
+    TokenExpiredError,
+)
+from app.tokens import EmailToken
+from app.services.request import query_auth_data_from_request
+from app.services.limiter.depends import RateLimiter
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.email import messages
+from app.database.dependencies import get_db, Session
+from app.database import crud
+from app.config import get_settings
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 # TODO: Allow specify URL for email confirmation.
@@ -72,7 +72,7 @@ def _generate_confirmation_link(user_id: int) -> str:
     #    settings.proxy_url_prefix + "/_emailConfirmation.confirm",
     # )
 
-    confirmation_endpoint = "https://florgon.space/email/verify"
+    confirmation_endpoint = "https://florgon.com/email/verify"
     return f"{confirmation_endpoint}?cft={confirmation_token}"
 
 

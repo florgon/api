@@ -3,21 +3,21 @@
     Provides API methods (routes) for working with user security.
 """
 
-from fastapi import APIRouter, Depends, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, BackgroundTasks, APIRouter
 
-from app.database.dependencies import Session, get_db
-from app.services.api.response import ApiErrorCode, api_error, api_success
-from app.services.permissions import Permission
-from app.services.request import query_auth_data_from_request
-from app.services.passwords import check_password, get_hashed_password
 from app.services.validators.user import validate_password_field
-from app.email import messages as email_messages
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
+from app.services.request import query_auth_data_from_request
+from app.services.permissions import Permission
+from app.services.passwords import get_hashed_password, check_password
 from app.services.limiter.depends import RateLimiter
+from app.services.api.response import api_success, api_error, ApiErrorCode
+from app.email import messages as email_messages
+from app.database.dependencies import get_db, Session
 from app.database import crud
 
-router = APIRouter()
+router = APIRouter(tags=["security"], include_in_schema=False)
 
 
 @router.get("/security.getInfo")
@@ -26,7 +26,7 @@ async def method_security_get_info(
 ) -> JSONResponse:
     """Returns security information about current user."""
     user = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
+        req, db, required_permissions={Permission.security}
     ).user
     return api_success(
         {
@@ -46,7 +46,7 @@ async def method_security_user_enable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Enables TFA for the current user."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
+    query_auth_data_from_request(req, db, required_permissions={Permission.security})
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (2FA not implemented).",
@@ -58,7 +58,7 @@ async def method_security_user_disable_tfa(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Disables TFA for the current user."""
-    query_auth_data_from_request(req, db, required_permissions=[Permission.security])
+    query_auth_data_from_request(req, db, required_permissions={Permission.security})
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,
         "Security not implemented yet (2FA not implemented).",
@@ -75,7 +75,7 @@ async def method_security_user_password_change_request_tfa_otp(
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
     user = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
+        req, db, required_permissions={Permission.security}
     ).user
     current_password = req.query_params.get("current_password")
     new_password = req.query_params.get("new_password")
@@ -135,7 +135,7 @@ async def method_security_user_change_password(
 ) -> JSONResponse:
     """Requests change password for the current user."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.security]
+        req, db, required_permissions={Permission.security}
     )
     user = auth_data.user
     current_password = req.query_params.get("current_password")

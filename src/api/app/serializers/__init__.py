@@ -2,6 +2,6 @@
     Database models serializers.
 """
 
-from . import oauth_client, session, user
+from . import user, session, oauth_client
 
 __all__ = ["oauth_client", "session", "user"]

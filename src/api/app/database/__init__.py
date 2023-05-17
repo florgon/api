@@ -3,4 +3,4 @@
 """
 
 from .dependencies import get_db
-from . import core, crud, models
+from . import models, crud, core

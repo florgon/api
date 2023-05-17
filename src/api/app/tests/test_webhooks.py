@@ -1,0 +1,43 @@
+import multiprocessing
+import hmac
+import hashlib
+
+import uvicorn
+import pytest
+import fastapi
+from app.services.webhooks import send_http_webhook_event
+
+SERVER_HOST = "127.0.0.1"
+SERVER_PORT = 8001
+
+
+@pytest.fixture(autouse=True, scope="session")
+def webhook_server():
+    p = multiprocessing.Process(
+        target=_webhook_target_server, args=(SERVER_HOST, SERVER_PORT)
+    )
+    p.start()
+    yield
+    p.terminate()
+
+
+def _webhook_target_server(host: str, port: int) -> None:
+    app = fastapi.FastAPI()
+
+    @app.post("/")
+    async def _(request: fastapi.Request):
+        payload = await request.body()
+        payload_hash = hmac.new(payload, payload, hashlib.sha256).hexdigest()
+        return fastapi.Response(headers={"x-payload-hash": payload_hash})
+
+    uvicorn.run(app, host=host, port=port)
+
+
+def test_send_and_accept_webhook(
+    webhook_server,
+):  # pylint: disable=redefined-outer-name:
+    assert send_http_webhook_event(
+        url=f"{SERVER_HOST}:{SERVER_PORT}",
+        event_type="pytest_event_name",
+        data={"is_pytest": True, "some_stuff": "hi!"},
+    )

@@ -4,18 +4,16 @@
     Should be run from external process (Manual uvicorn or by default as docker).
 """
 
-from fastapi import FastAPI
 from fastapi.logger import logger as fastapi_logger
+from fastapi import FastAPI
 
-from . import database
-from .database.bootstrap import create_start_database_entries
-
-from .config import get_settings, get_logger
-
-from .event_handlers import add_event_handlers
-from .exception_handlers import add_exception_handlers
-from .middlewares import add_middlewares
 from .routers import include_routers
+from .middlewares import add_middlewares
+from .exception_handlers import add_exception_handlers
+from .event_handlers import add_event_handlers
+from .database.bootstrap import create_start_database_entries
+from .config import get_settings, get_logger
+from . import database
 
 if __name__ == "__main__":
     # You are not supposed to run this directly.
@@ -53,10 +51,13 @@ def _construct_app() -> FastAPI:
         title=settings.openapi_title,
         version=settings.openapi_version,
         description=settings.openapi_description,
-        openapi_prefix=settings.openapi_prefix,
-        openapi_url=settings.openapi_url if settings.openapi_enabled else None,
         docs_url=settings.openapi_docs_url if settings.openapi_enabled else None,
         redoc_url=settings.openapi_redoc_url if settings.openapi_enabled else None,
+        openapi_prefix=settings.openapi_prefix,
+        openapi_url=settings.openapi_url if settings.openapi_enabled else None,
+        openapi_tags=[
+            {"name": "security", "description": "Requires `security` permission!"},
+        ],
         # Other.
         root_path=settings.fastapi_root_path,
         root_path_in_servers=True,

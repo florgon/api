@@ -2,12 +2,12 @@
     User session database model.
 """
 
-# Core model base.
-from app.database.core import Base
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
-
 # ORM.
 from sqlalchemy.sql import func
+from sqlalchemy import String, Integer, ForeignKey, DateTime, Column, Boolean
+
+# Core model base.
+from app.database.core import Base
 
 
 class UserSession(Base):
@@ -22,6 +22,7 @@ class UserSession(Base):
 
     ip_address = Column(String(12), nullable=False)
     user_agent_id = Column(Integer, ForeignKey("user_agents.id"), nullable=False)
+    geo_country = Column(String(2), nullable=True)
 
     is_active = Column(Boolean, nullable=False, default=True)
 

@@ -5,22 +5,22 @@
 
 import time
 
-from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, APIRouter
 
-from app.config import get_settings
-from app.database import crud
-from app.database.dependencies import Session, get_db
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_success, api_error
-from app.services.limiter.depends import RateLimiter
-from app.services.permissions import Permission
-from app.services.request import query_auth_data_from_request
-from app.serializers.user import serialize_users, serialize_user
 from app.services.user_query_filter import query_users_by_filter_query
+from app.services.request import query_auth_data_from_request
+from app.services.permissions import Permission
+from app.services.limiter.depends import RateLimiter
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.serializers.user import serialize_users, serialize_user
 from app.database.models.user import User
+from app.database.dependencies import get_db, Session
+from app.database import crud
+from app.config import get_settings
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 async def validate_admin_method_allowed(req: Request, db: Session) -> None:
@@ -33,7 +33,7 @@ async def validate_admin_method_allowed(req: Request, db: Session) -> None:
         )
 
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.admin]
+        req, db, required_permissions={Permission.admin}
     )
     if not auth_data.user.is_admin:
         raise ApiErrorException(

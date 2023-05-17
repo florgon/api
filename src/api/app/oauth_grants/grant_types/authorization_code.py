@@ -7,22 +7,20 @@ from dataclasses import dataclass
 
 from fastapi.responses import JSONResponse
 
-from app.config import Settings
-
-from app.database import crud
+from app.tokens import RefreshToken, OAuthCode, AccessToken
+from app.services.permissions import (
+    permissions_get_ttl,
+    parse_permissions_from_scope,
+    normalize_scope,
+    Permission,
+)
+from app.services.api.response import api_success
+from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.database.models.user_session import UserSession
 from app.database.models.user import User
 from app.database.dependencies import Session
-
-from app.services.api.response import api_success
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.tokens import AccessToken, RefreshToken, OAuthCode
-from app.services.permissions import (
-    Permission,
-    normalize_scope,
-    parse_permissions_from_scope,
-    permissions_get_ttl,
-)
+from app.database import crud
+from app.config import Settings
 
 
 @dataclass
@@ -30,7 +28,7 @@ class TokensPair:
     """Refresh + Access encoded tokens pair."""
 
     access_ttl: float | int
-    access_permissions: list[Permission]
+    access_permissions: set[Permission]
     access_token: str
     refresh_token: str
 

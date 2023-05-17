@@ -4,35 +4,30 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, Request
 from fastapi.responses import JSONResponse
-from app.database.repositories import UsersRepository
-from app.database.dependencies import get_repository
-
-from app.config import Settings, get_settings
-from app.database import crud
-from app.database.dependencies import Session, get_db
-from app.email import messages as email_messages
-from app.serializers.session import serialize_sessions
-from app.serializers.user import serialize_user
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error, api_success
-from app.services.limiter.depends import RateLimiter
-from app.services.permissions import Permission
-from app.services.request import (
-    AuthDataDependency,
-    AuthData,
-)
-
+from fastapi import Request, Header, Depends, Body, BackgroundTasks, APIRouter
 from app.services.validators.user import (
-    validate_signin_fields,
     validate_signup_fields,
+    validate_signin_fields,
     convert_email_to_standardized,
 )
-from app.services.session import publish_new_session_with_token
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
+from app.services.session import publish_new_session_with_token
+from app.services.request.signup_host_allowance import validate_signup_host_allowance
+from app.services.request import AuthDataDependency, AuthData
+from app.services.permissions import Permission
+from app.services.limiter.depends import RateLimiter
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorCode
+from app.serializers.user import serialize_user
+from app.serializers.session import serialize_sessions
+from app.email import messages as email_messages
+from app.database.repositories import UsersRepository
+from app.database.dependencies import get_repository, get_db, Session
+from app.database import crud
+from app.config import get_settings, Settings
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 @router.get("/_session._getUserInfo")
@@ -63,6 +58,7 @@ async def method_session_signup(
     user_agent: str = Header(""),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    payload: dict = Body(),
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
     if not settings.signup_open_registration:
@@ -71,24 +67,21 @@ async def method_session_signup(
             "User signup closed (Registration forbidden by server administrator)",
         )
 
-    body_json = await req.json()
-    if (
-        "username" not in body_json
-        or "email" not in body_json
-        or "password" not in body_json
-    ):
+    if "username" not in payload or "email" not in payload or "password" not in payload:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
             "`username`, `email` and `password` fields are required!",
         )
+
     username, email, password = (
-        body_json.get("username"),
-        body_json.get("email"),
-        body_json.get("password"),
+        payload.get("username"),
+        payload.get("email"),
+        payload.get("password"),
     )
     # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
     email = convert_email_to_standardized(email)
 
+    validate_signup_host_allowance(db=db, request=req)
     validate_signup_fields(db, username, email, password)
     user = crud.user.create(db=db, email=email, username=username, password=password)
     if not user:
@@ -141,7 +134,7 @@ async def method_session_list(
     db: Session = Depends(get_db),
     auth_data: AuthData = Depends(
         AuthDataDependency(
-            only_session_token=False, required_permissions=[Permission.sessions]
+            only_session_token=False, required_permissions={Permission.sessions}
         )
     ),
 ) -> JSONResponse:
@@ -210,19 +203,19 @@ async def method_session_signin(
     req: Request,
     user_agent: str = Header(""),
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
+    payload: dict = Body(),
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
 
-    body_json = await req.json()
-    if "login" not in body_json or "password" not in body_json:
+    if "login" not in payload or "password" not in payload:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
             "`login` and `password` fields are required!",
         )
     login, password, tfa_otp = (
-        body_json.get("login"),
-        body_json.get("password"),
-        body_json.get("tfa_otp", None),
+        payload.get("login"),
+        payload.get("password"),
+        payload.get("tfa_otp", None),
     )
 
     user = user_repo.get_user_by_login(login)

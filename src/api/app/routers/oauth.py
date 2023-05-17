@@ -4,28 +4,25 @@
 
 from urllib.parse import parse_qs
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse, RedirectResponse
-
-from app.database.models.oauth_client import OAuthClient
-from app.config import Settings, get_settings
-from app.database import crud
-from app.database.dependencies import Session, get_db
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_error, api_success
+from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import Request, Depends, APIRouter
+from app.tokens import OAuthCode, AccessToken
 from app.services.request.auth import query_auth_data_from_request
-
 from app.services.permissions import (
-    Permission,
-    normalize_scope,
-    parse_permissions_from_scope,
     permissions_get_ttl,
+    parse_permissions_from_scope,
+    normalize_scope,
+    Permission,
 )
-from app.tokens import AccessToken, OAuthCode
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.oauth_grants import resolve_grant
+from app.database.models.oauth_client import OAuthClient
+from app.database.dependencies import get_db, Session
+from app.database import crud
+from app.config import get_settings, Settings
 
-
-router = APIRouter()
+router = APIRouter(tags=["oauth"])
 
 
 def _query_oauth_client(db: Session, client_id: int) -> OAuthClient:
@@ -120,7 +117,7 @@ async def method_oauth_access_token_get(
     )
 
 
-@router.get("/_oauth._allowClient")
+@router.get("/_oauth._allowClient", include_in_schema=False)
 async def method_oauth_allow_client(
     req: Request,
     client_id: int,
@@ -147,11 +144,12 @@ async def method_oauth_allow_client(
 
     user, session = auth_data.user, auth_data.session
 
+    response = None
     if response_type == "code":
         # Authorization code flow.
         # Gives code, that required to be decoded using OAuth resolve method at server-side using client secret value.
         # Should be used when there is server-side, which can resolve authorization code.
-        # Read more about Florgon OAuth: https://florgon.space/dev/oauth
+        # Read more about Florgon OAuth: https://florgon.com/dev/oauth
 
         # Encoding OAuth code.
         # Code should be resolved at server-side at redirect_uri, using resolve OAuth method.
@@ -175,23 +173,18 @@ async def method_oauth_allow_client(
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
 
-        # Log statistics.
-        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
-
-        return api_success(
-            {
-                # Stores URL where to redirect, after allowing specified client,
-                # Client should be redirected here, to finish OAuth flow.
-                "redirect_to": redirect_to,
-                "code": code,
-            }
-        )
+        response = {
+            # Stores URL where to redirect, after allowing specified client,
+            # Client should be redirected here, to finish OAuth flow.
+            "redirect_to": redirect_to,
+            "code": code,
+        }
 
     if response_type == "token":
         # Implicit authorization flow.
         # Simply, gives access token inside hash-link.
         # Should be used when there is no server-side, which can resolve authorization code.
-        # Read more about Florgon OAuth: https://florgon.space/dev/oauth
+        # Read more about Florgon OAuth: https://florgon.com/dev/oauth
 
         # Encoding access token.
         # Access token have infinity TTL, if there is scope permission given for no expiration date.
@@ -223,20 +216,48 @@ async def method_oauth_allow_client(
             f"&expires_in={access_token_ttl}{redirect_to_email_param}"
         )
 
-        # Log statistics.
-        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
+        response = {
+            # Stores URL where to redirect, after allowing specified client,
+            # Client should be redirected here, to finish OAuth flow.
+            "redirect_to": redirect_to,
+            "access_token": access_token,
+        }
 
-        return api_success(
-            {
-                # Stores URL where to redirect, after allowing specified client,
-                # Client should be redirected here, to finish OAuth flow.
-                "redirect_to": redirect_to,
-                "access_token": access_token,
-            }
+    if response:
+        # Log statistics and save oauth user.
+        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
+        crud.oauth_client_user.create_if_not_exists(
+            db, user_id=user.id, client_id=oauth_client.id, scope=normalize_scope(scope)
         )
+        return api_success(response)
 
     # Requested response_type is not exists.
     return api_error(
         ApiErrorCode.API_INVALID_REQUEST,
         "Unknown `response_type` value! Allowed: code, token.",
+    )
+
+
+@router.get("/_oauth._clientIsLinked", include_in_schema=False)
+async def method_oauth_client_is_linked(
+    req: Request,
+    client_id: int,
+    scope: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Returns is requested client is linked to user or not.
+    """
+    auth_data = query_auth_data_from_request(req=req, db=db, only_session_token=True)
+    _query_oauth_client(db=db, client_id=client_id)
+    oauth_client_user = crud.oauth_client_user.get_by_user_id(
+        db, user_id=auth_data.user.id
+    )
+
+    return api_success(
+        {
+            "is_linked": oauth_client_user is not None
+            and parse_permissions_from_scope(oauth_client_user.requested_scope)
+            == parse_permissions_from_scope(scope),
+        }
     )

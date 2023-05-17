@@ -6,9 +6,9 @@
 """
 
 from .key_builders import (
-    authenticated_cache_key_builder,
-    device_cache_key_builder,
     plain_cache_key_builder,
+    device_cache_key_builder,
+    authenticated_cache_key_builder,
 )
 from .coders import JSONResponseCoder
 

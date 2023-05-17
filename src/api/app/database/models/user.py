@@ -2,10 +2,11 @@
     User database model.
 """
 
-from app.database.core import Base
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.sql import func
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import Text, String, Integer, DateTime, Column, Boolean
+
+from app.database.core import Base
 
 
 class User(Base):

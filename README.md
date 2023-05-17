@@ -23,11 +23,10 @@ API server for Florgon services (Florgon API).
 - Administrators stuff.
 - Email verification system.
 - VIP system (with promocodes).
-- Upload system (With upload server).
 
 ### See in action.
 
-API deployed and used in production [here](https://api.florgon.space/v1) (API endpoint).
+API deployed and used in production [here](https://api.florgon.com/v1) (API endpoint).
 
 ### Technologies.
 
@@ -37,7 +36,9 @@ API deployed and used in production [here](https://api.florgon.space/v1) (API en
 - Docker (with Docker-Compose)
 - Uvicorn (with Gunicorn)
 - PyTest (GitHub workflows)
+- Celery (With Redis broker and backend)
 - Grafana + Prometheus (Metrics)
+- Alembic (TBD)
 
 # Docs.
 

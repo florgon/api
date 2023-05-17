@@ -2,12 +2,12 @@
     OAuth code session database model.
 """
 
-# Core model base.
-from app.database.core import Base
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Boolean
-
 # ORM.
 from sqlalchemy.sql import func
+from sqlalchemy import Integer, ForeignKey, DateTime, Column, Boolean
+
+# Core model base.
+from app.database.core import Base
 
 
 class OAuthCode(Base):

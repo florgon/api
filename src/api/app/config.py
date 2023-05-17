@@ -8,11 +8,11 @@
 # Logs.
 import logging
 
-# Pydantic abstract class with data types.
-from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
-
 # Libs.
 import gatey_sdk
+
+# Pydantic abstract class with data types.
+from pydantic import conint, RedisDsn, PostgresDsn, EmailStr, BaseSettings
 
 
 class Settings(BaseSettings):
@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     # Mail.
     mail_enabled: bool = False
     mail_from_name: str | None = None
-    mail_from: EmailStr = "noreply@florgon.space"
+    mail_from: EmailStr = "noreply@florgon.com"
     mail_server: str = ""
     mail_password: str = ""
     mail_username: str = ""
@@ -106,6 +106,10 @@ class Settings(BaseSettings):
     signup_username_reject_uppercase: bool = True
     signup_username_reject_nonalpha: bool = True
     signup_open_registration: bool = True
+    signup_multiaccounting_dissalowed: bool = True
+    # Weird name, means multiaccounting blocked only for signup requests for blocked accounts (sessions).
+    # Dissalows creating new account only for users that was blocked and trying to create new account.
+    signup_multiaccounting_only_for_non_bypass: bool = False
 
     # Authentication.
     # Two options below, controls session suspicious check.
@@ -114,7 +118,7 @@ class Settings(BaseSettings):
     # If true, will block all requests for sessions opened from another user agent (except exception cases).
     auth_reject_wrong_user_agent: bool = True
     # URL of the OAuth screen provider.
-    auth_oauth_screen_provider_url: str = "https://florgon.space/oauth/authorize"
+    auth_oauth_screen_provider_url: str = "https://florgon.com/oauth/authorize"
     # If true will enable 2FA with email when user verifies email.
     auth_enable_tfa_on_email_verification: bool = True
     # External OAuth.
@@ -159,6 +163,10 @@ class Settings(BaseSettings):
 
     # Logging.
     logging_logger_name: str = "gunicorn.error"
+
+    # Service.
+    service_is_under_maintenance: bool = True
+    is_under_debug_environment: bool = True
 
 
 def _init_gatey_client(settings: Settings) -> gatey_sdk.Client | None:
@@ -224,8 +232,9 @@ def get_gatey_client() -> gatey_sdk.Client:
 
 
 # Static objects.
+# (Order should be same like now!)
 _settings = Settings()
-_gatey = _init_gatey_client(_settings)
 _logger = logging.getLogger(
     _settings.logging_logger_name if _settings.logging_logger_name else __name__
 )
+_gatey = _init_gatey_client(_settings)

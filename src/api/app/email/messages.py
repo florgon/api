@@ -2,14 +2,14 @@
     Stuff for sending messages.
 """
 
+# Libraries.
+from fastapi_mail import MessageType, MessageSchema
 from fastapi import BackgroundTasks
 
-# Libraries.
-from fastapi_mail import MessageSchema, MessageType
+from app.config import get_logger
 
 # Core.
 from .config import fastmail
-from app.config import get_logger
 
 
 async def send_custom_email(recepients: list[str], subject: str, body: str):

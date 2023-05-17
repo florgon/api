@@ -2,9 +2,9 @@
     Users repository.
 """
 
-from app.database.models.user import User
-from app.database.repositories.base import BaseRepository
 from app.services.passwords import get_hashed_password, HashingError
+from app.database.repositories.base import BaseRepository
+from app.database.models.user import User
 
 
 class UsersRepository(BaseRepository):

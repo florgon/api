@@ -6,18 +6,19 @@
 
 from typing import Type
 from datetime import datetime
-from fastapi import Depends
-from fastapi.requests import Request
-from sqlalchemy.orm import Session
 
+from sqlalchemy.orm import Session
+from fastapi.requests import Request
+from fastapi import Depends
+
+from app.tokens import SessionToken, BaseToken, AccessToken
+from app.services.request.session_check_client import session_check_client_by_request
+from app.services.request.auth_data import AuthData
+from app.services.permissions import parse_permissions_from_scope, Permission
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.models.user_session import UserSession
 from app.database.dependencies import get_db
 from app.database import crud
-from app.database.models.user_session import UserSession
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.permissions import Permission, parse_permissions_from_scope
-from app.services.request.auth_data import AuthData
-from app.services.request.session_check_client import session_check_client_by_request
-from app.tokens import AccessToken, BaseToken, SessionToken
 from app.config import get_logger
 
 
@@ -30,7 +31,7 @@ class AuthDataDependency:
         self,
         *,
         only_session_token: bool = False,
-        required_permissions: list[Permission] | None = None,
+        required_permissions: set[Permission] | None = None,
         allow_deactivated: bool = False,
         allow_external_clients: bool = False,
         trigger_online_update: bool = True,
@@ -52,7 +53,7 @@ def query_auth_data_from_token(
     db: Session,
     *,
     only_session_token: bool = False,
-    required_permissions: list[Permission] | None = None,
+    required_permissions: set[Permission] | None = None,
     allow_deactivated: bool = False,
     allow_external_clients: bool = False,
     trigger_online_update: bool = True,
@@ -94,7 +95,7 @@ def query_auth_data_from_request(
     db: Session,
     *,
     only_session_token: bool = False,
-    required_permissions: list[Permission] | None = None,
+    required_permissions: set[Permission] | None = None,
     allow_deactivated: bool = False,
     allow_external_clients: bool = False,
     trigger_online_update: bool = True,
@@ -127,7 +128,7 @@ def try_query_auth_data_from_request(
     db: Session,
     *,
     only_session_token: bool = False,
-    required_permissions: list[Permission] | None = None,
+    required_permissions: set[Permission] | None = None,
     allow_deactivated: bool = False,
     allow_external_clients: bool = False,
 ) -> tuple[bool, AuthData]:
@@ -180,7 +181,7 @@ def _decode_token(
     token: str,
     token_type: Type[BaseToken],
     db: Session,
-    required_permissions: list[Permission] | None = None,
+    required_permissions: set[Permission] | None = None,
     request: Request | None = None,
     allow_external_clients: bool = False,
 ) -> AuthData:
@@ -231,14 +232,14 @@ def _decode_token(
 
 
 def _query_scope_permissions(
-    scope: str, required_permissions: list[Permission] | Permission | None = None
-) -> list[Permission]:
+    scope: str, required_permissions: set[Permission] | Permission | None = None
+) -> set[Permission]:
     """
     Queries scope permissions with checking required permission (if passed).
     :param scope: Scope string (From request).
     :param required_permissions: Permissions to require, or just one permission, or no permissions.
     """
-    permissions: list[Permission] = parse_permissions_from_scope(scope)
+    permissions = parse_permissions_from_scope(scope)
 
     if not required_permissions:
         # If no permissions that should be required,
@@ -247,11 +248,11 @@ def _query_scope_permissions(
 
     if isinstance(required_permissions, Permission):
         # If specified only one permission,
-        # convert it to list as expected.
-        required_permissions = [required_permissions]
+        # convert it to set as expected.
+        required_permissions = set([required_permissions])
 
-    # Filter scope permissions, and build list with only those permissions that not satisfied.
-    unsatisfied_permissions = list(
+    # Filter scope permissions, and build set with only those permissions that not satisfied.
+    unsatisfied_permissions = set(
         filter(lambda permission: permission not in permissions, required_permissions)
     )
 

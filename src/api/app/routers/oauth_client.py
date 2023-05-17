@@ -2,25 +2,26 @@
     Oauth API auth routers.
 """
 
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
+import time
+
 from sqlalchemy.orm import Session
 from fastapi_cache.decorator import cache
 from fastapi_cache import FastAPICache
-from app.services.cache import JSONResponseCoder, plain_cache_key_builder
-from app.database import crud
-from app.database.dependencies import get_db
-from app.database.models.oauth_client import OAuthClient
-from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.api.response import api_error, api_success
-from app.services.limiter.depends import RateLimiter
-from app.services.permissions import Permission
+from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, APIRouter
 
 from app.services.request import query_auth_data_from_request
+from app.services.permissions import parse_permissions_from_scope, Permission
+from app.services.limiter.depends import RateLimiter
+from app.services.cache import plain_cache_key_builder, JSONResponseCoder
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.serializers.oauth_client import serialize_oauth_clients, serialize_oauth_client
+from app.database.models.oauth_client import OAuthClient
+from app.database.dependencies import get_db
+from app.database import crud
 
-
-router = APIRouter()
+router = APIRouter(tags=["oauthClient"])
 
 
 def _query_oauth_client_with_owner(
@@ -46,7 +47,7 @@ async def method_oauth_client_new(
 ) -> JSONResponse:
     """Creates new OAuth client"""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
     if not auth_data.user.is_verified:
         return api_error(
@@ -67,12 +68,73 @@ async def method_oauth_client_list(
 ) -> JSONResponse:
     """Returns list of user owned OAuth clients."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
     oauth_clients = crud.oauth_client.get_by_owner_id(db=db, owner_id=auth_data.user.id)
     return api_success(
         serialize_oauth_clients(oauth_clients, include_deactivated=False)
     )
+
+
+@router.get("/oauthClient.getLinked")
+async def method_oauth_client_get_linked(
+    req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """OAUTH API endpoint for getting linked oauth clients."""
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions={Permission.oauth_clients}
+    )
+    oauth_client_users = crud.oauth_client_user.get_by_user_id(
+        db, user_id=auth_data.user.id
+    )
+
+    return api_success(
+        {
+            "linked_oauth_clients": [
+                {
+                    **serialize_oauth_client(
+                        client_user.oauth_client, display_secret=False
+                    ),
+                    **{
+                        "requested_scope": client_user.requested_scope,
+                        "requested_at": time.mktime(
+                            client_user.time_created.timetuple()
+                        ),
+                        "request_updated_at": time.mktime(
+                            client_user.time_updated.timetuple()
+                        )
+                        if client_user.time_updated
+                        else None,
+                    },
+                }
+                for client_user in oauth_client_users
+            ]
+        }
+    )
+
+
+@router.get("/oauthClient.unlink")
+async def method_oauth_client_unlink(
+    client_id: int, req: Request, db: Session = Depends(get_db)
+) -> JSONResponse:
+    """OAUTH API endpoint for unlinking linked oauth clients."""
+    auth_data = query_auth_data_from_request(
+        req, db, required_permissions={Permission.oauth_clients}
+    )
+    oauth_client_user = crud.oauth_client_user.get_by_client_and_user_id(
+        db, user_id=auth_data.user.id, client_id=client_id
+    )
+    if not oauth_client_user or not oauth_client_user.is_active:
+        return api_error(
+            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
+            "OAuth client not linked!",
+        )
+
+    oauth_client_user.is_active = False
+    db.add(oauth_client_user)
+    db.commit()
+
+    return api_success({"unlinked_client_id": oauth_client_user.client_id})
 
 
 @router.get("/oauthClient.get")
@@ -83,7 +145,11 @@ async def method_oauth_client_list(
     namespace="routers_oauth_clients_getter",
 )
 async def method_oauth_client_get(
-    client_id: int, db: Session = Depends(get_db)
+    req: Request,
+    client_id: int,
+    check_is_linked: bool = False,
+    scope: str = "",
+    db: Session = Depends(get_db),
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client data."""
     oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
@@ -93,7 +159,21 @@ async def method_oauth_client_get(
             "OAuth client not found or deactivated!",
         )
 
-    return api_success(serialize_oauth_client(oauth_client, display_secret=False))
+    response = serialize_oauth_client(oauth_client, display_secret=False)
+    if check_is_linked:
+        auth_data = query_auth_data_from_request(
+            req=req, db=db, only_session_token=True
+        )
+        oauth_client_user = crud.oauth_client_user.get_by_client_and_user_id(
+            db, client_id=client_id, user_id=auth_data.user.id
+        )
+        response |= {
+            "is_linked": oauth_client_user is not None
+            and parse_permissions_from_scope(oauth_client_user.requested_scope)
+            == parse_permissions_from_scope(scope),
+        }
+
+    return api_success(response)
 
 
 @router.get("/oauthClient.expireSecret")
@@ -102,7 +182,7 @@ async def method_oauth_client_expire_secret(
 ) -> JSONResponse:
     """OAUTH API endpoint for expiring client secret."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
 
     oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
@@ -117,7 +197,7 @@ async def method_oauth_client_update(
 ) -> JSONResponse:
     """OAUTH API endpoint for updating client information."""
     auth_data = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     )
     # Query OAuth client.
     oauth_client = _query_oauth_client_with_owner(db, client_id, auth_data.user.id)
@@ -135,7 +215,7 @@ async def method_oauth_client_update(
 
     if is_updated:
         db.commit()
-        FastAPICache.clear("routers_oauth_clients_getter")
+        await FastAPICache.clear("routers_oauth_clients_getter")
 
     return api_success(
         {
@@ -151,7 +231,7 @@ async def method_oauth_client_stats(
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client usage data."""
     user_id = query_auth_data_from_request(
-        req, db, required_permissions=[Permission.oauth_clients]
+        req, db, required_permissions={Permission.oauth_clients}
     ).user.id
     oauth_client = _query_oauth_client_with_owner(db, client_id, user_id)
 

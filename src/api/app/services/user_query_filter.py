@@ -2,11 +2,11 @@
     Filters users by query filter.
 """
 
-from datetime import datetime
 from functools import partial
+from datetime import datetime
 
-from app.database.dependencies import Session
 from app.database.models.user import User
+from app.database.dependencies import Session
 from app.database import crud
 
 

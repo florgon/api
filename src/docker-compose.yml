@@ -45,6 +45,27 @@ services:
     networks:
       - florgon-api
 
+  worker:
+    hostname: florgon-api
+    restart: always
+    env_file:
+      - ./docker/configs/.server.env
+    build:
+      context: ./
+      dockerfile: $PWD/docker/Dockerfile
+    command: celery --app=app.worker.worker worker --loglevel=info -B -s /srv/www/florgon/worker/celerybeat-schedule
+    volumes:
+      - ../worker:/srv/www/florgon/worker
+      - ./api:/srv/www/florgon/api
+    depends_on:
+      - cache
+      - server
+    links:
+      - database
+      - cache
+    networks:
+      - florgon-api
+
   server:
     hostname: florgon-api
     restart: unless-stopped
@@ -66,7 +87,7 @@ services:
     build:
       context: ./
       dockerfile: $PWD/docker/Dockerfile
-
+    command: gunicorn app.app:app -c gunicorn.conf.py
 networks:
   florgon-api:
     name: florgon-api

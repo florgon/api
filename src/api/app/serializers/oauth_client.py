@@ -18,7 +18,7 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
             "name": oauth_client.display_name,
             "avatar": oauth_client.display_avatar
             if oauth_client.display_avatar
-            else "https://florgon.space/logo192.png",
+            else "https://florgon.com/logo192.png",
         },
         "created_at": time.mktime(oauth_client.time_created.timetuple()),
     }

@@ -4,27 +4,26 @@
 """
 
 import pydantic
-from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
-from app.services.cache import JSONResponseCoder, authenticated_cache_key_builder
-from app.database.dependencies import Session, get_db
-from app.serializers.user import serialize_user
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error, api_success
-from app.services.limiter.depends import RateLimiter
-from app.services.permissions import Permission
+from fastapi_cache import FastAPICache
+from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, APIRouter
+
 from app.services.request import (
     try_query_auth_data_from_request,
     AuthDataDependency,
     AuthData,
 )
-
+from app.services.permissions import Permission
+from app.services.limiter.depends import RateLimiter
+from app.services.cache import authenticated_cache_key_builder, JSONResponseCoder
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorCode
+from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
-from app.database.dependencies import get_repository
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse
+from app.database.dependencies import get_repository, get_db, Session
 
-router = APIRouter()
+router = APIRouter(tags=["user"])
 
 
 @router.get("/user.getInfo")
@@ -132,7 +131,7 @@ async def method_user_get_profile_info(
 async def method_user_set_info(
     req: Request,
     auth_data: AuthData = Depends(
-        AuthDataDependency(required_permissions=[Permission.edit])
+        AuthDataDependency(required_permissions={Permission.edit})
     ),
     db: Session = Depends(get_db),
 ) -> JSONResponse:
@@ -171,7 +170,7 @@ async def method_user_set_info(
 
     if is_updated:
         db.commit()
-        FastAPICache.clear("routers_user_info_getter")
+        await FastAPICache.clear("routers_user_info_getter")
 
     return api_success(
         {

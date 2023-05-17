@@ -2,19 +2,18 @@
     Secure API router.
     Provides API methods (routes) for working with server-side with client apps servers.
 """
-from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from fastapi import Depends, APIRouter
 
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error, api_success
-from app.database.dependencies import Session, get_db
 from app.services.request.auth import (
     query_auth_data_from_token,
     parse_permissions_from_scope,
 )
+from app.services.api.response import api_success, api_error
+from app.services.api.errors import ApiErrorCode
+from app.database.dependencies import get_db, Session
 
-
-router = APIRouter()
+router = APIRouter(tags=["secure"])
 
 
 @router.get("/secure.checkAccessToken")
@@ -46,7 +45,7 @@ async def method_secure_check_access_token(
     )
 
 
-@router.get("/secure.checkRefreshToken")
+@router.get("/secure.checkRefreshToken", deprecated=True)
 async def method_secure_check_refresh_token() -> JSONResponse:
     """
     Returns information about refresh (only) token.
@@ -57,7 +56,7 @@ async def method_secure_check_refresh_token() -> JSONResponse:
     )
 
 
-@router.get("/secure.checkSessionToken")
+@router.get("/secure.checkSessionToken", deprecated=True)
 async def method_secure_check_session_token() -> JSONResponse:
     """
     Returns information about session (only) token.

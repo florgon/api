@@ -1,9 +1,9 @@
 # pylint: disable=all
-from typing import Callable, Optional
+from typing import Optional, Callable
 
-from pydantic import conint
-from starlette.requests import Request
 from starlette.responses import Response
+from starlette.requests import Request
+from pydantic import conint
 
 from . import FastAPILimiter
 
