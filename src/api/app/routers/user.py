@@ -140,10 +140,26 @@ async def method_user_set_info(
 
     user = auth_data.user
 
+    allowed_fields = (
+        "email",
+        "phone_number",
+        "username",
+        "first_name",
+        "last_name",
+        "sex",
+        "profile_bio",
+        "profile_website",
+        "profile_social_username_vk",
+        "profile_social_username_tg",
+        "profile_social_username_gh",
+        "security_tfa_enabled",
+        "privacy_profile_require_auth",
+        "privacy_profile_public",
+    )
     new_fields = {
         k: v
         for k, v in req.query_params.items()
-        if v is not None and getattr(user, k, None) != v
+        if v is not None and k in allowed_fields and getattr(user, k, None) != v
     }
 
     is_updated = False
