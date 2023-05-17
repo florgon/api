@@ -42,17 +42,32 @@ def create_all(use_sqlalchemy_metadata: bool = False):
     :param bool use_sqlalchemy_metadata: if True, uses metadata.create_all function instead of migrations 
     """
     if use_sqlalchemy_metadata:
-        try:
-            metadata.create_all(bind=engine)
-        except IntegrityError:
-            # TODO: Add logging? (should be there is any circular import?)
-            pass
+        create_all_with_metadata()
     else:
-        root_dir = Path().resolve()
-        migrations_dir = root_dir / "migrations"
-        config_file = root_dir / "alembic.ini"
+        create_all_with_migrations()
 
-        config = Config(file_=config_file)
-        config.set_main_option("script_location", str(migrations_dir))
 
-        upgrade(config, "head")
+def create_all_with_metadata():
+    """
+    Creates all tables using sqlalchemy metadata.
+    """
+    try:
+        metadata.create_all(bind=engine)
+    except IntegrityError:
+        # TODO: Add logging? (should be there is any circular import?)
+        pass
+
+
+def create_all_with_migrations():
+    """
+    Create all tables using alembic migrations.
+    """
+    root_dir = Path().resolve()
+    migrations_dir = root_dir / "migrations"
+    config_file = root_dir / "alembic.ini"
+
+    config = Config(file_=config_file)
+    config.set_main_option("script_location", str(migrations_dir))
+
+    upgrade(config, "head")
+
