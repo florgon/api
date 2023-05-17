@@ -8,7 +8,6 @@ from fastapi_cache.decorator import cache
 from fastapi_cache import FastAPICache
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
-
 from app.services.request import (
     try_query_auth_data_from_request,
     AuthDataDependency,
@@ -168,7 +167,7 @@ async def method_user_set_info(
             if len(value) < 1 or len(value) > 20:
                 return api_error(
                     ApiErrorCode.API_INVALID_REQUEST,
-                    f"{name.replace('_', ' ').capitalize()} should be longer than 1 and shorter than 20!",
+                    f"{name.replace('_', ' ').capitalize()} should be longer than 0 and shorter than 20!",
                 )
 
         if name == "profile_bio":
