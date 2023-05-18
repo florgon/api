@@ -39,7 +39,6 @@ def send_http_webhook_event(url: str, event_type: str, data: dict) -> bool:
     if not response:
         return False
 
-
     # Response should contain that header to verify that data was accepted.
     payload_hash_response = response.headers[WEBHOOK_RESPONSE_HASH_HEADER]
     # Should be valid response or return False as failed response.
