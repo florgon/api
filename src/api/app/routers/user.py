@@ -18,10 +18,17 @@ from app.services.limiter.depends import RateLimiter
 from app.services.cache import authenticated_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
-from app.services.validators.user import normalize_phone_number
+from app.services.validators.user import (
+    validate_username_field,
+    validate_first_name_field,
+    validate_last_name_field,
+    validate_profile_bio_field,
+    validate_phone_number_field,
+)
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository, get_db, Session
+from app.config import get_settings
 
 router = APIRouter(tags=["user"])
 
@@ -160,37 +167,29 @@ async def method_user_set_info(
         for k, v in req.query_params.items()
         if v is not None and k in allowed_fields and getattr(user, k, None) != v
     }
+    settings = get_settings()
 
     is_updated = False
     for name, value in new_fields.items():
-        if name in ["first_name", "last_name"]:
-            if len(value) < 1 or len(value) > 20:
-                return api_error(
-                    ApiErrorCode.API_INVALID_REQUEST,
-                    f"{name.replace('_', ' ').capitalize()} should be longer than 0 and shorter than 20!",
-                )
-
+        if name == "username":
+            validate_username_field(db, settings, username=value)
+        if name == "first_name":
+            validate_first_name_field(value)
+        if name == "last_name":
+            validate_last_name_field(value)
         if name == "profile_bio":
-            if len(value) < 1 or len(value) > 250:
-                return api_error(
-                    ApiErrorCode.API_INVALID_REQUEST,
-                    "Profile bio should be longer than 1 and shorter than 250!",
-                )
-
+            validate_profile_bio_field(value)
         if name == "phone_number":
-            if len(value) < 11 or len(value) > 30:
-                return api_error(
-                    ApiErrorCode.API_INVALID_REQUEST,
-                    "Phone number should be longer than 10 and shorter than 31!",
-                )
-            value = normalize_phone_number(value)
-            if len(value) <= 10 or len(value) >= 14:
-                return api_error(
-                    ApiErrorCode.API_INVALID_REQUEST,
-                    "Phone number should contain more than 10 digits and less then 14 digits!",
-                )
+            validate_phone_number_field(db, value)
 
-        if name in ["sex", "privacy_profile_public", "privacy_profile_require_auth"]:
+        if name in (
+            "sex",
+            "privacy_profile_public",
+            "privacy_profile_require_auth",
+            "security_tfa_enabled",
+            "privacy_profile_require_auth",
+            "privacy_profile_public",
+        ):
             setattr(user, name, pydantic.parse_obj_as(bool, value))
         else:
             setattr(user, name, value)

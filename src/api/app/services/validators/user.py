@@ -109,9 +109,9 @@ def validate_username_field(
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be longer than 4!"
         )
-    if len(username) > 16:
+    if len(username) >= 17:
         raise ApiErrorException(
-            ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 16!"
+            ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 17!"
         )
     if settings.signup_username_reject_nonalpha and not username.isalpha():
         raise ApiErrorException(
@@ -153,3 +153,62 @@ def validate_signin_fields(user: User, password: str) -> None:
             ApiErrorCode.USER_DEACTIVATED,
             "Unable to sign-in as user was frozen (deactivated or blocked).",
         )
+
+
+def validate_first_name_field(first_name: str) -> None:
+    """
+    Validates first_name, raises API error if name is invalid.
+    """
+    if len(first_name) == 0 and len(first_name) >= 21:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "First name should be longer than 0 and shorter than 21!",
+        )
+
+
+def validate_last_name_field(last_name: str) -> None:
+    """
+    Validates last_name, raises API error if name is invalid.
+    """
+    if len(last_name) == 0 or len(last_name) >= 21:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Last name should be longer than 0 and shorter than 21!",
+        )
+
+
+def validate_profile_bio_field(bio: str) -> None:
+    """
+    Validates profile_bio, raises API error if bio is invalid.
+    """
+    if len(bio) >= 251:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Profile bio should be shorter than 251!",
+        )
+
+
+def validate_phone_number_field(db: Session, phone_number: str) -> None:
+    """
+    Validates phone_number, then normailize it and validates normalized phone_number.
+    Raises API error if phone_number is invalid.
+    """
+    if len(phone_number) > 0 and len(phone_number) <= 10 or len(phone_number) >= 31:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Phone number should be longer than 10 and shorter than 31 or should be empty!",
+        )
+    phone_number = normalize_phone_number(phone_number)
+    if len(phone_number) <= 10 or len(phone_number) >= 14:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Phone number should contain more than 10 digits and less then 14 digits!",
+        )
+
+    if crud.user.phone_number_is_taken(db=db, phone_number=phone_number):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Phone number is already taken!"
+        )
+
+
