@@ -5,12 +5,11 @@
 
 from datetime import datetime
 
-from sqlalchemy.orm import Session
-from pyotp import random_base32
-
-from app.services.passwords import get_hashed_password, HashingError
-from app.database.models.user import User
 from app.config import get_settings
+from app.database.models.user import User
+from app.services.passwords import HashingError, get_hashed_password
+from pyotp import random_base32
+from sqlalchemy.orm import Session
 
 
 def get_all(db: Session) -> list[User]:
@@ -45,6 +44,15 @@ def email_confirm(db: Session, user: User):
         user.security_tfa_enabled = True
         user.security_tfa_secret_key = random_base32()
     db.commit()
+
+
+def cancel_emil_confirmation(db: Session, user: User) -> None:
+    """Cancels email confirmatiom, made by email_confirm functioin"""
+    user.is_verified = False
+    user.time_verified = None
+
+    db.commit()
+
 
 
 def email_is_taken(db: Session, email: str) -> bool:

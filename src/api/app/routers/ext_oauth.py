@@ -2,15 +2,14 @@
     External OAuth router.
     Provides API methods (routes) for working with social accounts OAuth.
 """
-from fastapi.responses import RedirectResponse, JSONResponse
-from fastapi import APIRouter
-
-from app.services.ext_oauth.yandex_provider import YandexOauthService
-from app.services.ext_oauth.vk_provider import VkOauthService
-from app.services.ext_oauth.github_provider import GithubOauthService
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.config import get_settings
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.response import api_error, api_success
+from app.services.ext_oauth.github_provider import GithubOauthService
+from app.services.ext_oauth.vk_provider import VkOauthService
+from app.services.ext_oauth.yandex_provider import YandexOauthService
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse, RedirectResponse
 
 router = APIRouter(include_in_schema=False)
 

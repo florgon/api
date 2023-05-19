@@ -2,14 +2,15 @@
     Stuff for working with sessions.
 """
 
-from fastapi import Request
-from app.tokens import SessionToken
-from app.services.request import get_country_from_request, get_client_host_from_request
-from app.database.models.user_session import UserSession
-from app.database.models.user import User
-from app.database.dependencies import Session
-from app.database import crud
 from app.config import get_settings
+from app.database import crud
+from app.database.dependencies import Session
+from app.database.models.user import User
+from app.database.models.user_session import UserSession
+from app.services.request import (get_client_host_from_request,
+                                  get_country_from_request)
+from app.tokens import SessionToken
+from fastapi import Request
 
 
 def publish_new_session_with_token(

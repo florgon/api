@@ -4,17 +4,15 @@
 from typing import Callable
 
 try:
-    from prometheus_fastapi_instrumentator.instrumentation import (
-        PrometheusFastApiInstrumentator,
-    )
+    from prometheus_fastapi_instrumentator.instrumentation import \
+        PrometheusFastApiInstrumentator
 except ImportError:
     prometheus_instrumentator_installed = False
 else:
     prometheus_instrumentator_installed = True
 
+from app.config import get_logger, get_settings
 from fastapi import FastAPI
-
-from app.config import get_settings, get_logger
 
 
 def prometheus_metrics_on_startup(_app: FastAPI) -> None | Callable:

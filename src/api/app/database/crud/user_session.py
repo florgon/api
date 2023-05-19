@@ -6,12 +6,11 @@
 
 import secrets
 
-from sqlalchemy.orm import Session
-from app.database.models.user_session import UserSession
+from app.database.crud.user_agent import \
+    get_or_create_by_string as get_ua_or_crete_by_string
 from app.database.models.user_agent import UserAgent
-from app.database.crud.user_agent import (
-    get_or_create_by_string as get_ua_or_crete_by_string,
-)
+from app.database.models.user_session import UserSession
+from sqlalchemy.orm import Session
 
 
 def generate_secret() -> str:

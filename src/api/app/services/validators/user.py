@@ -2,14 +2,13 @@
     User validators.
 """
 
-from validate_email import validate_email
-
-from app.services.passwords import check_password
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.models.user import User
-from app.database.dependencies import Session
+from app.config import Settings, get_settings
 from app.database import crud
-from app.config import get_settings, Settings
+from app.database.dependencies import Session
+from app.database.models.user import User
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.passwords import check_password
+from validate_email import validate_email
 
 _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
     "yandex.ru": "ya.ru",

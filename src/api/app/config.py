@@ -10,9 +10,8 @@ import logging
 
 # Libs.
 import gatey_sdk
-
 # Pydantic abstract class with data types.
-from pydantic import conint, RedisDsn, PostgresDsn, EmailStr, BaseSettings
+from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
 
 
 class Settings(BaseSettings):

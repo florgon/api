@@ -2,10 +2,9 @@
     User linked accounts database model.
 """
 
-from sqlalchemy.sql import func
-from sqlalchemy import String, Integer, ForeignKey, DateTime, Column
-
 from app.database.core import Base
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.sql import func
 
 
 class UserLinkedAccounts(Base):

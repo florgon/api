@@ -5,22 +5,18 @@
 
 from dataclasses import dataclass
 
-from fastapi.responses import JSONResponse
-
-from app.tokens import RefreshToken, OAuthCode, AccessToken
-from app.services.permissions import (
-    permissions_get_ttl,
-    parse_permissions_from_scope,
-    normalize_scope,
-    Permission,
-)
-from app.services.api.response import api_success
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.models.user_session import UserSession
-from app.database.models.user import User
-from app.database.dependencies import Session
-from app.database import crud
 from app.config import Settings
+from app.database import crud
+from app.database.dependencies import Session
+from app.database.models.user import User
+from app.database.models.user_session import UserSession
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.response import api_success
+from app.services.permissions import (Permission, normalize_scope,
+                                      parse_permissions_from_scope,
+                                      permissions_get_ttl)
+from app.tokens import AccessToken, OAuthCode, RefreshToken
+from fastapi.responses import JSONResponse
 
 
 @dataclass

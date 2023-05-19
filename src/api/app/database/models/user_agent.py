@@ -2,11 +2,10 @@
     User agent database model.
 """
 
-# ORM.
-from sqlalchemy import Text, Integer, Column
-
 # Core model base.
 from app.database.core import Base
+# ORM.
+from sqlalchemy import Column, Integer, Text
 
 
 class UserAgent(Base):

@@ -4,8 +4,8 @@
 
 from secrets import token_urlsafe
 
-from app.database.repositories.base import BaseRepository
 from app.database.models.oauth_client import OAuthClient
+from app.database.repositories.base import BaseRepository
 
 
 class OAuthClientsRepository(BaseRepository):

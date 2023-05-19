@@ -24,10 +24,13 @@ from app.services.validators.user import (
     validate_last_name_field,
     validate_profile_bio_field,
     validate_phone_number_field,
+    validate_email_field,
+    convert_email_to_standartized
 )
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository, get_db, Session
+from app.database import crud
 from app.config import get_settings
 
 router = APIRouter(tags=["user"])
@@ -173,6 +176,10 @@ async def method_user_set_info(
     for name, value in new_fields.items():
         if name == "username":
             validate_username_field(db, settings, username=value)
+        if name == "email":
+            email = convert_email_to_standartized(value)
+            validate_email_field(db, settings, email=email)
+            crud.user.unverify_email()
         if name == "first_name":
             validate_first_name_field(value)
         if name == "last_name":

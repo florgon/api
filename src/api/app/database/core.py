@@ -2,16 +2,14 @@
     Database core. Contains engine, ORM related stuff.
 """
 
-from sqlalchemy.pool import QueuePool
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import OperationalError, IntegrityError
-
-# Imports.
-from sqlalchemy import create_engine, MetaData
-
 # Settings.
-from app.config import get_logger, Settings
+from app.config import Settings, get_logger
+# Imports.
+from sqlalchemy import MetaData, create_engine
+from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 
 # Database engine.
 settings = Settings()

@@ -2,25 +2,19 @@
     Resolves refresh token grant.
 """
 
-from fastapi.responses import JSONResponse
-
+from app.config import Settings
+from app.database import crud
+from app.database.dependencies import Session
+from app.services.api.errors import ApiErrorCode
+from app.services.api.response import api_error, api_success
+# Services.
+from app.services.permissions import (Permission, normalize_scope,
+                                      parse_permissions_from_scope,
+                                      permissions_get_ttl)
+from app.tokens import AccessToken, RefreshToken
 # Libraries.
 from fastapi import Request
-
-from app.tokens import RefreshToken, AccessToken
-
-# Services.
-from app.services.permissions import (
-    permissions_get_ttl,
-    parse_permissions_from_scope,
-    normalize_scope,
-    Permission,
-)
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode
-from app.database.dependencies import Session
-from app.database import crud
-from app.config import Settings
+from fastapi.responses import JSONResponse
 
 
 def oauth_refresh_token_grant(

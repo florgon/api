@@ -3,18 +3,17 @@
     Provides API methods (routes) for working gifts.
 """
 
-from fastapi.responses import JSONResponse
-from fastapi import Depends, APIRouter
-
-from app.services.request.auth import AuthDataDependency
-from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.repositories import GiftsRepository
-from app.database.models.user import User
-from app.database.models.gift import GiftRewardType, Gift
-from app.database.dependencies import get_repository, Session
 from app.database import crud
+from app.database.dependencies import Session, get_repository
+from app.database.models.gift import Gift, GiftRewardType
+from app.database.models.user import User
+from app.database.repositories import GiftsRepository
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.response import api_success
+from app.services.limiter.depends import RateLimiter
+from app.services.request.auth import AuthDataDependency
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 router = APIRouter(tags=["gift"])
 

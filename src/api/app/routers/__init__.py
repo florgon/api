@@ -2,24 +2,11 @@
     FastAPI routers for application.
 """
 
+from app.config import get_settings
 from fastapi import FastAPI
 
-from app.config import get_settings
-
-from . import (
-    utils,
-    user,
-    session,
-    security,
-    secure,
-    oauth_client,
-    oauth,
-    mailings,
-    gift,
-    ext_oauth,
-    email,
-    admin,
-)
+from . import (admin, email, ext_oauth, gift, mailings, oauth, oauth_client,
+               secure, security, session, user, utils)
 
 
 def include_routers(app: FastAPI) -> None:

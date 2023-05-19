@@ -4,28 +4,28 @@
     For external authorization (obtaining `access_token`, not `session_token`) see OAuth.
 """
 
-from fastapi.responses import JSONResponse
-from fastapi import Request, Header, Depends, Body, BackgroundTasks, APIRouter
-from app.services.validators.user import (
-    validate_signup_fields,
-    validate_signin_fields,
-    convert_email_to_standardized,
-)
-from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
-from app.services.session import publish_new_session_with_token
-from app.services.request.signup_host_allowance import validate_signup_host_allowance
-from app.services.request import AuthDataDependency, AuthData
-from app.services.permissions import Permission
-from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode
-from app.serializers.user import serialize_user
-from app.serializers.session import serialize_sessions
-from app.email import messages as email_messages
-from app.database.repositories import UsersRepository
-from app.database.dependencies import get_repository, get_db, Session
+from app.config import Settings, get_settings
 from app.database import crud
-from app.config import get_settings, Settings
+from app.database.dependencies import Session, get_db, get_repository
+from app.database.repositories import UsersRepository
+from app.email import messages as email_messages
+from app.serializers.session import serialize_sessions
+from app.serializers.user import serialize_user
+from app.services.api.errors import ApiErrorCode
+from app.services.api.response import api_error, api_success
+from app.services.limiter.depends import RateLimiter
+from app.services.permissions import Permission
+from app.services.request import AuthData, AuthDataDependency
+from app.services.request.signup_host_allowance import \
+    validate_signup_host_allowance
+from app.services.session import publish_new_session_with_token
+from app.services.tfa import (generate_tfa_otp,
+                              validate_user_tfa_otp_from_request)
+from app.services.validators.user import (convert_email_to_standardized,
+                                          validate_signin_fields,
+                                          validate_signup_fields)
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, Request
+from fastapi.responses import JSONResponse
 
 router = APIRouter(include_in_schema=False)
 

@@ -4,13 +4,11 @@
 
 from enum import IntEnum
 
-from sqlalchemy.sql import func
-
-# ORM.
-from sqlalchemy import String, Integer, ForeignKey, DateTime, Column, Boolean
-
 # Core model base.
 from app.database.core import Base
+# ORM.
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.sql import func
 
 
 class Gift(Base):
