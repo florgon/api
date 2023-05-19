@@ -193,7 +193,10 @@ def validate_phone_number_field(db: Session, phone_number: str) -> None:
     Validates phone_number, then normailize it and validates normalized phone_number.
     Raises API error if phone_number is invalid.
     """
-    if len(phone_number) > 0 and len(phone_number) <= 10 or len(phone_number) >= 31:
+    if len(phone_number) == 0:
+        return
+
+    if len(phone_number) <= 10 or len(phone_number) >= 31:
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST,
             "Phone number should be longer than 10 and shorter than 31 or should be empty!",

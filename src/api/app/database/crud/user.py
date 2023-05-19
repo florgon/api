@@ -57,6 +57,11 @@ def username_is_taken(db: Session, username: str) -> bool:
     return db.query(User).filter(User.username == username).first() is not None
 
 
+def phone_number_is_taken(db: Session, phone_number: str) -> bool:
+    """Return is given phone number is already taken or not."""
+    return db.query(User).filter(User.phone_number == phone_number).first() is not None
+
+
 def create(db: Session, username: str, email: str, password: str) -> User | None:
     """Creates user with given credentials."""
 
