@@ -25,7 +25,8 @@ from app.services.validators.user import (
     validate_profile_bio_field,
     validate_phone_number_field,
     validate_email_field,
-    convert_email_to_standartized
+    convert_email_to_standartized,
+    validate_profile_website_field,
 )
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
@@ -186,6 +187,8 @@ async def method_user_set_info(
             validate_last_name_field(value)
         if name == "profile_bio":
             validate_profile_bio_field(value)
+        if name == "profile_website":
+            validate_profile_website_field(value)
         if name == "phone_number":
             validate_phone_number_field(db, value)
 

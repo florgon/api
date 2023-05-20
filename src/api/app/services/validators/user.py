@@ -1,6 +1,7 @@
 """
     User validators.
 """
+import re
 
 from app.config import Settings, get_settings
 from app.database import crud
@@ -185,6 +186,28 @@ def validate_profile_bio_field(bio: str) -> None:
             ApiErrorCode.API_INVALID_REQUEST,
             "Profile bio should be shorter than 251!",
         )
+
+
+def validate_profile_website_field(website: str) -> None:
+    """
+    Validates profile_website, raises API error if url is invalid.
+    """
+    if len(website) >= 251:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Profile website should be shorter than 251!",
+        )
+
+    pattern = re.compile(
+        r"^(https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?$",
+        flags=re.U,
+    )
+    if not pattern.match(website):
+        raise ApiErrorException(
+            ApiErrorCode,
+            "Profile website should be shorter than 251!",
+        )
+
 
 
 def validate_phone_number_field(db: Session, phone_number: str) -> None:
