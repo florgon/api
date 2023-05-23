@@ -5,9 +5,8 @@
 
 import secrets
 
-from sqlalchemy.orm import Session
-
 from app.database.models.oauth_client import OAuthClient
+from sqlalchemy.orm import Session
 
 
 def generate_secret() -> str:

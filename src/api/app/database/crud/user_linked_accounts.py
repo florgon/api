@@ -3,9 +3,8 @@
     User linked accounts CRUD utils for the database.
 """
 
-from sqlalchemy.orm import Session
-
 from app.database.models.user_linked_accounts import UserLinkedAccounts
+from sqlalchemy.orm import Session
 
 
 def create(

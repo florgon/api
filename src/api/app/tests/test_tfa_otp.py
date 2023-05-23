@@ -2,8 +2,8 @@
     2-FA OTP unit.
 """
 
-import unittest
 import time
+import unittest
 
 from pyotp import TOTP
 

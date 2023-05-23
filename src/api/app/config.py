@@ -12,7 +12,7 @@ import logging
 import gatey_sdk
 
 # Pydantic abstract class with data types.
-from pydantic import conint, RedisDsn, PostgresDsn, EmailStr, BaseSettings
+from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
 
 
 class Settings(BaseSettings):
@@ -76,8 +76,8 @@ class Settings(BaseSettings):
     requests_limiter_enabled: bool = True
 
     # Requests && other Cache.
-    fastapi_cache_enable: bool = False
-    fastapi_cache_use_inmemory_backend: bool = False
+    fastapi_cache_enable: bool = True
+    fastapi_cache_use_inmemory_backend: bool = True
 
     # OpenAPI.
 
@@ -104,7 +104,7 @@ class Settings(BaseSettings):
     signup_username_reject_uppercase: bool = True
     signup_username_reject_nonalpha: bool = True
     signup_open_registration: bool = True
-    signup_multiaccounting_dissalowed: bool = True
+    signup_multiaccounting_dissalowed: bool = False
     # Weird name, means multiaccounting blocked only for signup requests for blocked accounts (sessions).
     # Dissalows creating new account only for users that was blocked and trying to create new account.
     signup_multiaccounting_only_for_non_bypass: bool = False

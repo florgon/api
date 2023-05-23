@@ -5,10 +5,10 @@
 
 from time import time
 
-from fastapi.responses import JSONResponse
-from fastapi import APIRouter
-from app.services.api.response import api_success
 from app.config import get_settings
+from app.services.api.response import api_success
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 router = APIRouter(tags=["utils"])
 

@@ -1,10 +1,12 @@
-import multiprocessing
-import hmac
 import hashlib
+import hmac
+import multiprocessing
+import socket
+import time
 
-import uvicorn
-import pytest
 import fastapi
+import pytest
+import uvicorn
 from app.services.webhooks import send_http_webhook_event
 
 SERVER_HOST = "127.0.0.1"
@@ -36,8 +38,14 @@ def _webhook_target_server(host: str, port: int) -> None:
 def test_send_and_accept_webhook(
     webhook_server,
 ):  # pylint: disable=redefined-outer-name:
+    result = 1
+    while result:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((SERVER_HOST, SERVER_PORT))
+        time.sleep(0.1)
+
     assert send_http_webhook_event(
-        url=f"{SERVER_HOST}:{SERVER_PORT}",
+        url=f"http://{SERVER_HOST}:{SERVER_PORT}",
         event_type="pytest_event_name",
         data={"is_pytest": True, "some_stuff": "hi!"},
     )

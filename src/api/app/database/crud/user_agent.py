@@ -3,9 +3,8 @@
     User agent CRUD utils for the database.
 """
 
-from sqlalchemy.orm import Session
-
 from app.database.models.user_agent import UserAgent
+from sqlalchemy.orm import Session
 
 
 def get_by_string(db: Session, user_agent_string: str) -> UserAgent:

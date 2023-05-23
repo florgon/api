@@ -6,12 +6,12 @@
     All tokens should be child classes of BaseToken class.
 """
 
-from .session_token import SessionToken
-from .refresh_token import RefreshToken
-from .oauth_code import OAuthCode
-from .email_token import EmailToken
-from .base_token import BaseToken
 from .access_token import AccessToken
+from .base_token import BaseToken
+from .email_token import EmailToken
+from .oauth_code import OAuthCode
+from .refresh_token import RefreshToken
+from .session_token import SessionToken
 
 __all__ = [
     "AccessToken",

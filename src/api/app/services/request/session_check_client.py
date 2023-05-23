@@ -3,13 +3,13 @@
     (Session opened from another client).
 """
 
-from sqlalchemy.orm import Session
-from fastapi import Request
-from app.services.request.get_from_request import get_client_host_from_request
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.models.user_session import UserSession
-from app.database import crud
 from app.config import get_settings
+from app.database import crud
+from app.database.models.user_session import UserSession
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.request.get_from_request import get_client_host_from_request
+from fastapi import Request
+from sqlalchemy.orm import Session
 
 
 def session_check_client_by_request(

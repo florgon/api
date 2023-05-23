@@ -4,7 +4,7 @@
 
 import unittest
 
-from app.services.passwords import get_hashed_password, check_password
+from app.services.passwords import check_password, get_hashed_password
 
 
 class TestPasswordsUnit(unittest.TestCase):
