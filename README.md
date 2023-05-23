@@ -45,7 +45,8 @@ API deployed and used in production [here](https://api.florgon.com/v1) (API endp
 ### Running | Deploy.
 
 How to run: [`/docs/deployment/HOW_TO_RUN.md`](/docs/deployment/HOW_TO_RUN.md) \
-How to configure: [`/docs/deployment/CONFIGURATION.md`](/docs/deployment/CONFIGURATION.md)
+How to configure: [`/docs/deployment/CONFIGURATION.md`](/docs/deployment/CONFIGURATION.md) \
+Work with database migrations: [`/docs/MIGRATIONS.md`](/docs/MIGRATIONS.md)
 
 ### API.
 
