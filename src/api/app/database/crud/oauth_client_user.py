@@ -3,9 +3,8 @@
     OAuth client user CRUD utils for the database.
 """
 
-from sqlalchemy.orm import Session
-
 from app.database.models.oauth_client_user import OAuthClientUser
+from sqlalchemy.orm import Session
 
 
 def create_if_not_exists(

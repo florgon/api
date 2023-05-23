@@ -2,13 +2,12 @@
     Gift use database model.
 """
 
-from sqlalchemy.sql import func
-
-# ORM.
-from sqlalchemy import Integer, ForeignKey, DateTime, Column
-
 # Core model base.
 from app.database.core import Base
+
+# ORM.
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy.sql import func
 
 
 class GiftUse(Base):

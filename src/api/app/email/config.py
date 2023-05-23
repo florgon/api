@@ -2,11 +2,11 @@
     Mail library configuration settings.
 """
 
-# Libraries.
-from fastapi_mail import FastMail, ConnectionConfig
-
 # Settings for configuring mail connection.
-from app.config import get_logger, Settings
+from app.config import Settings, get_logger
+
+# Libraries.
+from fastapi_mail import ConnectionConfig, FastMail
 
 
 def _build_connection_config(settings: Settings) -> ConnectionConfig | None:

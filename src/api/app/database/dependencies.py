@@ -2,13 +2,13 @@
     FastAPI dependencies
 """
 
-from typing import Type, Callable
+from typing import Callable, Type
 
-from sqlalchemy.orm import Session
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
+from .core import SessionLocal, sessionmaker
 from .repositories.base import BaseRepository
-from .core import sessionmaker, SessionLocal
 
 
 def get_db() -> sessionmaker:

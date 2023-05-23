@@ -2,11 +2,11 @@
     Stuff for sending messages.
 """
 
-# Libraries.
-from fastapi_mail import MessageType, MessageSchema
+from app.config import get_logger
 from fastapi import BackgroundTasks
 
-from app.config import get_logger
+# Libraries.
+from fastapi_mail import MessageSchema, MessageType
 
 # Core.
 from .config import fastmail

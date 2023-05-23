@@ -4,16 +4,16 @@
     Should be run from external process (Manual uvicorn or by default as docker).
 """
 
-from fastapi.logger import logger as fastapi_logger
 from fastapi import FastAPI
+from fastapi.logger import logger as fastapi_logger
 
-from .routers import include_routers
-from .middlewares import add_middlewares
-from .exception_handlers import add_exception_handlers
-from .event_handlers import add_event_handlers
-from .database.bootstrap import create_start_database_entries
-from .config import get_settings, get_logger
 from . import database
+from .config import get_logger, get_settings
+from .database.bootstrap import create_start_database_entries
+from .event_handlers import add_event_handlers
+from .exception_handlers import add_exception_handlers
+from .middlewares import add_middlewares
+from .routers import include_routers
 
 if __name__ == "__main__":
     # You are not supposed to run this directly.

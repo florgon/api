@@ -5,10 +5,10 @@
     Used for features like notifying external services about some events / data that occured inside this API-service.
 """
 
-import time
-import json
-import hmac
 import hashlib
+import hmac
+import json
+import time
 
 import requests
 

@@ -2,12 +2,12 @@
     Filters users by query filter.
 """
 
-from functools import partial
 from datetime import datetime
+from functools import partial
 
-from app.database.models.user import User
-from app.database.dependencies import Session
 from app.database import crud
+from app.database.dependencies import Session
+from app.database.models.user import User
 
 
 def _qfp_signup_last_week(_, u: User) -> bool:

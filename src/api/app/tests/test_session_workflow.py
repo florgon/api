@@ -4,9 +4,9 @@
 
 
 import pytest
-from fastapi.testclient import TestClient
-from app.database.bootstrap import SUPERUSER_USERNAME, SUPERUSER_PASSWORD
 from app.app import app
+from app.database.bootstrap import SUPERUSER_PASSWORD, SUPERUSER_USERNAME
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture

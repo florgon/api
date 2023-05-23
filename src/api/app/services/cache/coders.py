@@ -3,12 +3,11 @@
 """
 
 import json
-from typing import Dict, Any
-
-from starlette.responses import JSONResponse
+from typing import Any, Dict
 
 # Base coder.
-from fastapi_cache.coder import object_hook, JsonEncoder, Coder
+from fastapi_cache.coder import Coder, JsonEncoder, object_hook
+from starlette.responses import JSONResponse
 
 
 class JSONResponseCoder(Coder):
