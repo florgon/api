@@ -7,8 +7,7 @@ import time
 from app.database import crud
 from app.database.dependencies import get_db
 from app.database.models.oauth_client import OAuthClient
-from app.serializers.oauth_client import (serialize_oauth_client,
-                                          serialize_oauth_clients)
+from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
 from app.services.cache import JSONResponseCoder, plain_cache_key_builder

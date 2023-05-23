@@ -15,9 +15,12 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.request import query_auth_data_from_request
 from app.tokens import EmailToken
-from app.tokens.exceptions import (TokenExpiredError, TokenInvalidError,
-                                   TokenInvalidSignatureError,
-                                   TokenWrongTypeError)
+from app.tokens.exceptions import (
+    TokenExpiredError,
+    TokenInvalidError,
+    TokenInvalidSignatureError,
+    TokenWrongTypeError,
+)
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.responses import JSONResponse
 

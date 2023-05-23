@@ -3,8 +3,7 @@
 """
 from app.config import get_logger
 from app.database.dependencies import Session, SessionLocal
-from app.database.repositories.oauth_clients import (OAuthClient,
-                                                     OAuthClientsRepository)
+from app.database.repositories.oauth_clients import OAuthClient, OAuthClientsRepository
 from app.database.repositories.users import UsersRepository
 
 SUPERUSER_USER_ID = 1

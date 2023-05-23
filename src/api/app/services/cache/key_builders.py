@@ -8,8 +8,7 @@
 from hashlib import md5
 from typing import Callable
 
-from app.services.request import (get_client_host_from_request,
-                                  get_token_from_request)
+from app.services.request import get_client_host_from_request, get_token_from_request
 from fastapi_cache import FastAPICache
 from starlette.requests import Request
 from starlette.responses import Response

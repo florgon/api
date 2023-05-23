@@ -4,6 +4,7 @@
 
 from app.config import get_logger
 from fastapi import BackgroundTasks
+
 # Libraries.
 from fastapi_mail import MessageSchema, MessageType
 

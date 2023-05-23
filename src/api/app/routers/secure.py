@@ -5,8 +5,10 @@
 from app.database.dependencies import Session, get_db
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
-from app.services.request.auth import (parse_permissions_from_scope,
-                                       query_auth_data_from_token)
+from app.services.request.auth import (
+    parse_permissions_from_scope,
+    query_auth_data_from_token,
+)
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 

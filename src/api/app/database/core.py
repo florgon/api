@@ -4,6 +4,7 @@
 
 # Settings.
 from app.config import Settings, get_logger
+
 # Imports.
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.exc import IntegrityError, OperationalError

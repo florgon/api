@@ -54,7 +54,6 @@ def cancel_emil_confirmation(db: Session, user: User) -> None:
     db.commit()
 
 
-
 def email_is_taken(db: Session, email: str) -> bool:
     """Returns is given email is taken or not."""
     return db.query(User).filter(User.email == email).first() is not None

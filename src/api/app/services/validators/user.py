@@ -209,7 +209,6 @@ def validate_profile_website_field(website: str) -> None:
         )
 
 
-
 def validate_phone_number_field(db: Session, phone_number: str) -> None:
     """
     Validates phone_number, then normailize it and validates normalized phone_number.
@@ -232,8 +231,20 @@ def validate_phone_number_field(db: Session, phone_number: str) -> None:
 
     if crud.user.phone_number_is_taken(db=db, phone_number=phone_number):
         raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Phone number is already taken!"
+            ApiErrorCode.API_INVALID_REQUEST, "Phone number is already taken!"
         )
 
 
+def validate_profile_social_username_field(social_username: str) -> None:
+    """
+    Validates github, vk, telegram usernames.
+    """
+    if len(social_username) == 0:
+        return
+
+    if len(social_username) <= 3 or len(social_username) >= 51:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Profile social username should be longer than 3 and"
+            "shorter than 51 or should be empty!",
+        )

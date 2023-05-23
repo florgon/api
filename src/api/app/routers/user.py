@@ -25,8 +25,9 @@ from app.services.validators.user import (
     validate_profile_bio_field,
     validate_phone_number_field,
     validate_email_field,
-    convert_email_to_standartized,
+    convert_email_to_standardized,
     validate_profile_website_field,
+    validate_profile_social_username_field,
 )
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
@@ -173,12 +174,11 @@ async def method_user_set_info(
     }
     settings = get_settings()
 
-    is_updated = False
     for name, value in new_fields.items():
         if name == "username":
             validate_username_field(db, settings, username=value)
         if name == "email":
-            email = convert_email_to_standartized(value)
+            email = convert_email_to_standardized(value)
             validate_email_field(db, settings, email=email)
             crud.user.unverify_email()
         if name == "first_name":
@@ -191,6 +191,8 @@ async def method_user_set_info(
             validate_profile_website_field(value)
         if name == "phone_number":
             validate_phone_number_field(db, value)
+        if name.startswith("profile_social_username"):
+            validate_profile_social_username_field(value)
 
         if name in (
             "sex",
@@ -204,8 +206,7 @@ async def method_user_set_info(
         else:
             setattr(user, name, value)
 
-        is_updated = True
-
+    is_updated = bool(new_fields)
     if is_updated:
         db.commit()
         await FastAPICache.clear("routers_user_info_getter")

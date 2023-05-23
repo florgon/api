@@ -4,6 +4,7 @@
 
 # Settings for configuring mail connection.
 from app.config import Settings, get_logger
+
 # Libraries.
 from fastapi_mail import ConnectionConfig, FastMail
 

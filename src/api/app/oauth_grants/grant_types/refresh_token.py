@@ -7,11 +7,16 @@ from app.database import crud
 from app.database.dependencies import Session
 from app.services.api.errors import ApiErrorCode
 from app.services.api.response import api_error, api_success
+
 # Services.
-from app.services.permissions import (Permission, normalize_scope,
-                                      parse_permissions_from_scope,
-                                      permissions_get_ttl)
+from app.services.permissions import (
+    Permission,
+    normalize_scope,
+    parse_permissions_from_scope,
+    permissions_get_ttl,
+)
 from app.tokens import AccessToken, RefreshToken
+
 # Libraries.
 from fastapi import Request
 from fastapi.responses import JSONResponse

@@ -11,8 +11,7 @@ from app.services.limiter.depends import RateLimiter
 from app.services.passwords import check_password, get_hashed_password
 from app.services.permissions import Permission
 from app.services.request import query_auth_data_from_request
-from app.services.tfa import (generate_tfa_otp,
-                              validate_user_tfa_otp_from_request)
+from app.services.tfa import generate_tfa_otp, validate_user_tfa_otp_from_request
 from app.services.validators.user import validate_password_field
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.responses import JSONResponse

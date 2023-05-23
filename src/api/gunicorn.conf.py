@@ -104,6 +104,7 @@ keyfile = None  # (Default: None)
 certfile = None  # (Default: None)
 ca_certs = None  # (Default: None)
 
+
 # Hooks.
 # https://docs.gunicorn.org/en/latest/settings.html#server-hooks
 def pre_request(worker, req):

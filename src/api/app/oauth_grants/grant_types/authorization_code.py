@@ -12,9 +12,12 @@ from app.database.models.user import User
 from app.database.models.user_session import UserSession
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_success
-from app.services.permissions import (Permission, normalize_scope,
-                                      parse_permissions_from_scope,
-                                      permissions_get_ttl)
+from app.services.permissions import (
+    Permission,
+    normalize_scope,
+    parse_permissions_from_scope,
+    permissions_get_ttl,
+)
 from app.tokens import AccessToken, OAuthCode, RefreshToken
 from fastapi.responses import JSONResponse
 

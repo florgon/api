@@ -5,6 +5,7 @@
 # Core model base.
 from app.database.core import Base
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer
+
 # ORM.
 from sqlalchemy.sql import func
 

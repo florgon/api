@@ -4,8 +4,9 @@
 from typing import Callable
 
 try:
-    from prometheus_fastapi_instrumentator.instrumentation import \
-        PrometheusFastApiInstrumentator
+    from prometheus_fastapi_instrumentator.instrumentation import (
+        PrometheusFastApiInstrumentator,
+    )
 except ImportError:
     prometheus_instrumentator_installed = False
 else:

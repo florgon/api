@@ -16,14 +16,14 @@ from app.services.api.response import api_error, api_success
 from app.services.limiter.depends import RateLimiter
 from app.services.permissions import Permission
 from app.services.request import AuthData, AuthDataDependency
-from app.services.request.signup_host_allowance import \
-    validate_signup_host_allowance
+from app.services.request.signup_host_allowance import validate_signup_host_allowance
 from app.services.session import publish_new_session_with_token
-from app.services.tfa import (generate_tfa_otp,
-                              validate_user_tfa_otp_from_request)
-from app.services.validators.user import (convert_email_to_standardized,
-                                          validate_signin_fields,
-                                          validate_signup_fields)
+from app.services.tfa import generate_tfa_otp, validate_user_tfa_otp_from_request
+from app.services.validators.user import (
+    convert_email_to_standardized,
+    validate_signin_fields,
+    validate_signup_fields,
+)
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, Request
 from fastapi.responses import JSONResponse
 

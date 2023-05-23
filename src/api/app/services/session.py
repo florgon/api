@@ -7,8 +7,7 @@ from app.database import crud
 from app.database.dependencies import Session
 from app.database.models.user import User
 from app.database.models.user_session import UserSession
-from app.services.request import (get_client_host_from_request,
-                                  get_country_from_request)
+from app.services.request import get_client_host_from_request, get_country_from_request
 from app.tokens import SessionToken
 from fastapi import Request
 

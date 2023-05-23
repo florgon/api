@@ -6,8 +6,11 @@
 """
 
 from .coders import JSONResponseCoder
-from .key_builders import (authenticated_cache_key_builder,
-                           device_cache_key_builder, plain_cache_key_builder)
+from .key_builders import (
+    authenticated_cache_key_builder,
+    device_cache_key_builder,
+    plain_cache_key_builder,
+)
 
 __all__ = [
     "authenticated_cache_key_builder",

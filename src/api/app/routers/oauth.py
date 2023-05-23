@@ -11,9 +11,12 @@ from app.database.models.oauth_client import OAuthClient
 from app.oauth_grants import resolve_grant
 from app.services.api.errors import ApiErrorCode, ApiErrorException
 from app.services.api.response import api_error, api_success
-from app.services.permissions import (Permission, normalize_scope,
-                                      parse_permissions_from_scope,
-                                      permissions_get_ttl)
+from app.services.permissions import (
+    Permission,
+    normalize_scope,
+    parse_permissions_from_scope,
+    permissions_get_ttl,
+)
 from app.services.request.auth import query_auth_data_from_request
 from app.tokens import AccessToken, OAuthCode
 from fastapi import APIRouter, Depends, Request
