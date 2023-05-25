@@ -3,10 +3,8 @@
 """
 from pathlib import Path
 
-from sqlalchemy.pool import QueuePool
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import OperationalError, IntegrityError
+# Settings.
+from app.config import Settings, get_logger
 
 # Imports.
 from sqlalchemy import MetaData, create_engine

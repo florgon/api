@@ -4,11 +4,10 @@
     And middlewares itself.
 """
 
-from fastapi import FastAPI
-
-from app.services import limiter
-from app.event_handlers.prometheus import prometheus_metrics_on_startup
 from app.event_handlers.cache import fastapi_cache_on_startup
+from app.event_handlers.prometheus import prometheus_metrics_on_startup
+from app.services import limiter
+from fastapi import FastAPI
 
 
 def add_event_handlers(_app: FastAPI) -> None:

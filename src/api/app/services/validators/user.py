@@ -1,15 +1,15 @@
 """
     User validators.
 """
+import re
 
-from validate_email import validate_email
-
-from app.services.passwords import check_password
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.models.user import User
-from app.database.dependencies import Session
+from app.config import Settings, get_settings
 from app.database import crud
-from app.config import get_settings, Settings
+from app.database.dependencies import Session
+from app.database.models.user import User
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.passwords import check_password
+from validate_email import validate_email
 
 _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
     "yandex.ru": "ya.ru",
@@ -18,6 +18,13 @@ _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
     "yandex.by": "ya.ru",
     "yandex.kz": "ya.ru",
 }
+
+
+def normalize_phone_number(phone_number: str) -> str:
+    """
+    Remove all non-digits from phone_number.
+    """
+    return "".join([ch for ch in phone_number if ch.isdigit()])
 
 
 def convert_email_to_standardized(email: str) -> str:
@@ -102,9 +109,9 @@ def validate_username_field(
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be longer than 4!"
         )
-    if len(username) > 16:
+    if len(username) >= 17:
         raise ApiErrorException(
-            ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 16!"
+            ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 17!"
         )
     if settings.signup_username_reject_nonalpha and not username.isalpha():
         raise ApiErrorException(
@@ -145,4 +152,99 @@ def validate_signin_fields(user: User, password: str) -> None:
         raise ApiErrorException(
             ApiErrorCode.USER_DEACTIVATED,
             "Unable to sign-in as user was frozen (deactivated or blocked).",
+        )
+
+
+def validate_first_name_field(first_name: str) -> None:
+    """
+    Validates first_name, raises API error if name is invalid.
+    """
+    if len(first_name) == 0 and len(first_name) >= 21:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "First name should be longer than 0 and shorter than 21!",
+        )
+
+
+def validate_last_name_field(last_name: str) -> None:
+    """
+    Validates last_name, raises API error if name is invalid.
+    """
+    if len(last_name) == 0 or len(last_name) >= 21:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Last name should be longer than 0 and shorter than 21!",
+        )
+
+
+def validate_profile_bio_field(bio: str) -> None:
+    """
+    Validates profile_bio, raises API error if bio is invalid.
+    """
+    if len(bio) >= 251:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Profile bio should be shorter than 251!",
+        )
+
+
+def validate_profile_website_field(website: str) -> None:
+    """
+    Validates profile_website, raises API error if url is invalid.
+    """
+    if len(website) >= 251:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Profile website should be shorter than 251!",
+        )
+
+    pattern = re.compile(
+        r"^(https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?$",
+        flags=re.U,
+    )
+    if not pattern.match(website):
+        raise ApiErrorException(
+            ApiErrorCode,
+            "Profile website should be shorter than 251!",
+        )
+
+
+def validate_phone_number_field(db: Session, phone_number: str) -> None:
+    """
+    Validates phone_number, then normailize it and validates normalized phone_number.
+    Raises API error if phone_number is invalid.
+    """
+    if len(phone_number) == 0:
+        return
+
+    if len(phone_number) <= 10 or len(phone_number) >= 31:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Phone number should be longer than 10 and shorter than 31 or should be empty!",
+        )
+    phone_number = normalize_phone_number(phone_number)
+    if len(phone_number) <= 10 or len(phone_number) >= 14:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Phone number should contain more than 10 digits and less then 14 digits!",
+        )
+
+    if crud.user.phone_number_is_taken(db=db, phone_number=phone_number):
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST, "Phone number is already taken!"
+        )
+
+
+def validate_profile_social_username_field(social_username: str) -> None:
+    """
+    Validates github, vk, telegram usernames.
+    """
+    if len(social_username) == 0:
+        return
+
+    if len(social_username) <= 3 or len(social_username) >= 51:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "Profile social username should be longer than 3 and"
+            "shorter than 51 or should be empty!",
         )

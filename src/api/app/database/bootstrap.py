@@ -1,10 +1,10 @@
 """
     Bootstrap database with first queries.
 """
-from app.database.repositories.users import UsersRepository
-from app.database.repositories.oauth_clients import OAuthClientsRepository, OAuthClient
-from app.database.dependencies import SessionLocal, Session
 from app.config import get_logger
+from app.database.dependencies import Session, SessionLocal
+from app.database.repositories.oauth_clients import OAuthClient, OAuthClientsRepository
+from app.database.repositories.users import UsersRepository
 
 SUPERUSER_USER_ID = 1
 SUPERUSER_USERNAME = "admin"

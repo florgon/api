@@ -4,22 +4,21 @@
 
 import time
 
-from sqlalchemy.orm import Session
-from fastapi_cache.decorator import cache
-from fastapi_cache import FastAPICache
-from fastapi.responses import JSONResponse
-from fastapi import Request, Depends, APIRouter
-
-from app.services.request import query_auth_data_from_request
-from app.services.permissions import parse_permissions_from_scope, Permission
-from app.services.limiter.depends import RateLimiter
-from app.services.cache import plain_cache_key_builder, JSONResponseCoder
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.serializers.oauth_client import serialize_oauth_clients, serialize_oauth_client
-from app.database.models.oauth_client import OAuthClient
-from app.database.dependencies import get_db
 from app.database import crud
+from app.database.dependencies import get_db
+from app.database.models.oauth_client import OAuthClient
+from app.serializers.oauth_client import serialize_oauth_client, serialize_oauth_clients
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.api.response import api_error, api_success
+from app.services.cache import JSONResponseCoder, plain_cache_key_builder
+from app.services.limiter.depends import RateLimiter
+from app.services.permissions import Permission, parse_permissions_from_scope
+from app.services.request import query_auth_data_from_request
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
+from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["oauthClient"])
 

@@ -5,12 +5,11 @@
 
 from datetime import datetime
 
-from sqlalchemy.orm import Session
-from pyotp import random_base32
-
-from app.services.passwords import get_hashed_password, HashingError
-from app.database.models.user import User
 from app.config import get_settings
+from app.database.models.user import User
+from app.services.passwords import HashingError, get_hashed_password
+from pyotp import random_base32
+from sqlalchemy.orm import Session
 
 
 def get_all(db: Session) -> list[User]:
@@ -47,6 +46,14 @@ def email_confirm(db: Session, user: User):
     db.commit()
 
 
+def cancel_emil_confirmation(db: Session, user: User) -> None:
+    """Cancels email confirmatiom, made by email_confirm functioin"""
+    user.is_verified = False
+    user.time_verified = None
+
+    db.commit()
+
+
 def email_is_taken(db: Session, email: str) -> bool:
     """Returns is given email is taken or not."""
     return db.query(User).filter(User.email == email).first() is not None
@@ -55,6 +62,11 @@ def email_is_taken(db: Session, email: str) -> bool:
 def username_is_taken(db: Session, username: str) -> bool:
     """Returns is given username is taken or not."""
     return db.query(User).filter(User.username == username).first() is not None
+
+
+def phone_number_is_taken(db: Session, phone_number: str) -> bool:
+    """Return is given phone number is already taken or not."""
+    return db.query(User).filter(User.phone_number == phone_number).first() is not None
 
 
 def create(db: Session, username: str, email: str, password: str) -> User | None:

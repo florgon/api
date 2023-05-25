@@ -9,16 +9,15 @@
 """
 
 
-from typing import Callable
 from math import ceil
+from typing import Callable
 
 import aioredis
-from starlette.status import HTTP_429_TOO_MANY_REQUESTS
-from starlette.responses import Response
-from starlette.requests import Request
-from fastapi import HTTPException
-
 from app.config import get_settings
+from fastapi import HTTPException
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.status import HTTP_429_TOO_MANY_REQUESTS
 
 
 async def default_identifier(request: Request):

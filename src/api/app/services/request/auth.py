@@ -4,22 +4,21 @@
     Root handler for authentication decode.
 """
 
-from typing import Type
 from datetime import datetime
+from typing import Type
 
-from sqlalchemy.orm import Session
-from fastapi.requests import Request
-from fastapi import Depends
-
-from app.tokens import SessionToken, BaseToken, AccessToken
-from app.services.request.session_check_client import session_check_client_by_request
-from app.services.request.auth_data import AuthData
-from app.services.permissions import parse_permissions_from_scope, Permission
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database.models.user_session import UserSession
-from app.database.dependencies import get_db
-from app.database import crud
 from app.config import get_logger
+from app.database import crud
+from app.database.dependencies import get_db
+from app.database.models.user_session import UserSession
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.permissions import Permission, parse_permissions_from_scope
+from app.services.request.auth_data import AuthData
+from app.services.request.session_check_client import session_check_client_by_request
+from app.tokens import AccessToken, BaseToken, SessionToken
+from fastapi import Depends
+from fastapi.requests import Request
+from sqlalchemy.orm import Session
 
 
 class AuthDataDependency:

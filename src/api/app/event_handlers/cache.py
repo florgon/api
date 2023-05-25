@@ -1,13 +1,12 @@
 """
     Cache (`fastapi_cache`) event handlers (startup connection).
 """
-from redis import asyncio as aioredis
-from fastapi_cache.backends.redis import RedisBackend
-from fastapi_cache.backends.inmemory import InMemoryBackend
+from app.config import get_logger, get_settings
+from app.services.cache import JSONResponseCoder, plain_cache_key_builder
 from fastapi_cache import FastAPICache
-
-from app.services.cache import plain_cache_key_builder, JSONResponseCoder
-from app.config import get_settings, get_logger
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
 
 
 async def fastapi_cache_on_startup(_always_supress_disabled: bool = False) -> None:
