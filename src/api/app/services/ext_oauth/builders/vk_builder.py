@@ -1,3 +1,12 @@
+"""
+    VK OAuth provider builder (service).
+"""
+
+from app.services.ext_oauth.providers.vk_provider import VkOauthService
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.config import get_settings
+
+
 def build_vk_oauth_service(vk_oauth_display: str | None = None) -> VkOauthService:
     """
     Returns VK OAuth provider (service).

@@ -180,7 +180,7 @@ async def method_user_set_info(
         if name == "email":
             email = convert_email_to_standardized(value)
             validate_email_field(db, settings, email=email)
-            crud.user.email_unverify()
+            crud.user.email_unverify(db=db, user=user)
         if name == "first_name":
             validate_first_name_field(value)
         if name == "last_name":

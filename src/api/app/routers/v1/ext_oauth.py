@@ -10,8 +10,7 @@ from app.services.ext_oauth import (
     build_github_oauth_service,
 )
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.config import get_settings
+from app.services.api.errors import ApiErrorCode
 
 router = APIRouter(include_in_schema=False)
 
@@ -55,7 +54,7 @@ async def method_ext_oauth_vk_signin_with_code(code: str) -> JSONResponse:
 
 
 @router.get("/extOauthGitHub.resolveSignin")
-async def method_ext_oauth_vk_signin_with_code(code: str) -> JSONResponse:
+async def method_ext_oauth_github_signin_with_code(code: str) -> JSONResponse:
     """OAuth with external OAuth GitHub provider."""
 
     resolver_response = build_github_oauth_service().resolve_code(code=code)

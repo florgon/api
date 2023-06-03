@@ -4,7 +4,6 @@
     Read more at docs: https://florgon.com/dev/apis/auth
 """
 from enum import Enum
-from typing import Iterable
 
 
 class Permission(Enum):

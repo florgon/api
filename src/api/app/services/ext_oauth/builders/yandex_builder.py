@@ -1,3 +1,12 @@
+"""
+    Yandex OAuth provider builder (service).
+"""
+
+from app.services.ext_oauth.providers.yandex_provider import YandexOauthService
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.config import get_settings
+
+
 def build_yandex_oauth_service() -> YandexOauthService:
     """
     Returns Yandex OAuth provider (service).

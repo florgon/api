@@ -1,3 +1,6 @@
+"""
+    Service utils to worki with administrators.
+"""
 from fastapi import Request
 from app.services.request.auth import query_auth_data_from_request
 from app.services.permissions import Permission

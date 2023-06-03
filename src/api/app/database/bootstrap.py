@@ -1,10 +1,10 @@
 """
     Bootstrap database with first queries.
 """
-from app.config import get_logger
-from app.database.dependencies import Session, SessionLocal
-from app.database.repositories.oauth_clients import OAuthClient, OAuthClientsRepository
 from app.database.repositories.users import UsersRepository
+from app.database.repositories.oauth_clients import OAuthClientsRepository, OAuthClient
+from app.database.dependencies import SessionLocal, Session
+from app.config import get_logger
 
 SUPERUSER_USER_ID = 1
 SUPERUSER_USERNAME = "admin"
@@ -59,7 +59,7 @@ def _create_initial_oauth_client_if_not_exists(db: Session) -> None:
         )
         user = UsersRepository(db=db).get_user_by_username(username=SUPERUSER_USERNAME)
         if not user:
-            get_logger().warn(
+            get_logger().warning(
                 "[database_bootstrap] Skipped creating initial oauth client as not found super user with id=1!"
             )
             return

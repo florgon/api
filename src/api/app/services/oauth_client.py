@@ -1,3 +1,7 @@
+"""
+    Service to work with oauth clients.
+"""
+
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.database.models.oauth_client import OAuthClient
 from app.database.dependencies import Session

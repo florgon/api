@@ -1,3 +1,12 @@
+"""
+    GitHub OAuth provider builder (service).
+"""
+
+from app.services.ext_oauth.providers.github_provider import GithubOauthService
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.config import get_settings
+
+
 def build_github_oauth_service() -> GithubOauthService:
     """
     Returns GitHub OAuth provider (service).

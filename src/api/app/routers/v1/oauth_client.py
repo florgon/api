@@ -15,9 +15,8 @@ from app.services.oauth_client import query_oauth_client
 from app.services.limiter.depends import RateLimiter
 from app.services.cache import plain_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api.errors import ApiErrorCode
 from app.serializers.oauth_client import serialize_oauth_clients, serialize_oauth_client
-from app.database.models.oauth_client import OAuthClient
 from app.database.dependencies import get_db
 from app.database import crud
 

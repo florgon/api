@@ -1,3 +1,7 @@
+"""
+    Service to apply gifts to users and work with.
+"""
+
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.database.repositories import GiftsRepository
 from app.database.models.user import User

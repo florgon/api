@@ -3,15 +3,18 @@
 """
 
 import json
-from typing import Any, Dict
+from typing import Dict, Any
+
+from starlette.responses import JSONResponse
 
 # Base coder.
-from fastapi_cache.coder import Coder, JsonEncoder, object_hook
-from starlette.responses import JSONResponse
+from fastapi_cache.coder import object_hook, JsonEncoder, Coder
 
 
 class JSONResponseCoder(Coder):
-    """ """
+    """
+    Response coder that converts response to string for caching in storage as JSON.
+    """
 
     @classmethod
     def encode(cls, value: Any):

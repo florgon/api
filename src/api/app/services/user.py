@@ -1,3 +1,7 @@
+"""
+    Service to work with users.
+"""
+
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.database.models.user import User
 from app.database.dependencies import Session

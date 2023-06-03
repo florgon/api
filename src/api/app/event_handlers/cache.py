@@ -1,12 +1,12 @@
 """
     Cache (`fastapi_cache`) event handlers (startup connection).
 """
-from app.config import get_logger, get_settings
-from app.services.cache import JSONResponseCoder, plain_cache_key_builder
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.inmemory import InMemoryBackend
-from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache import FastAPICache
+from app.services.cache import plain_cache_key_builder, JSONResponseCoder
+from app.config import get_settings, get_logger
 
 
 async def fastapi_cache_on_startup(_always_supress_disabled: bool = False) -> None:
@@ -32,7 +32,7 @@ async def fastapi_cache_on_startup(_always_supress_disabled: bool = False) -> No
             # `legacy` in memory backend that will just store plain cache data `as-is` in memory.
             # should not used in production or something like that as there is `redis` way.
             backend = InMemoryBackend()
-            logger.warn(
+            logger.warning(
                 "[fastapi_cache] Successfully initialised `in-memory` backend which is not preferred, "
                 "please look into `redis` backend with disabling `fastapi_cache_use_inmemory_backend`!"
             )

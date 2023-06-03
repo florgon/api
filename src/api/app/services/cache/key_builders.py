@@ -1,3 +1,4 @@
+# pylint: disable=unused-argument
 """
     Key builders that are used to build unique specific keys for the storage.
 
@@ -5,13 +6,13 @@
     That is not useful for authorized routes.
 """
 
-from hashlib import md5
 from typing import Callable
+from hashlib import md5
 
-from app.services.request import get_client_host_from_request, get_token_from_request
-from fastapi_cache import FastAPICache
-from starlette.requests import Request
 from starlette.responses import Response
+from starlette.requests import Request
+from fastapi_cache import FastAPICache
+from app.services.request import get_token_from_request, get_client_host_from_request
 
 
 def authenticated_cache_key_builder(
@@ -103,6 +104,4 @@ def _cache_key_builder_internal_cacher(
         f"{cache_key_func_call_signature}:{':'.join(additional_cached_tags)}".encode()
     )  # nosec:B303
 
-    # Cache key for storage.
-    cache_key = cache_keys_prefix + cache_key_hash.hexdigest()
-    return cache_key
+    return cache_keys_prefix + cache_key_hash.hexdigest()
