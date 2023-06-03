@@ -8,8 +8,6 @@ import hashlib
 class HashingError(Exception):
     """Exception for hashing errors."""
 
-    pass
-
 
 def get_hashed_password(password: str, *, hash_method: int | None = 0) -> str:
     """Returns hashed password."""
