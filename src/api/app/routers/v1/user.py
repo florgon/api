@@ -8,6 +8,17 @@ from fastapi_cache.decorator import cache
 from fastapi_cache import FastAPICache
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
+from app.services.validators.user import (
+    validate_username_field,
+    validate_profile_website_field,
+    validate_profile_social_username_field,
+    validate_profile_bio_field,
+    validate_phone_number_field,
+    validate_last_name_field,
+    validate_first_name_field,
+    validate_email_field,
+    convert_email_to_standardized,
+)
 from app.services.request import (
     try_query_auth_data_from_request,
     AuthDataDependency,
@@ -18,17 +29,6 @@ from app.services.limiter.depends import RateLimiter
 from app.services.cache import authenticated_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
-from app.services.validators.user import (
-    validate_username_field,
-    validate_first_name_field,
-    validate_last_name_field,
-    validate_profile_bio_field,
-    validate_phone_number_field,
-    validate_email_field,
-    convert_email_to_standardized,
-    validate_profile_website_field,
-    validate_profile_social_username_field,
-)
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository, get_db, Session
@@ -180,7 +180,7 @@ async def method_user_set_info(
         if name == "email":
             email = convert_email_to_standardized(value)
             validate_email_field(db, settings, email=email)
-            crud.user.unverify_email()
+            crud.user.email_unverify()
         if name == "first_name":
             validate_first_name_field(value)
         if name == "last_name":
