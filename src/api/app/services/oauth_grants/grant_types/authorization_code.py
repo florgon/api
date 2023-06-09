@@ -6,8 +6,7 @@
 from dataclasses import dataclass
 
 from fastapi.responses import JSONResponse
-
-from app.tokens import RefreshToken, OAuthCode, AccessToken
+from app.services.tokens import RefreshToken, OAuthCode, AccessToken
 from app.services.permissions import (
     permissions_get_ttl,
     parse_permissions_from_scope,

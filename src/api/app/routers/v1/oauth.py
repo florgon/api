@@ -6,7 +6,7 @@ from urllib.parse import parse_qs
 
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi import Request, Depends, APIRouter
-from app.tokens import OAuthCode, AccessToken
+from app.services.tokens import OAuthCode, AccessToken
 from app.services.request.auth import query_auth_data_from_request
 from app.services.permissions import (
     permissions_get_ttl,
@@ -14,28 +14,16 @@ from app.services.permissions import (
     normalize_scope,
     Permission,
 )
+from app.services.oauth_grants import resolve_grant
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.oauth_grants import resolve_grant
-from app.database.models.oauth_client import OAuthClient
+from app.services.api.errors import ApiErrorCode
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 
+from api.app.services.oauth_client import query_oauth_client
+
 router = APIRouter(tags=["oauth"])
-
-
-def _query_oauth_client(db: Session, client_id: int) -> OAuthClient:
-    """
-    Returns oauth client by id or raises API error if not found or inactive.
-    """
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
-    if not oauth_client or not oauth_client.is_active:
-        raise ApiErrorException(
-            ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
-        )
-    return oauth_client
 
 
 @router.get("/oauth.authorize")
@@ -50,8 +38,8 @@ async def method_oauth_authorize(
 ) -> JSONResponse | RedirectResponse:
     """Redirects to authorization screen."""
 
-    _query_oauth_client(db, client_id)
-    if response_type in ("code", "token"):
+    query_oauth_client(db, client_id)
+    if response_type in {"code", "token"}:
         oauth_screen_request_url = (
             f"{settings.auth_oauth_screen_provider_url}"
             f"?client_id={client_id}"
@@ -140,7 +128,7 @@ async def method_oauth_allow_client(
     """
 
     auth_data = query_auth_data_from_request(req=req, db=db, only_session_token=True)
-    oauth_client = _query_oauth_client(db=db, client_id=client_id)
+    oauth_client = query_oauth_client(db=db, client_id=client_id)
 
     user, session = auth_data.user, auth_data.session
 
@@ -179,8 +167,7 @@ async def method_oauth_allow_client(
             "redirect_to": redirect_to,
             "code": code,
         }
-
-    if response_type == "token":
+    elif response_type == "token":
         # Implicit authorization flow.
         # Simply, gives access token inside hash-link.
         # Should be used when there is no server-side, which can resolve authorization code.
@@ -249,7 +236,7 @@ async def method_oauth_client_is_linked(
     Returns is requested client is linked to user or not.
     """
     auth_data = query_auth_data_from_request(req=req, db=db, only_session_token=True)
-    _query_oauth_client(db=db, client_id=client_id)
+    query_oauth_client(db=db, client_id=client_id)
     oauth_client_user = crud.oauth_client_user.get_by_user_id(
         db, user_id=auth_data.user.id
     )

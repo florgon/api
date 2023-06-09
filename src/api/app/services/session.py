@@ -3,7 +3,7 @@
 """
 
 from fastapi import Request
-from app.tokens import SessionToken
+from app.services.tokens import SessionToken
 from app.services.request import get_country_from_request, get_client_host_from_request
 from app.database.models.user_session import UserSession
 from app.database.models.user import User

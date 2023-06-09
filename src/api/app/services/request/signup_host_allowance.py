@@ -3,12 +3,12 @@
     (Like server considered signup request as multiaccounts user (or user is bypassing restrictions imposed on it)).
 """
 
-from sqlalchemy.orm import Session
-from fastapi import Request
-from app.services.request.get_from_request import get_client_host_from_request
-from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database import crud
 from app.config import get_settings
+from app.database import crud
+from app.services.api.errors import ApiErrorCode, ApiErrorException
+from app.services.request.get_from_request import get_client_host_from_request
+from fastapi import Request
+from sqlalchemy.orm import Session
 
 
 def validate_signup_host_allowance(db: Session, request: Request) -> None:

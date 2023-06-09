@@ -1,3 +1,9 @@
+# pylint: disable=unused-argument
+"""
+    Test for webhook service.
+"""
+import time
+import socket
 import multiprocessing
 import hmac
 import hashlib
@@ -15,6 +21,9 @@ SERVER_PORT = 8001
 
 @pytest.fixture(autouse=True, scope="session")
 def webhook_server():
+    """
+    Runner for target webhook server with threading.
+    """
     p = multiprocessing.Process(
         target=_webhook_target_server, args=(SERVER_HOST, SERVER_PORT)
     )
@@ -24,6 +33,9 @@ def webhook_server():
 
 
 def _webhook_target_server(host: str, port: int) -> None:
+    """
+    FastAPI webhook target server.
+    """
     app = fastapi.FastAPI()
 
     @app.post("/")
@@ -38,6 +50,9 @@ def _webhook_target_server(host: str, port: int) -> None:
 def test_send_and_accept_webhook(
     webhook_server,
 ):  # pylint: disable=redefined-outer-name:
+    """
+    Test send data and accept back for webhook.
+    """
     result = 1
     while result:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

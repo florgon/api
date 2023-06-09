@@ -6,8 +6,7 @@ from fastapi.responses import JSONResponse
 
 # Libraries.
 from fastapi import Request
-
-from app.tokens import RefreshToken, AccessToken
+from app.services.tokens import RefreshToken, AccessToken
 
 # Services.
 from app.services.permissions import (

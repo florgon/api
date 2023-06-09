@@ -10,8 +10,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi.requests import Request
 from fastapi import Depends
-
-from app.tokens import SessionToken, BaseToken, AccessToken
+from app.services.tokens import SessionToken, BaseToken, AccessToken
 from app.services.request.session_check_client import session_check_client_by_request
 from app.services.request.auth_data import AuthData
 from app.services.permissions import parse_permissions_from_scope, Permission

@@ -6,7 +6,7 @@ import hashlib
 
 
 class HashingError(Exception):
-    pass
+    """Exception for hashing errors."""
 
 
 def get_hashed_password(password: str, *, hash_method: int | None = 0) -> str:

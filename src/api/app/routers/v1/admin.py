@@ -7,63 +7,16 @@ import time
 
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
-
 from app.services.user_query_filter import query_users_by_filter_query
-from app.services.request import query_auth_data_from_request
-from app.services.permissions import Permission
-from app.services.limiter.depends import RateLimiter
+from app.services.user import query_user_by_id_or_username
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api.errors import ApiErrorCode
+from app.services.admin import validate_user_allowed_to_call_admin_methods
 from app.serializers.user import serialize_users, serialize_user
-from app.database.models.user import User
 from app.database.dependencies import get_db, Session
 from app.database import crud
-from app.config import get_settings
 
 router = APIRouter(include_in_schema=False)
-
-
-async def validate_admin_method_allowed(req: Request, db: Session) -> None:
-    """
-    Validates that the method is allowed to be called.
-    """
-    if get_settings().admin_methods_disabled:
-        raise ApiErrorException(
-            ApiErrorCode.API_FORBIDDEN, "Admin methods are disabled by administrator!"
-        )
-
-    auth_data = query_auth_data_from_request(
-        req, db, required_permissions={Permission.admin}
-    )
-    if not auth_data.user.is_admin:
-        raise ApiErrorException(
-            ApiErrorCode.API_FORBIDDEN, "You are not an administrator. Access denied."
-        )
-    await RateLimiter(times=2, seconds=15).check(req)
-
-
-def query_user_by_id_or_username(
-    db: Session, user_id: int | None = None, username: str | None = None
-) -> User:
-    """Returns user by id or username or raises an exception if failed to query."""
-    if user_id is None and username is None:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST, "user_id or username required!"
-        )
-    if user_id is not None and username is not None:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST, "Please pass only user_id or username!"
-        )
-
-    user = (
-        crud.user.get_by_id(db, user_id)
-        if username is None
-        else crud.user.get_by_username(db, username)
-    )
-    if not user:
-        raise ApiErrorException(ApiErrorCode.USER_NOT_FOUND, "User not found!")
-
-    return user
 
 
 @router.get("/_admin.getSessionsCounters")
@@ -71,7 +24,7 @@ async def method_admin_get_sessions_counters(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Returns sessions counters."""
-    await validate_admin_method_allowed(req, db)
+    await validate_user_allowed_to_call_admin_methods(req, db)
     return api_success(
         {
             "sessions": {
@@ -98,7 +51,7 @@ async def method_admin_get_oauth_clients_counters(
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Returns OAuth clients counters."""
-    await validate_admin_method_allowed(req, db)
+    await validate_user_allowed_to_call_admin_methods(req, db)
     return api_success(
         {
             "oauth_clients": {
@@ -119,7 +72,7 @@ async def method_admin_get_users_counters(
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Returns users counters."""
-    await validate_admin_method_allowed(req, db)
+    await validate_user_allowed_to_call_admin_methods(req, db)
     return api_success(
         {
             "users": {
@@ -148,7 +101,7 @@ async def method_admin_list_users(
 ) -> JSONResponse:
     """Creates new mailing task (Permitted only)."""
 
-    await validate_admin_method_allowed(req, db)
+    await validate_user_allowed_to_call_admin_methods(req, db)
 
     filter_query = req.query_params.get(
         "filter",
@@ -179,7 +132,7 @@ async def method_admin_ban_user(
 ) -> JSONResponse:
     """Deactivates user."""
 
-    await validate_admin_method_allowed(req, db)
+    await validate_user_allowed_to_call_admin_methods(req, db)
     user = query_user_by_id_or_username(db, user_id, username)
 
     # Update user.
@@ -200,7 +153,7 @@ async def method_admin_unban_usre(
 ) -> JSONResponse:
     """Activates user."""
 
-    await validate_admin_method_allowed(req, db)
+    await validate_user_allowed_to_call_admin_methods(req, db)
     user = query_user_by_id_or_username(db, user_id, username)
 
     # Update user.

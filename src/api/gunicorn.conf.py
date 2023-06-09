@@ -11,12 +11,11 @@
     Date: 07.31.22
 """
 
-from os import getenv
-
 # Used for set workers count related to CPU cores.
 # See `workers` field.
 # Generally in range (2-4 x ${NUM_CORES}).
 from multiprocessing import cpu_count
+from os import getenv
 
 # TODO 07.31.22: Read more about logs.
 # TODO 07.31.22: Proxy headers in access log format.

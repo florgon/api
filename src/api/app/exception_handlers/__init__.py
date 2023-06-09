@@ -5,8 +5,7 @@
 
 from fastapi.exceptions import RequestValidationError
 from fastapi import FastAPI
-
-from app.tokens.exceptions import (
+from app.services.tokens.exceptions import (
     TokenWrongTypeError,
     TokenInvalidSignatureError,
     TokenInvalidError,

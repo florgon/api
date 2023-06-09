@@ -8,72 +8,16 @@
 
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, BackgroundTasks, APIRouter
-from app.tokens.exceptions import (
-    TokenWrongTypeError,
-    TokenInvalidSignatureError,
-    TokenInvalidError,
-    TokenExpiredError,
-)
-from app.tokens import EmailToken
+from app.services.verification import generate_confirmation_link, decode_email_token
 from app.services.request import query_auth_data_from_request
 from app.services.limiter.depends import RateLimiter
 from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api.errors import ApiErrorCode
 from app.email import messages
 from app.database.dependencies import get_db, Session
 from app.database import crud
-from app.config import get_settings
 
 router = APIRouter(include_in_schema=False)
-
-
-# TODO: Allow specify URL for email confirmation.
-
-
-def _decode_email_token(token: str) -> EmailToken:
-    """
-    Decodes email token and returns it, or raises API error if failed to decode.
-    """
-    secret_key = get_settings().security_email_tokens_secret_key
-    try:
-        email_token = EmailToken.decode(token, key=secret_key)
-    except (TokenInvalidError, TokenInvalidSignatureError):
-        raise ApiErrorException(
-            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Confirmation token not valid, mostly due to corrupted link. Try resend confirmation again.",
-        )  # pylint: disable=raise-missing-from
-    except TokenExpiredError:
-        raise ApiErrorException(
-            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Confirmation token expired. Try resend confirmation again.",
-        )  # pylint: disable=raise-missing-from
-    except TokenWrongTypeError:
-        raise ApiErrorException(
-            ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,
-            "Expected token to be a confirmation token, not another type of token.",
-        )  # pylint: disable=raise-missing-from
-    return email_token
-
-
-def _generate_confirmation_link(user_id: int) -> str:
-    """
-    Encodes email token and returns confirmation link ready to be send to user email.
-    """
-    # TBD: Refactor this.
-    settings = get_settings()
-
-    # CFT string.
-    confirmation_token = EmailToken(
-        settings.security_tokens_issuer, settings.security_email_tokens_ttl, user_id
-    ).encode(key=settings.security_email_tokens_secret_key)
-
-    # confirmation_link = urllib.parse.urljoin(
-    #    settings.proxy_url_domain,
-    #    settings.proxy_url_prefix + "/_emailConfirmation.confirm",
-    # )
-
-    confirmation_endpoint = "https://florgon.com/email/verify"
-    return f"{confirmation_endpoint}?cft={confirmation_token}"
 
 
 @router.get(
@@ -90,7 +34,7 @@ async def method_email_confirmation_confirm(
     :param cft: Confirmation token from email.
     """
     # Validating CFT, grabbing email from CFT payload.
-    email_token = _decode_email_token(token=cft)
+    email_token = decode_email_token(token=cft)
 
     # Query user.
     user = crud.user.get_by_id(db=db, user_id=email_token.get_subject())
@@ -132,6 +76,6 @@ async def method_email_confirmation_resend(
         background_tasks,
         email=user.email,
         mention=user.get_mention(),
-        confirmation_link=_generate_confirmation_link(user.id),
+        confirmation_link=generate_confirmation_link(user.id),
     )
     return api_success({"email": user.email})

@@ -13,7 +13,6 @@ else:
     prometheus_instrumentator_installed = True
 
 from fastapi import FastAPI
-
 from app.config import get_settings, get_logger
 
 
@@ -30,7 +29,7 @@ def prometheus_metrics_on_startup(_app: FastAPI) -> None | Callable:
         return None
 
     if not prometheus_instrumentator_installed:
-        get_logger().warn(
+        get_logger().warning(
             "[fastapi_prometheus] You are enabled `prometheus_metrics_exposed`"
             " but `prometheus_fastapi_instrumentator` is not installed in the system!"
         )

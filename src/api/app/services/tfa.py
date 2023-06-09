@@ -3,8 +3,6 @@
 """
 
 from pyotp import TOTP
-from fastapi import Request
-
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.database.models.user import User
 from app.config import get_settings
