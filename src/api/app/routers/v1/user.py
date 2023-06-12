@@ -29,6 +29,7 @@ from app.services.limiter.depends import RateLimiter
 from app.services.cache import authenticated_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
+from app.services.validators.user import normalize_phone_number
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository, get_db, Session
