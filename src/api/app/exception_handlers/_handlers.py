@@ -82,5 +82,5 @@ async def token_invalid_signature_error_handler(_, __):
 async def token_invalid_error_handler(_, __):
     """Handler for token module token invalid error."""
     return api_error(
-        ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid! No additonal information. "
+        ApiErrorCode.AUTH_INVALID_TOKEN, "Token invalid! No additonal information."
     )
