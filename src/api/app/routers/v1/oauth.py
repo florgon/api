@@ -21,7 +21,7 @@ from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 
-from api.app.services.oauth_client import query_oauth_client
+from app.services.oauth_client import query_oauth_client
 
 router = APIRouter(tags=["oauth"])
 
