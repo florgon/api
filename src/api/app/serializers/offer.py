@@ -1,6 +1,7 @@
 """
     Serializers for Offer model.
 """
+from typing import Any
 
 from app.database.models.offer import Offer
 
@@ -17,7 +18,7 @@ def serialize_offer(offer: Offer, in_list: bool = False) -> dict[str, Any]:
         "user_id": None,
         "text": offer.text,
     }
-    if offer.user_id:
+    if offer["user_id"]:
         offer["user_id"] = offer.user_id
     else:
         offer.pop("user_id")

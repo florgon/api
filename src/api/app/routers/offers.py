@@ -6,10 +6,11 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 from app.database.dependencies import Session, get_db
-from database import crud
+from app.database import crud
 from app.services.request.auth import try_query_auth_data_from_request
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.serializers.offer import serialize_offer
+from app.config import get_settings
 from app.services.validators.user import (
     validate_phone_number_field,
     validate_email_field,
@@ -42,8 +43,9 @@ async def method_offer_send(
             "Full name should be longer than 9 and shorter than 71!",
         )
 
-    validate_phone_number_field(phone_number, db=db)
-    validate_email_field(convert_email_to_standardized(email), db=db)
+    validate_phone_number_field(db=db, phone_number=phone_number)
+    settings = get_settings()
+    validate_email_field(email=convert_email_to_standardized(email), db=db, settings=settings)
     authorized, auth_data = try_query_auth_data_from_request(req=request, db=db)
     user_id = auth_data.user_id if authorized else None
     offer = crud.offer.create(

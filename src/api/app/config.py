@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # TODO 07.31.22: Allow to expose database connection as separate fields.
     database_dsn: PostgresDsn
     # If true, will create all metadata (Tables) at start of the server.
-    database_create_all: bool = True
+    database_create_all: bool = False
     # If true, will create all tables with sqlalchemy MetaData. Else create all with migrations.
     database_create_all_use_metadata: bool = False
     database_pool_recycle: int = 3600

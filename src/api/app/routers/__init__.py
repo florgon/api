@@ -18,6 +18,7 @@ from . import (
     session,
     user,
     utils,
+    offers,
 )
 
 
@@ -39,5 +40,6 @@ def include_routers(app: FastAPI) -> None:
         security,
         gift,
         mailings,
+        offers,
     ]:
         app.include_router(module.router, prefix=proxy_url_prefix)
