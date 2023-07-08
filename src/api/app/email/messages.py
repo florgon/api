@@ -61,7 +61,7 @@ def send_password_changed_notification_email(
 ):
     """Send notification that there was change of the password!"""
     subject = "Florgon password was changed!"
-    message = f"Hello, {mention}! Your password has been changed or reseted!. If you are not changed to reset your password, please contact support@florgon.com!"
+    message = f"Hello, {mention}! Your password has been changed or reseted! If you are not changed or reseted your password, please contact support@florgon.com!"
     background_tasks.add_task(send_custom_email, [email], subject, message)
 
 

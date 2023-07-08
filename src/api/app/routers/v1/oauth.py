@@ -15,13 +15,12 @@ from app.services.permissions import (
     Permission,
 )
 from app.services.oauth_grants import resolve_grant
+from app.services.oauth_client import query_oauth_client
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
-
-from api.app.services.oauth_client import query_oauth_client
 
 router = APIRouter(tags=["oauth"])
 
