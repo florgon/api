@@ -214,7 +214,7 @@ async def method_security_user_request_reset_password(
     if user is None:
         return api_success(payload)
 
-    secret_key = base64.b64encode(
+    secret_key = base64.b32encode(
         f"{user.id}|{user.password}|{user.email}|{user.time_created}".encode()
     )
     reset_otp = generate_tfa_otp_raw_email(secret_key=secret_key, interval=None)
@@ -237,7 +237,7 @@ async def method_security_user_reset_password(
     """Resets password from OTP sent for email before."""
 
     try:
-        otp_segments = base64.b64decode(reset_otp).split("|")
+        otp_segments = base64.b32decode(reset_otp).split("|")
         otp_user_id = int(otp_segments[0])
         otp_old_password = otp_segments[1]
     except Exception:
