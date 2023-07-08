@@ -1,6 +1,7 @@
 """
     Prometheus metrics expose instrumentator installation.
 """
+
 from typing import Callable
 
 try:
@@ -8,42 +9,42 @@ try:
         PrometheusFastApiInstrumentator,
     )
 except ImportError:
-    prometheus_instrumentator_installed = False
+    module_installed = False
 else:
-    prometheus_instrumentator_installed = True
+    module_installed = True
 
 from fastapi import FastAPI
 from app.config import get_settings, get_logger
 
 
-def prometheus_metrics_on_startup(_app: FastAPI) -> None | Callable:
+def prometheus_metrics_on_startup(_app: FastAPI) -> Callable:
     """
-    Exposes prometheus metrics via intstrumentator if
+    Exposes prometheus metrics via intstrumentator.
+    TODO: Allow prometheus to be more configured via settings.
     """
-    settings = get_settings()
-    logger = get_logger()
-    if not settings.prometheus_metrics_exposed:
-        logger.info(
-            "[fastapi_prometheus] Skipping exposing metrics as it is disabled with `prometheus_metrics_exposed`!"
-        )
-        return None
 
-    if not prometheus_instrumentator_installed:
-        get_logger().warning(
-            "[fastapi_prometheus] You are enabled `prometheus_metrics_exposed`"
+    setup_hook = lambda *_: None
+    logger = get_logger()
+    if not get_settings().prometheus_metrics_exposed:
+        logger.info(
+            "[prometheus] Skipping exposing metrics as disabled with `prometheus_metrics_exposed`!"
+        )
+    elif not module_installed:
+        logger.warning(
+            "[prometheus] You are enabled `prometheus_metrics_exposed`"
             " but `prometheus_fastapi_instrumentator` is not installed in the system!"
         )
-        return None
-
-    get_logger().info("[fastapi_prometheus] Initialising instrumentator...")
-    return (
-        lambda: PrometheusFastApiInstrumentator()
-        .instrument(app=_app)
-        .expose(
-            app=_app,
-            should_gzip=False,
-            endpoint="/metrics",
-            include_in_schema=False,
-            tags=None,
+    else:
+        logger.info("[prometheus] Initialising instrumentator...")
+        setup_hook = (
+            lambda: PrometheusFastApiInstrumentator()
+            .instrument(app=_app)
+            .expose(
+                app=_app,
+                should_gzip=False,
+                endpoint="/metrics",
+                include_in_schema=False,
+                tags=None,
+            )
         )
-    )
+    return setup_hook

@@ -12,7 +12,7 @@ import logging
 import gatey_sdk
 
 # Pydantic abstract class with data types.
-from pydantic import BaseSettings, EmailStr, PostgresDsn, RedisDsn, conint
+from pydantic import conint, RedisDsn, PostgresDsn, EmailStr, BaseSettings
 
 
 class Settings(BaseSettings):
@@ -222,7 +222,7 @@ def get_settings() -> Settings:
     return _settings
 
 
-def get_gatey_client() -> gatey_sdk.Client:
+def get_gatey_client() -> gatey_sdk.Client | None:
     """
     Returns Singleton Gatey client object.
     """

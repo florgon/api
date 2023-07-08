@@ -1,32 +1,37 @@
 """
     Stuff for sending messages.
+    
+    TODO: Allow subtype to be different.
+    TODO: Allow template engine.
+    
+    !TODO: Refactor message wrappers (senders) and replace with engine.
 """
 
-# Libraries.
 from fastapi_mail import MessageType, MessageSchema
 from fastapi import BackgroundTasks
 from app.config import get_logger
 
-# Core.
-from .config import fastmail
+from .config import provider
 
 
-async def send_custom_email(recepients: list[str], subject: str, body: str):
-    """Sends message to single recipient email."""
-    if not fastmail:
-        return  # Mail disabled.
+async def send_custom_email(recepients: list[str], subject: str, body: str) -> None:
+    """
+    Simple wrapper around provider messaging.
+    """
+    if not provider:
+        return
 
     recepients_count = len(recepients)
     get_logger().info(
-        f"Sending e-mail to {recepients[0]}. '{subject}'."
+        f"Sending mail to {recepients[0]} with subject '{subject}'."
         if recepients_count == 1
-        else f"Sending e-mail to {recepients_count} recepients. '{subject}'."
+        else f"Sending mail to {recepients_count} recepients with subject '{subject}'."
     )
-    await fastmail.send_message(
-        MessageSchema(
-            subject=subject, recipients=recepients, body=body, subtype=MessageType.plain
-        )
+
+    schema = MessageSchema(
+        subject=subject, recipients=recepients, body=body, subtype=MessageType.plain
     )
+    await provider.send_message(schema)
 
 
 def send_verification_email(

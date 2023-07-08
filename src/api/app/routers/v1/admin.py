@@ -145,7 +145,7 @@ async def method_admin_ban_user(
 
 
 @router.get("/_admin.unbanUser")
-async def method_admin_unban_usre(
+async def method_admin_unban_user(
     req: Request,
     user_id: int | None = None,
     username: str | None = None,

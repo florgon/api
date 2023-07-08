@@ -38,10 +38,12 @@ def truncate_oauth_codes():
     Task that will be executed periodically
     and truncate the oauth_codes table that is not required to store long history.
     """
-    logger.info("Truncating oauth codes database table...")
+    logger.info("[truncate_oauth_codes] Truncating oauth codes database table...")
     with SessionLocal() as db:
         db.execute("TRUNCATE TABLE oauth_codes RESTART IDENTITY;")
-    logger.info("Finished truncating oauth codes database table!")
+    logger.info(
+        "[truncate_oauth_codes] Finished truncating oauth codes database table!"
+    )
     return True
 
 

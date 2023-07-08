@@ -362,7 +362,9 @@ def _raise_integrity_check_error():
     """
     Raises authentication system integrity check error.
     """
-    get_logger().info("Got catched authentication system integrity check failure!")
+    get_logger().info(
+        "[core_auth] Got catched authentication system integrity check failure!"
+    )
     raise ApiErrorException(
         ApiErrorCode.AUTH_INVALID_TOKEN,
         "Authentication system integrity check failed!",

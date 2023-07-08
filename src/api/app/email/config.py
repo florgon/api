@@ -1,22 +1,31 @@
 """
-    Mail library configuration settings.
+    Configuration settings.
+    ?TODO: Implement different mail provider usage.
 """
 
-# Settings for configuring mail connection.
-from app.config import Settings, get_logger
 
-# Libraries.
-from fastapi_mail import ConnectionConfig, FastMail
+from typing import TypeAlias
+
+from fastapi_mail import FastMail, ConnectionConfig
+from app.config import get_settings, get_logger
+
+MAIL_PROVIDER: TypeAlias = FastMail
+MAIL_CONFIG_PROVIDER: TypeAlias = ConnectionConfig
 
 
-def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
-    """Returns connection configuration for email."""
+def _build_connection_config() -> MAIL_CONFIG_PROVIDER | None:
+    """
+    Setups config for the mail connection from global settings.
+    """
 
+    settings = get_settings()
     if not settings.mail_enabled:
-        get_logger().info("Mail is not enabled! Skipping building connection config...")
+        get_logger().warning(
+            "[mail] Mail is not enabled with settings! Skipping building connection config..."
+        )
         return None
 
-    get_logger().info("Building connection config...")
+    get_logger().info("[mail] Building connection config...")
     return ConnectionConfig(
         MAIL_USERNAME=settings.mail_username,
         MAIL_PASSWORD=settings.mail_password,
@@ -29,18 +38,18 @@ def _build_connection_config(settings: Settings) -> ConnectionConfig | None:
         MAIL_SSL_TLS=settings.mail_ssl_tls,
         USE_CREDENTIALS=settings.mail_use_credentials,
         VALIDATE_CERTS=settings.mail_validate_certs,
-        SUPPRESS_SEND=0,  # TODO 07.31.22: Check this settings out.
+        SUPPRESS_SEND=0,  # TODO: Check this settings out.
         TEMPLATE_FOLDER=None,
     )
 
 
-def _build_fastmail(settings: Settings) -> FastMail | None:
-    """Returns configured FastMail system."""
-    config = _build_connection_config(settings=settings)
-    if config is None:
-        return None
-    return FastMail(config=config)
+def _build_provider() -> MAIL_PROVIDER | None:
+    """
+    Builds mail provider (Currently: FastMail package)
+    """
+
+    config = _build_connection_config()
+    return None if config is None else FastMail(config=config)
 
 
-# Core.
-fastmail = _build_fastmail(settings=Settings())
+provider = _build_provider()
