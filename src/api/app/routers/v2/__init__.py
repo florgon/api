@@ -15,4 +15,4 @@ def include_v2_routers(app: FastAPI) -> None:
     """
     modules = [user]
     for module in modules:
-        app.include_router(module.router, prefix="v2")
+        app.include_router(module.router, prefix="/v2")
