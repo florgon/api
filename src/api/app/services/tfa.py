@@ -53,11 +53,23 @@ def generate_tfa_otp(user: User, device_type: str) -> str | None:
 
     # Get generator.
     settings = get_settings()
-    otp_secret_key = user.security_tfa_secret_key
-    otp_interval = settings.security_tfa_totp_interval_email
-    totp = TOTP(s=otp_secret_key, interval=otp_interval)
+    return generate_tfa_otp_raw_email(
+        secret_key=user.security_tfa_secret_key,
+        interval=settings.security_tfa_totp_interval_email,
+    )
 
-    # Get OTP.
-    tfa_otp = totp.now()
 
-    return tfa_otp
+def generate_tfa_otp_raw_email(
+    secret_key: str, interval: int | None = None
+) -> str | None:
+    """
+    Generates TFA OTP (key) for raw fields in email.
+    """
+
+    # Get generator.
+    settings = get_settings()
+    totp = TOTP(
+        s=secret_key, interval=interval or settings.security_tfa_totp_interval_email
+    )
+
+    return totp.now()

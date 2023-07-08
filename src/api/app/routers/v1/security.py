@@ -3,18 +3,27 @@
     Provides API methods (routes) for working with user security.
 """
 
-from app.database import crud
-from app.database.dependencies import Session, get_db
-from app.email import messages as email_messages
-from app.services.api.response import ApiErrorCode, api_error, api_success
-from app.services.limiter.depends import RateLimiter
-from app.services.passwords import check_password, get_hashed_password
-from app.services.permissions import Permission
-from app.services.request import query_auth_data_from_request
-from app.services.tfa import generate_tfa_otp, validate_user_tfa_otp_from_request
-from app.services.validators.user import validate_password_field
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
+import base64
+
 from fastapi.responses import JSONResponse
+from fastapi import Request, Depends, BackgroundTasks, APIRouter
+from app.services.validators.user import (
+    validate_password_field,
+    convert_email_to_standardized,
+)
+from app.services.tfa import (
+    validate_user_tfa_otp_from_request,
+    generate_tfa_otp_raw_email,
+    generate_tfa_otp,
+)
+from app.services.request import query_auth_data_from_request
+from app.services.permissions import Permission
+from app.services.passwords import get_hashed_password, check_password
+from app.services.limiter.depends import RateLimiter
+from app.services.api.response import api_success, api_error, ApiErrorCode
+from app.email import messages as email_messages
+from app.database.dependencies import get_db, Session
+from app.database import crud
 
 router = APIRouter(tags=["security"], include_in_schema=False)
 
@@ -129,6 +138,7 @@ async def method_security_user_password_change_request_tfa_otp(
 )
 async def method_security_user_change_password(
     req: Request,
+    background_tasks: BackgroundTasks,
     logout_foreign_sessions: bool = True,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
@@ -178,6 +188,80 @@ async def method_security_user_change_password(
             )
         crud.user_session.deactivate_list(db, sessions)
 
+    email_messages.send_password_changed_notification_email(
+        background_tasks, user.email, user.get_mention()
+    )
     return api_success(
         {"password_is_changed": True, "sessions_was_closed": logout_foreign_sessions}
     )
+
+
+@router.get(
+    "/security.userRequestResetPassword",
+    dependencies=[Depends(RateLimiter(times=2, minutes=5))],
+)
+async def method_security_user_request_reset_password(
+    background_tasks: BackgroundTasks,
+    email: str,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Requests reset password within email."""
+
+    user = crud.user.get_by_email(db, convert_email_to_standardized(email))
+    payload = {
+        "email": email,
+    }
+    if user is None:
+        return api_success(payload)
+
+    secret_key = base64.b64encode(
+        f"{user.id}|{user.password}|{user.email}|{user.time_created}".encode()
+    )
+    reset_otp = generate_tfa_otp_raw_email(secret_key=secret_key, interval=None)
+    email_messages.send_password_reset_email(
+        background_tasks, user.email, user.get_mention(), reset_otp
+    )
+    return api_success(payload)
+
+
+@router.get(
+    "/security.userResetPassword",
+    dependencies=[Depends(RateLimiter(times=2, minutes=5))],
+)
+async def method_security_user_reset_password(
+    background_tasks: BackgroundTasks,
+    reset_otp: str,
+    new_password: str,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Resets password from OTP sent for email before."""
+
+    try:
+        otp_segments = base64.b64decode(reset_otp).split("|")
+        otp_user_id = int(otp_segments[0])
+        otp_old_password = otp_segments[1]
+    except Exception:
+        return api_error(ApiErrorCode.AUTH_TFA_OTP_INVALID, "Malformed OTP!")
+
+    user = crud.user.get_by_id(db, otp_user_id)
+    if not user or user.password != otp_old_password:
+        return api_error(
+            ApiErrorCode.AUTH_TFA_OTP_INVALID, "Unable to verify OTP with user!"
+        )
+
+    # Change password.
+    user.password = get_hashed_password(new_password, hash_method=None)
+    user.security_hash_method = 0
+    db.commit()
+
+    # Notifiy the user.
+    email_messages.send_password_changed_notification_email(
+        background_tasks, user.email, user.get_mention()
+    )
+
+    # Logout from all devices except this.
+    crud.user_session.deactivate_list(
+        db, crud.user_session.get_active_by_owner_id(db, owner_id=user.id)
+    )
+
+    return api_success({"password_is_changed": True, "sessions_was_closed": False})

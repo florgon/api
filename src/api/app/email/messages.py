@@ -2,11 +2,10 @@
     Stuff for sending messages.
 """
 
-from app.config import get_logger
-from fastapi import BackgroundTasks
-
 # Libraries.
-from fastapi_mail import MessageSchema, MessageType
+from fastapi_mail import MessageType, MessageSchema
+from fastapi import BackgroundTasks
+from app.config import get_logger
 
 # Core.
 from .config import fastmail
@@ -51,9 +50,27 @@ def send_verification_end_email(
 def send_password_change_tfa_otp_email(
     background_tasks: BackgroundTasks, email: str, mention: str, otp: str
 ):
-    """Send 2FA one time password email to the user."""
+    """Send 2FA one time password change email to the user."""
     subject = "Florgon password change!"
     message = f"Hello, {mention}! Use code below to change password for your Florgon account! Code: {otp}"
+    background_tasks.add_task(send_custom_email, [email], subject, message)
+
+
+def send_password_changed_notification_email(
+    background_tasks: BackgroundTasks, email: str, mention: str
+):
+    """Send notification that there was change of the password!"""
+    subject = "Florgon password was changed!"
+    message = f"Hello, {mention}! Your password has been changed or reseted!. If you are not changed to reset your password, please contact support@florgon.com!"
+    background_tasks.add_task(send_custom_email, [email], subject, message)
+
+
+def send_password_reset_email(
+    background_tasks: BackgroundTasks, email: str, mention: str, otp: str
+):
+    """Send 2FA one time password reset email to the user."""
+    subject = "Florgon password reset!"
+    message = f"Hello, {mention}! Use code below to reset password for your Florgon account! Code: {otp}. If you are not requested to reset your password, please contact support@florgon.com!"
     background_tasks.add_task(send_custom_email, [email], subject, message)
 
 
