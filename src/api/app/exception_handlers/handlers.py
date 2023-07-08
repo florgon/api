@@ -6,22 +6,67 @@
     and should return response.
 """
 
+from fastapi.exceptions import RequestValidationError
 from fastapi import Response
 from app.services.api.response import api_error
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.config import get_logger
 
 
-async def validation_exception_handler(_, exception) -> Response:
+async def validation_exception_handler(
+    _, exception: RequestValidationError
+) -> Response:
     """
     Handles plain FastAPI exception (Pydantic internal)
     that is caused by validation error for the request.
-    TODO: Better exception formatting to the user / developer.
     """
+
+    missing_fields = []
+    type_error_fields = []
+    unhandled_errors = []
+    additional_data = {}
+    for error in exception.errors():
+        match error["type"]:
+            case "value_error.missing":
+                missing_fields.append(error["loc"][-1])
+            case unexpected_error:
+                if unexpected_error.startswith("type_error."):
+                    type_error_fields.append(
+                        (error["loc"][-1], unexpected_error[len("type_error.") :])
+                    )
+                unhandled_errors.append(error)
+
+    description = None
+    if missing_fields:
+        fields = ", ".join(map(lambda field: f"`{field}`", missing_fields))
+        description = (
+            f"{fields} field{'s' if len(missing_fields) > 1 else ''} required!"
+        )
+        additional_data = {"fields": missing_fields}
+    if type_error_fields:
+        fields = ", ".join(
+            map(lambda field: f"`{field[0]}[expected:{field[1]}]`", type_error_fields)
+        )
+        description = (
+            f"Unable to parse {fields} field{'s' if len(missing_fields) > 1 else ''}!"
+        )
+        additional_data = {
+            "fields": [
+                {"name": field[0], "expected_type": field[1]}
+                for field in type_error_fields
+            ]
+        }
+    if description is None:
+        description = "No further information..."
+        additional_data = {"unhandled_raw": unhandled_errors}
+        get_logger().warning(
+            f"[validation] Got unhandled validation error! Raw: {unhandled_errors}"
+        )
+
     return api_error(
         ApiErrorCode.API_INVALID_REQUEST,
-        "Invalid request! No further information.",
-        {"raw_exception": str(exception)},
+        f"Invalid request! {description}",
+        data=additional_data,
     )
 
 
