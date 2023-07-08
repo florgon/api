@@ -21,7 +21,7 @@ router = APIRouter(tags=["gift"])
 )
 async def method_gift_accept(
     auth_data=Depends(AuthDataDependency()),
-    gifts_repo=Depends(get_repository(GiftsRepository)),
+    gifts_repo: GiftsRepository = Depends(get_repository(GiftsRepository)),
     promocode: str | None = None,
 ) -> JSONResponse:
     """Accepts gift."""

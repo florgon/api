@@ -1,18 +1,22 @@
 """
-    FastAPI dependencies
+    FastAPI dependencies for the database.
 """
 
-from typing import Callable, Type
+from typing import TypeVar, Callable
 
-from fastapi import Depends
 from sqlalchemy.orm import Session
+from fastapi import Depends
 
-from .core import SessionLocal, sessionmaker
-from .repositories.base import BaseRepository
+from .core import sessionmaker, SessionLocal
+
+T = TypeVar("T")
 
 
 def get_db() -> sessionmaker:
-    """Session getter for database. Used as dependency for database itself."""
+    """
+    Returns database session for making plain database requests.
+    Notice: Should be slowly moved inside abstraction layer (like, repositories)
+    """
     db_session = SessionLocal()
     try:
         yield db_session
@@ -20,15 +24,13 @@ def get_db() -> sessionmaker:
         db_session.close()
 
 
-def get_repository(repo_type: Type[BaseRepository]) -> Callable:
+def get_repository(repo_type: type[T]) -> Callable[[Session], T]:
     """
-    Returns repository dependency (wrapped) with database getter dependency.
+    Instantiates repository dependency (wrapped) based on type.
+    (Returns function that instantiates repository with given type)
     """
 
-    def get_repo(db: Session = Depends(get_db)) -> Type[BaseRepository]:
-        """
-        Dependency itself.
-        """
+    def wrapper(db: Session = Depends(get_db)) -> T:
         return repo_type(db)
 
-    return get_repo
+    return wrapper

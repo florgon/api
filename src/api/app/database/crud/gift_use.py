@@ -3,8 +3,8 @@
     Gift use CRUD utils for the database.
 """
 
-from app.database.models.gift_use import GiftUse
 from sqlalchemy.orm import Session
+from app.database.models.gift_use import GiftUse
 
 
 def create(db: Session, user_id: int, gift_id: int) -> GiftUse:

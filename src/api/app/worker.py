@@ -7,7 +7,9 @@
     Currently worker uses Redis as broker && backend,
     there is alternative using AMQP (e.g RabbitMQ),
     but this is currently not planned.
+    ?TODO: RabbitMQ?
 """
+
 import os
 
 from celery.utils.log import get_task_logger
@@ -37,6 +39,7 @@ def truncate_oauth_codes():
     """
     Task that will be executed periodically
     and truncate the oauth_codes table that is not required to store long history.
+    TODO: Remove this task and researh better solution?
     """
     logger.info("[truncate_oauth_codes] Truncating oauth codes database table...")
     with SessionLocal() as db:
@@ -51,5 +54,6 @@ def truncate_oauth_codes():
 def refresh_subscriptions():
     """
     Task that will be executed periodically and refresh (validate and work with) subscriptions.
+    !TODO: Rework subscriptions system with refreshing.
     """
     return True

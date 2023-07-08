@@ -1,18 +1,15 @@
 """
-    Database core. Contains engine, ORM related stuff.
+    Database core. 
+    Contains engine and ORM related stuff.
 """
 
-# Settings.
-from app.config import Settings, get_logger
-
-# Imports.
-from sqlalchemy import MetaData, create_engine
-from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import OperationalError, IntegrityError
+from sqlalchemy import create_engine, MetaData
+from app.config import get_logger, Settings
 
-# Database engine.
 settings = Settings()
 engine = create_engine(
     url=settings.database_dsn,
@@ -24,19 +21,21 @@ engine = create_engine(
     pool_pre_ping=True,
 )
 metadata = MetaData(bind=engine)
-
-# Base, session from core.
+Base = declarative_base(metadata=metadata)
 SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, expire_on_commit=True, bind=engine
 )
-Base = declarative_base(metadata=metadata)
 
 
-def create_all():
-    """Creates all database metadata."""
+def create_all() -> None:
+    """
+    Creating all database metadata.
+    Currently there is only ORM metadata builder.
+    !TODO: Migrations with alembic.
+    """
     try:
         metadata.create_all(bind=engine)
     except (IntegrityError, OperationalError) as e:
         get_logger().error(
-            f"[database_core] Failed to do `create_all` as metadata returned `{e}`"
+            f"[database_core] Failed to do `create_all` as metadata raised: `{e}`"
         )

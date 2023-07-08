@@ -19,7 +19,7 @@ RUN pip install --upgrade --no-cache-dir -r requirements-testing.txt
 COPY . /srv/www/florgon/api/
 
 # Envs.
-ENV GUNICORN_LOGLEVEL "debug"
-ENV GUNICORN_TIMEOUT "300"
+ENV proc_log_level "debug"
+ENV proc_timeout "300"
 
 COPY . /srv/www/florgon/api/

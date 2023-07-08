@@ -1,11 +1,10 @@
 version: "3"
+# !TODO!: Database config should be: "postgres" - "-c" "-config-file=/etc/postgresql/postgresql.conf" with volume on Docker.
+# !TODO!: Research database poller workflow.
 
 volumes:
   db:
     driver: local
-# TODO: Database config should be:
-# - "postgres" - "-c" "-config-file=/etc/postgresql/postgresql.conf"
-# With volume on Docker.
 
 services:
   database:
@@ -77,7 +76,6 @@ services:
       - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
       - database
-      - database-poller
       - cache
     links:
       - database
@@ -88,6 +86,7 @@ services:
       context: ./
       dockerfile: $PWD/docker/Dockerfile
     command: gunicorn app.app:app -c gunicorn.conf.py
+
 networks:
   florgon-api:
     name: florgon-api

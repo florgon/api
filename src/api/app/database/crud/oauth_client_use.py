@@ -3,8 +3,8 @@
     OAuth client use CRUD utils for the database.
 """
 
-from app.database.models.oauth_client_use import OAuthClientUse
 from sqlalchemy.orm import Session
+from app.database.models.oauth_client_use import OAuthClientUse
 
 
 def create(db: Session, user_id: int, client_id: int) -> OAuthClientUse:

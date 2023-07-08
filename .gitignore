@@ -1,7 +1,8 @@
 /db
 /cache
+/worker
 *.pyc
+*.coverage
 .idea
 .vscode
-worker
-*.coverage
+.mypy_cache

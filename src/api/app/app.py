@@ -15,9 +15,12 @@ from .database.bootstrap import create_start_database_entries
 from .config import get_settings, get_logger
 from . import database
 
-if __name__ == "__main__":
-    # You are not supposed to run this directly.
-    # Raise error if tried to run from CLI directly.
+
+def _cli_entry_point() -> None:
+    """
+    You are not supposed to run this directly.
+    Raise error if tried to run from CLI directly.
+    """
     print(
         "ERROR: This application should be run with `Uvicorn` manually, or by Docker (Docker-Compose).\n"
     )
@@ -47,7 +50,7 @@ def _construct_app() -> FastAPI:
         # Event handlers.
         on_shutdown=None,
         on_startup=None,
-        # Open API.
+        # OpenAPI.
         title=settings.openapi_title,
         version=settings.openapi_version,
         description=settings.openapi_description,
@@ -56,6 +59,7 @@ def _construct_app() -> FastAPI:
         openapi_prefix=settings.openapi_prefix,
         openapi_url=settings.openapi_url if settings.openapi_enabled else None,
         openapi_tags=[
+            # TODO!: Move or refactor that.
             {"name": "security", "description": "Requires `security` permission!"},
         ],
         # Other.
@@ -63,16 +67,14 @@ def _construct_app() -> FastAPI:
         root_path_in_servers=True,
     )
 
-    # Initializing database connection and all ORM stuff.
-    if settings.database_create_all:
-        database.core.create_all()
-        create_start_database_entries()
-
-    # Register all internal stuff as routers/handlers/middlewares etc.
+    # Register all internal stuff as routers/handlers/middlewares/database etc.
     add_event_handlers(app_instance)
     add_exception_handlers(app_instance)
     add_middlewares(app_instance)
     include_routers(app_instance)
+    if settings.database_create_all:
+        database.core.create_all()
+        create_start_database_entries()
 
     # Logging.
     logger = get_logger()
@@ -82,6 +84,9 @@ def _construct_app() -> FastAPI:
 
     return app_instance
 
+
+if __name__ == "__main__":
+    _cli_entry_point()
 
 # Root application for uvicorn runner or whatever else.
 # (Docker compose is running with app.app:app, means that this application instance
