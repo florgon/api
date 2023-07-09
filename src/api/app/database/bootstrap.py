@@ -3,6 +3,10 @@
     Used for creating initial database entries like initial OAuth client and super user.
 """
 
+from time import sleep
+
+from sqlalchemy.exc import OperationalError
+from sqlalchemy import select
 from app.database.repositories.users import UsersRepository
 from app.database.repositories.oauth_clients import OAuthClientsRepository, OAuthClient
 from app.database.dependencies import SessionLocal, Session
@@ -23,6 +27,22 @@ def create_start_database_entries() -> None:
     _create_superuser_if_not_exists(db=db)
     _create_initial_oauth_client_if_not_exists(db=db)
     db.close()
+
+
+def wait_for_database_startup() -> None:
+    """
+    Used for checking that database is up, running and ready to execute statements.
+    """
+    try:
+        db = SessionLocal()
+        db.execute(select(1))
+        db.close()
+    except OperationalError:
+        get_logger().warning(
+            "[database] Database is starting up! Waiting next 1 second."
+        )
+        sleep(1)
+        wait_for_database_startup()
 
 
 def _create_superuser_if_not_exists(db: Session) -> None:

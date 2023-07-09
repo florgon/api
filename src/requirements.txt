@@ -1,0 +1,16 @@
+fastapi==0.88.0
+fastapi-cache2[redis]==0.2.1
+fastapi_mail==1.2.4
+uvicorn==0.22.0
+gunicorn==20.1.0
+httpx==0.24.1
+gatey-sdk==0.0.10
+celery==5.3.1
+pytz==2023.3
+sqlalchemy==1.4.45
+psycopg2-binary==2.9.6
+aioredis==2.0.1
+validate_email==1.3
+pyjwt==2.7.0
+pyotp==2.8.0
+requests==2.31.0  # Make requests to server.

@@ -19,6 +19,7 @@ from app.database.core import SessionLocal
 
 worker_cache_dsn = os.environ.get("CACHE_DSN", "redis://cache:6379/")
 worker = Celery(__name__, broker=worker_cache_dsn, backend=worker_cache_dsn)
+worker.conf.broker_connection_retry_on_startup = True
 logger = get_task_logger(__name__)
 worker.conf.beat_schedule = {
     "truncate_oauth_codes": {

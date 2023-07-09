@@ -56,11 +56,11 @@ services:
       - ./docker/configs/.server.env
     build:
       context: ./
-      dockerfile: $PWD/docker/Dockerfile
+      dockerfile: $PWD/Dockerfile
     volumes:
-      - ../worker:/srv/www/florgon/worker
-      - ./api:/srv/www/florgon/api
-    command: celery --app=app.worker.worker worker --loglevel=info -B -s /srv/www/florgon/worker/celerybeat-schedule
+      - ../worker:/srv/worker
+      - ./api:/srv/api
+    command: celery --app=app.worker.worker worker --loglevel=info -B -s /srv/worker/celerybeat-schedule
     # TODO: --uid=nobody --gid=nogroup
     depends_on:
       - cache
@@ -77,7 +77,7 @@ services:
     env_file:
       - ./docker/configs/.server.env
     volumes:
-      - ./api:/srv/www/florgon/api
+      - ./api:/srv/api
     ports:
       - "${COMPOSE_EXPOSED_PORT}:80"
     depends_on:
@@ -90,7 +90,7 @@ services:
       - florgon-api
     build:
       context: ./
-      dockerfile: $PWD/docker/Dockerfile
+      dockerfile: $PWD/Dockerfile
     command: gunicorn app.app:app -c gunicorn.conf.py
 
 networks:

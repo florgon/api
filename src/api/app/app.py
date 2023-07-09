@@ -11,7 +11,7 @@ from .routers import include_routers
 from .middlewares import add_middlewares
 from .exception_handlers import add_exception_handlers
 from .event_handlers import add_event_handlers
-from .database.bootstrap import create_start_database_entries
+from .database.bootstrap import wait_for_database_startup, create_start_database_entries
 from .config import get_settings, get_logger
 from . import database
 
@@ -72,6 +72,7 @@ def _construct_app() -> FastAPI:
     add_exception_handlers(app_instance)
     add_middlewares(app_instance)
     include_routers(app_instance)
+    wait_for_database_startup()
     if settings.database_create_all:
         database.core.create_all()
         create_start_database_entries()
