@@ -17,6 +17,7 @@ gatey-sdk==0.0.8
 
 # Worker (celery).
 celery==5.2.7
+pytz==2023.3
 
 # ORM with Database engine.
 sqlalchemy==1.4.45  # ORM.
