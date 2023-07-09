@@ -52,7 +52,7 @@ services:
     build:
       context: ./
       dockerfile: $PWD/docker/Dockerfile
-    command: celery --app=app.worker.worker worker --loglevel=info -B -s /srv/www/florgon/worker/celerybeat-schedule
+    command: celery --app=app.worker.worker worker --loglevel=info -B -s /srv/www/florgon/worker/celerybeat-schedule --uid=nobody --gid=nogroup
     volumes:
       - ../worker:/srv/www/florgon/worker
       - ./api:/srv/www/florgon/api
