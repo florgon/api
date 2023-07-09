@@ -8,6 +8,7 @@
 """
 
 from pydantic import EmailStr
+from fastapi_mail.errors import ConnectionErrors
 from fastapi_mail import MessageType, MessageSchema
 from fastapi import BackgroundTasks
 from app.config import get_logger
@@ -26,15 +27,18 @@ async def send_custom_email(
 
     recepients_count = len(recepients)
     get_logger().info(
-        f"Sending mail to {recepients[0]} with subject '{subject}'."
+        f"[email] Sending mail to {recepients[0]} with subject '{subject}'."
         if recepients_count == 1
-        else f"Sending mail to {recepients_count} recepients with subject '{subject}'."
+        else f"[email] Sending mail to {recepients_count} recepients with subject '{subject}'."
     )
 
     schema = MessageSchema(
         subject=subject, recipients=recepients, body=body, subtype=MessageType.plain
     )
-    await provider.send_message(schema)
+    try:
+        await provider.send_message(schema)
+    except ConnectionErrors as e:
+        get_logger().error(f"[email] Failed to send message! Error: {e}")
 
 
 def send_verification_email(
