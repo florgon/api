@@ -7,15 +7,13 @@ import base64
 
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, BackgroundTasks, APIRouter
+from app.services.verification import decode_email_token
 from app.services.validators.user import (
     validate_password_field,
     convert_email_to_standardized,
 )
-from app.services.tfa import (
-    validate_user_tfa_otp_from_request,
-    generate_tfa_otp_raw_email,
-    generate_tfa_otp,
-)
+from app.services.tokens.email_token import EmailToken
+from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
 from app.services.request import query_auth_data_from_request
 from app.services.permissions import Permission
 from app.services.passwords import get_hashed_password, check_password
@@ -24,6 +22,7 @@ from app.services.api.response import api_success, api_error, ApiErrorCode
 from app.email import messages as email_messages
 from app.database.dependencies import get_db, Session
 from app.database import crud
+from app.config import get_settings
 
 router = APIRouter(tags=["security"], include_in_schema=False)
 
@@ -214,10 +213,11 @@ async def method_security_user_request_reset_password(
     if user is None:
         return api_success(payload)
 
-    secret_key = base64.b32encode(
-        f"{user.id}|{user.password}|{user.email}|{user.time_created}".encode()
-    )
-    reset_otp = generate_tfa_otp_raw_email(secret_key=secret_key, interval=None)
+    settings = get_settings()
+    reset_otp = EmailToken(
+        settings.security_tokens_issuer, settings.security_email_tokens_ttl, user.id
+    ).encode(key=user.password)
+
     email_messages.send_password_reset_email(
         background_tasks, user.email, user.get_mention(), reset_otp
     )
@@ -230,24 +230,19 @@ async def method_security_user_request_reset_password(
 )
 async def method_security_user_reset_password(
     background_tasks: BackgroundTasks,
-    reset_otp: str,
+    email: str,
+    reset_token: str,
     new_password: str,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """Resets password from OTP sent for email before."""
 
-    try:
-        otp_segments = base64.b32decode(reset_otp).split("|")
-        otp_user_id = int(otp_segments[0])
-        otp_old_password = otp_segments[1]
-    except Exception:
-        return api_error(ApiErrorCode.AUTH_TFA_OTP_INVALID, "Malformed OTP!")
-
-    user = crud.user.get_by_id(db, otp_user_id)
-    if not user or user.password != otp_old_password:
-        return api_error(
-            ApiErrorCode.AUTH_TFA_OTP_INVALID, "Unable to verify OTP with user!"
-        )
+    user = crud.user.get_by_email(db, convert_email_to_standardized(email))
+    if user is None:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "Invalid values!")
+    email_token = decode_email_token(reset_token, secret_key=user.password)
+    if email_token.get_subject() != user.id:
+        return api_error(ApiErrorCode.API_FORBIDDEN, "Integrity error!")
 
     # Change password.
     user.password = get_hashed_password(new_password, hash_method=None)
