@@ -1,9 +1,13 @@
-name: Linters (Pylint, MyPy)
+name: Linters
 
 on:
   pull_request:
     branches: ["main", "dev", "staging"]
   workflow_dispatch:
+  push:
+    branches: ["main", "dev", "staging"]
+    paths:
+      - "src/**"
 
 permissions:
   contents: read
@@ -20,18 +24,15 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Upgrade pip
-        run: pip install --upgrade pip
+      - name: Install dependencies
+        run: pip install --upgrade pip && pip install pylint==v3.0.0a3 mypy==v0.902
         working-directory: "src/api/"
-      - name: Install linters
-        run: pip install pylint==v3.0.0a3 mypy==v0.902
-        working-directory: "src/api/"
-      - name: PyLint lint.
+      - name: Run PyLint
         run: pylint --disable=too-many-function-args --disable=cyclic-import --disable=logging-fstring-interpolation --disable=duplicate-code --disable=wrong-import-order --disable=too-few-public-methods --disable=too-many-arguments --disable=too-many-locals --disable=too-many-return-statements --disable=trailing-whitespace --disable=invalid-name --disable=fixme --disable=consider-using-sys-exit --disable=import-error --disable=line-too-long $(git ls-files '*.py')
         working-directory: "src/api/"
-      - name: All PyLint warning.
+      - name: Display with supressed warnings
         run: pylint $(git ls-files '*.py') || true
         working-directory: "src/api/"
-      - name: MyPy type check.
+      - name: Run MyPy
         working-directory: "src/api/"
         run: mypy $(git ls-files '*.py') || true

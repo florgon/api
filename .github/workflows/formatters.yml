@@ -1,17 +1,21 @@
-name: Formatters (Black, isort)
+name: Code formatters
 
 on:
   pull_request:
     branches: ["main", "dev", "staging"]
   workflow_dispatch:
-
+  push:
+    branches: ["main", "dev", "staging"]
+    paths:
+      - "src/**"
+  
 permissions:
   contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Formatters
+    name: Code formatters
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -20,15 +24,11 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Upgrade pip
-        run: pip install --upgrade pip
-        working-directory: "src/api/"
-      - name: Install formatters
-        run: pip install "black<23" isort==5.10.1
-        working-directory: "src/api/"
-      - name: Black format.
+      - name: Install dependencies
+        run: pip install --upgrade pip && pip install "black<23" isort==5.10.1
+      - name: Black formatter
         run: black --diff --check $(git ls-files '*.py')
         working-directory: "src/api/"
-      - name: ISort format.
+      - name: ISort formatter
         working-directory: "src/api/"
         run: isort --check-only --profile black . || true

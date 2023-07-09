@@ -1,9 +1,11 @@
 name: CodeQL
 
 on:
+  pull_request:
+    branches: ["main", "dev", "staging"]
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["main", "dev", "staging"]
     paths:
       - "src/**"
 
