@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     openapi_redoc_url: str = "/redoc"
     openapi_prefix: str = ""
     openapi_title: str = "Florgon API"
-    openapi_version: str = "0.0.0"
+    openapi_version: str = "0.0.2"
     openapi_description: str = "Florgon API"
 
     # FastAPI.
