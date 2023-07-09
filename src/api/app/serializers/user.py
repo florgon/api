@@ -19,7 +19,7 @@ def serialize(
     include_profile_fields: bool = False
 ) -> dict[str, Any]:
     """Returns dict object for API response with serialized user data."""
-    serialized_user: dict[str, Any] = {
+    serialized: dict[str, Any] = {
         "id": user.id,
         "username": user.username,
         "avatar": user.avatar,
@@ -30,7 +30,7 @@ def serialize(
     }
 
     if include_profile_fields:
-        serialized_user["profile"] = {
+        serialized["profile"] = {
             "bio": user.profile_bio,
             "website": user.profile_website,
             "socials": {
@@ -45,25 +45,22 @@ def serialize(
         }
 
     if include_email and include_private_fields:
-        serialized_user["email"] = user.email
+        serialized["email"] = user.email
 
     if include_optional_fields:
         time_online = user.time_online
-        serialized_user["time_created"] = time.mktime(user.time_created.timetuple())
-        serialized_user["time_online"] = (
+        serialized["time_created"] = time.mktime(user.time_created.timetuple())
+        serialized["time_online"] = (
             time.mktime(time_online.timetuple()) if time_online else None
         )
-        serialized_user["states"] = {"is_active": user.is_active, "is_vip": user.is_vip}
+        serialized["states"] = {"is_active": user.is_active, "is_vip": user.is_vip}
 
         if include_private_fields:
             if user.is_admin:
-                serialized_user["states"]["is_admin"] = user.is_admin
-            serialized_user["states"]["is_confirmed"] = user.is_verified
+                serialized["states"]["is_admin"] = user.is_admin
+            serialized["states"]["is_confirmed"] = user.is_verified
 
-    if in_list:
-        return serialized_user
-
-    return {"user": serialized_user}
+    return serialized if in_list else {"user": serialized}
 
 
 def serialize_list(

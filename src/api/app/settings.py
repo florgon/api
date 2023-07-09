@@ -23,14 +23,14 @@ class Settings(BaseSettings):
     database_max_overflow: int = 0
     database_pool_size: int = 20
 
-    # Prometheus (Grafana)
+    # Prometheus.
     # TODO: More configuration.
     prometheus_metrics_exposed: bool = False
 
     # Mail.
     mail_enabled: bool = False
     mail_from_name: str | None = None
-    mail_from: EmailStr = "noreply@florgon.com"
+    mail_from: EmailStr = "noreply@florgon.com"  # type: ignore
     mail_server: str = ""
     mail_password: str = ""
     mail_username: str = ""
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     mail_ssl_tls: bool = True
     mail_use_credentials: bool = True
     mail_validate_certs: bool = True
-    mail_debug: conint(gt=-1, lt=2) = 0
+    mail_debug: conint(gt=-1, lt=2) = 0  # type: ignore
 
     # CORS.
     cors_enabled: bool = True
@@ -69,7 +69,7 @@ class Settings(BaseSettings):
 
     # Caching.
     fastapi_cache_enable: bool = True
-    fastapi_cache_use_inmemory_backend: bool = True
+    fastapi_cache_use_inmemory_backend: bool = False
 
     # OpenAPI.
     openapi_enabled: bool = False
@@ -118,13 +118,6 @@ class Settings(BaseSettings):
     auth_ext_oauth_yandex_client_id: str = ""
     auth_ext_oauth_yandex_client_secret: str = ""
     auth_ext_oauth_yandex_redirect_uri: str = "/oauth/ext/yandex/callback"
-
-    # Proxy (Server content with prefix or domain (Proxy server)).
-    # TODO: More configuration, rework configurations.
-    # Will be added to all methods.
-    proxy_url_prefix: str = ""
-    # Used for email sending with backling to API.
-    proxy_url_domain: str = "http://localhost"
 
     # Admin.
     admin_methods_disabled: bool = False

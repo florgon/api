@@ -5,9 +5,9 @@
 
 import time
 
-from app.database.crud.user_agent import get_by_id as get_user_agent_by_id
-from app.database.dependencies import Session
 from app.database.models.user_session import UserSession
+from app.database.dependencies import Session
+from app.database.crud.user_agent import get_by_id as get_user_agent_by_id
 
 
 def serialize(session: UserSession, db: Session, in_list: bool = False):
@@ -15,7 +15,7 @@ def serialize(session: UserSession, db: Session, in_list: bool = False):
 
     user_agent = get_user_agent_by_id(db=db, user_agent_id=session.user_agent_id)
     user_agent_string = user_agent.user_agent
-    serialized_session = {
+    serialized = {
         "id": session.id,
         "ip": session.ip_address,
         "geo_country": session.geo_country,
@@ -24,10 +24,7 @@ def serialize(session: UserSession, db: Session, in_list: bool = False):
         "is_active": session.is_active,
     }
 
-    if in_list:
-        return serialized_session
-
-    return {"session": serialized_session}
+    return serialized if in_list else {"session": serialized}
 
 
 def serialize_list(sessions: list[UserSession], db: Session) -> dict:

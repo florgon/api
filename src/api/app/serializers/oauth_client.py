@@ -8,7 +8,7 @@ import time
 
 def serialize(oauth_client, display_secret: bool, in_list: bool = False):
     """Returns dict object for API response with serialized OAuth client data."""
-    serialized_oauth_client = {
+    serialized = {
         "id": oauth_client.id,
         "states": {
             "is_active": oauth_client.is_active,
@@ -16,20 +16,18 @@ def serialize(oauth_client, display_secret: bool, in_list: bool = False):
         },
         "display": {
             "name": oauth_client.display_name,
-            "avatar": oauth_client.display_avatar
-            if oauth_client.display_avatar
-            else "https://florgon.com/logo192.png",
+            # TODO: Refactor that default display url.
+            "avatar_url": oauth_client.display_avatar
+            or "https://florgon.com/logo192.png",
         },
         "created_at": time.mktime(oauth_client.time_created.timetuple()),
     }
 
+    serialized["display"]["avatar"] = serialized["display"]["avatar_url"]
     if display_secret:
-        serialized_oauth_client["secret"] = oauth_client.secret
+        serialized["secret"] = oauth_client.secret
 
-    if in_list:
-        return serialized_oauth_client
-
-    return {"oauth_client": serialized_oauth_client}
+    return serialized if in_list else {"oauth_client": serialized}
 
 
 def serialize_list(

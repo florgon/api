@@ -53,7 +53,7 @@ services:
     hostname: florgon-api
     restart: always
     env_file:
-      - ./docker/configs/.server.env
+      - ./app/.env
     build:
       context: ./
       dockerfile: $PWD/Dockerfile
@@ -75,7 +75,7 @@ services:
     hostname: florgon-api
     restart: unless-stopped
     env_file:
-      - ./docker/configs/.server.env
+      - ./app/.env
     volumes:
       - ./api:/srv/api
     ports:

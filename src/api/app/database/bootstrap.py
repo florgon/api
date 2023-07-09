@@ -66,8 +66,8 @@ def _create_superuser_if_not_exists(db: Session) -> None:
             email=SUPERUSER_EMAIL,
             password=SUPERUSER_PASSWORD,
         )
-    user.is_admin = True
-    user.is_verified = True
+    user.is_admin = True  # type: ignore
+    user.is_verified = True  # type: ignore
     repo.finish(user)
 
 

@@ -7,6 +7,7 @@
     !TODO: Refactor message wrappers (senders) and replace with engine.
 """
 
+from pydantic import EmailStr
 from fastapi_mail import MessageType, MessageSchema
 from fastapi import BackgroundTasks
 from app.config import get_logger
@@ -14,7 +15,9 @@ from app.config import get_logger
 from .config import provider
 
 
-async def send_custom_email(recepients: list[str], subject: str, body: str) -> None:
+async def send_custom_email(
+    recepients: list[EmailStr], subject: str, body: str
+) -> None:
     """
     Simple wrapper around provider messaging.
     """
