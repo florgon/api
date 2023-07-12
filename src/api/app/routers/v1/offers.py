@@ -10,6 +10,7 @@ from app.database.dependencies import Session, get_db
 from app.database import crud
 from app.services.request.auth import try_query_auth_data_from_request
 from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api.response import api_success
 from app.serializers.offer import serialize_offer
 from app.config import get_settings
 from app.services.validators.user import (
@@ -57,4 +58,4 @@ async def method_offer_send(
         email=email,
         user_id=user_id,
     )
-    return serialize_offer(offer)
+    return api_success(serialize_offer(offer))
