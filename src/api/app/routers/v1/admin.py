@@ -7,12 +7,14 @@ import time
 
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
+
 from app.services.user_query_filter import query_users_by_filter_query
 from app.services.user import query_user_by_id_or_username
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.services.admin import validate_user_allowed_to_call_admin_methods
 from app.serializers.user import serialize_users, serialize_user
+from app.serializers.offer import serialize_offers
 from app.database.dependencies import get_db, Session
 from app.database import crud
 
@@ -163,3 +165,17 @@ async def method_admin_unban_user(
     db.refresh(user)
 
     return api_success(serialize_user(user, in_list=False, include_private_fields=True))
+
+
+@router.get("/_admin.getOffers")
+async def method_admin_get_offers(
+    req: Request,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Returns list of offers."""
+
+    await validate_user_allowed_to_call_admin_methods(req, db)
+    offers = crud.offer.get_list(db)
+
+    return api_success(serialize_offers(offers))
+

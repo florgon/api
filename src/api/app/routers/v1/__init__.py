@@ -19,7 +19,7 @@ from . import (
     ext_oauth,
     email,
     admin,
-    offer,
+    offers,
 )
 
 
@@ -40,7 +40,7 @@ def include_v1_routers(app: FastAPI) -> None:
         security,
         gift,
         mailings,
-        offer,
+        offers,
     ]
     for module in modules:
         app.include_router(module.router, prefix="/v1")

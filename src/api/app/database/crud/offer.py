@@ -31,3 +31,10 @@ def create(
     db.refresh(offer)
 
     return offer
+
+
+def get_list(db: Session) -> list[Offer]:
+    """
+    Returns a list of all offers.
+    """
+    return db.query(Offer).all()

@@ -26,3 +26,10 @@ def serialize_offer(offer: Offer, in_list: bool = False) -> dict[str, Any]:
     if in_list:
         return offer
     return {"offer": offer}
+
+
+def serialize_offers(offers: list[Offer]) -> dict[str, Any]:
+    """
+    Serializes list of offers.
+    """
+    return {"offers": [serialize_offer(offer, in_list=True) for offer in offers]}
