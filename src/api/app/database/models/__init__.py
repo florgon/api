@@ -1,6 +1,6 @@
 """
     Database ORM models.
-    
+
     !TODO!: Refactor and review all the models.
 """
 
@@ -15,6 +15,7 @@ from . import (
     oauth_client,
     gift_use,
     gift,
+    offer,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "user_linked_accounts",
     "oauth_client_user",
     "oauth_code",
+    "offer",
 ]
