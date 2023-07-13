@@ -38,3 +38,10 @@ def get_list(db: Session) -> list[Offer]:
     Returns a list of all offers.
     """
     return db.query(Offer).all()
+
+
+def get_by_id(db: Session, id: int) -> Offer | None:
+    """
+    Returns single offer by id or None if offer is not found.
+    """
+    return db.query(Offer).filter(Offer.id == id).first()

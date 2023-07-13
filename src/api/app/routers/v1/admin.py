@@ -14,7 +14,7 @@ from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.services.admin import validate_user_allowed_to_call_admin_methods
 from app.serializers.user import serialize_users, serialize_user
-from app.serializers.offer import serialize_offers
+from app.serializers.offer import serialize_offers, serialize_offer
 from app.database.dependencies import get_db, Session
 from app.database import crud
 
@@ -179,3 +179,21 @@ async def method_admin_get_offers(
 
     return api_success(serialize_offers(offers))
 
+
+@router.get("/_admin.getOffer")
+async def method_admin_get_offer(
+    req: Request,
+    id: int,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Returns single offer."""
+
+    await validate_user_allowed_to_call_admin_methods(req, db)
+    offer = crud.offer.get_by_id(db, id=id)
+    if offer is None:
+        return api_error(
+            ApiErrorCode.API_ITEM_NOT_FOUND,
+            "Offer with specified ID is not found!",
+        )
+
+    return api_success(serialize_offer(offer))
