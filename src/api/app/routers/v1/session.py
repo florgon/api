@@ -14,6 +14,7 @@ from app.services.validators.user import (
 from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_otp
 from app.services.session import publish_new_session_with_token
 from app.services.request.signup_host_allowance import validate_signup_host_allowance
+from app.services.request.direct_auth import check_direct_auth_is_allowed
 from app.services.request import AuthDataDependency, AuthData
 from app.services.permissions import Permission
 from app.services.limiter.depends import RateLimiter
@@ -67,6 +68,7 @@ async def method_session_signup(
             "User signup closed (Registration forbidden by server administrator)",
         )
 
+    check_direct_auth_is_allowed(req)
     if "username" not in payload or "email" not in payload or "password" not in payload:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -110,6 +112,7 @@ async def method_session_logout(
     auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
 ) -> JSONResponse:
     """Logout user over session (or over all sessions, or specific sessions)."""
+    check_direct_auth_is_allowed(req)
     await RateLimiter(times=1, seconds=15).check(req)
 
     if revoke_all:
@@ -155,6 +158,7 @@ async def method_session_list(
     "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=1, minutes=1))]
 )
 async def method_session_request_tfa_otp(
+    req: Request,
     login: str,
     password: str,
     background_tasks: BackgroundTasks,
@@ -162,7 +166,8 @@ async def method_session_request_tfa_otp(
 ) -> JSONResponse:
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
-    # Check credentials.
+    check_direct_auth_is_allowed(req)
+
     user = user_repo.get_user_by_login(login)
     validate_signin_fields(user=user, password=password)
 
@@ -207,6 +212,7 @@ async def method_session_signin(
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
 
+    check_direct_auth_is_allowed(req)
     if "login" not in payload or "password" not in payload:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
