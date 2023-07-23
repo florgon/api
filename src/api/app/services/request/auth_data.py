@@ -14,7 +14,7 @@ class AuthData:
     user: User
     token: BaseToken
     session: UserSession
-    permissions: set[Permission] | None
+    permissions: set[Permission]
 
     def __init__(
         self,
@@ -28,7 +28,8 @@ class AuthData:
         :param token: Session or access token object.
         :param session: User session database model object.
         """
-        self.user = user
+        # TODO: Checkout auth dependency for workflow.
+        self.user = user  # type: ignore
         self.token = token
         self.session = session
 

@@ -3,13 +3,13 @@
     (Session opened from another client).
 """
 
-from app.config import get_settings
-from app.database import crud
-from app.database.models.user_session import UserSession
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.request.get_from_request import get_client_host_from_request
-from fastapi import Request
 from sqlalchemy.orm import Session
+from fastapi import Request
+from app.services.request.get_from_request import get_client_host_from_request
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.models.user_session import UserSession
+from app.database import crud
+from app.config import get_settings
 
 
 def session_check_client_by_request(
@@ -19,10 +19,7 @@ def session_check_client_by_request(
     Raises API exception if session does not pass internal auth system checks.
     """
 
-    # If true, means that session detected as suspicious.
-    is_suspicious = _check_session_is_suspicious(db, session, request)
-
-    if is_suspicious:
+    if _check_session_is_suspicious(db, session, request):
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Session opened from another client!"
         )

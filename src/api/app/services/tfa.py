@@ -34,7 +34,7 @@ def validate_user_tfa_otp_from_request(tfa_otp: str, user: User):
         if tfa_device == "email"
         else settings.security_tfa_totp_interval_mobile
     )
-    totp = TOTP(s=otp_secret_key, interval=otp_interval)
+    totp = TOTP(s=otp_secret_key, interval=otp_interval)  # type: ignore
 
     # If OTP is not valid, raise error.
     if not totp.verify(tfa_otp):

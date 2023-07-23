@@ -42,13 +42,13 @@ def get_active_by_owner_id(db: Session, owner_id: int) -> list[UserSession]:
 def deactivate_list(db, sessions: list[UserSession]) -> None:
     """Deactivates list of a sessions."""
     for session in sessions:
-        session.is_active = False
+        session.is_active = False  # type: ignore
     db.commit()
 
 
 def deactivate_one(db, session: UserSession) -> None:
     """Deactivates one session."""
-    session.is_active = False
+    session.is_active = False  # type: ignore
     db.commit()
 
 
@@ -112,7 +112,7 @@ def get_inactive_count_grouped(db: Session) -> int:
     )
 
 
-def get_last(db: Session) -> UserSession:
+def get_last(db: Session) -> UserSession | None:
     """Returns last created session."""
     return (
         db.query(UserSession).order_by(UserSession.time_created.desc()).limit(1).first()
@@ -124,7 +124,7 @@ def get_or_create_new(
     owner_id: int,
     client_host: str,
     client_user_agent: str,
-    client_geo_country: str,
+    client_geo_country: str | None = None,
 ) -> UserSession:
     """Returns user session or creates a new one."""
 
@@ -132,9 +132,7 @@ def get_or_create_new(
     user_agent: UserAgent = get_ua_or_crete_by_string(db, client_user_agent)
     user_agent_id = user_agent.id
 
-    queried_session: UserSession = get_by_ip_address_and_user_agent(
-        db, client_host, user_agent
-    )
+    queried_session = get_by_ip_address_and_user_agent(db, client_host, user_agent)
     if queried_session and queried_session.owner_id == owner_id:
         return queried_session
 
@@ -145,7 +143,7 @@ def get_or_create_new(
         token_secret=session_token_secret,
         ip_address=client_host,
         user_agent_id=user_agent_id,
-        geo_country=client_geo_country,
+        geo_country=client_geo_country or "",  # TODO: nullable.
     )
 
     # Apply user session in database.

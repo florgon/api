@@ -17,6 +17,7 @@ from app.services.validators.user import (
     validate_last_name_field,
     validate_first_name_field,
     validate_email_field,
+    normalize_phone_number,
     convert_email_to_standardized,
 )
 from app.services.request import (
@@ -29,7 +30,6 @@ from app.services.limiter.depends import RateLimiter
 from app.services.cache import authenticated_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
-from app.services.validators.user import normalize_phone_number
 from app.serializers.user import serialize_user
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_repository, get_db, Session
@@ -50,11 +50,10 @@ async def method_user_get_info(
     auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
     """Returns user account information."""
-    email_allowed = Permission.email in auth_data.permissions
     return api_success(
         serialize_user(
             user=auth_data.user,
-            include_email=email_allowed,
+            include_email=Permission.email in auth_data.permissions,
             include_optional_fields=True,
             include_private_fields=True,
             include_profile_fields=True,
@@ -100,13 +99,13 @@ async def method_user_get_profile_info(
     is_authenticated = False
     if not profile_user.privacy_profile_public or not profile_user.is_active:
         # If not public, or deactivated (check for admin).
-        is_authenticated, auth_data = try_query_auth_data_from_request(
+        auth_data = try_query_auth_data_from_request(
             req, user_repo.db, allow_external_clients=True
         )
-        if is_authenticated:
-            is_owner = auth_data.user.id == profile_user.id
-            is_admin = auth_data.user.is_admin
-
+        if auth_data:
+            is_owner = auth_data.user.id == profile_user.id  # type: ignore
+            is_admin = auth_data.user.is_admin  # type: ignore
+        is_authenticated = auth_data is not None
     # If banned, raise error if not admin.
     if not profile_user.is_active and not is_admin:
         return api_error(

@@ -28,10 +28,16 @@ from app.database.dependencies import get_repository, get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(
+    include_in_schema=False,
+    tags=["session"],
+    prefix="/session",
+    default_response_class=JSONResponse,
+    dependencies=[],
+)
 
 
-@router.get("/_session._getUserInfo")
+@router.get("/info")
 async def method_session_get_user_info(
     auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
 ) -> JSONResponse:
@@ -52,13 +58,17 @@ async def method_session_get_user_info(
 
 
 @router.post(
-    "/_session._signup", dependencies=[Depends(RateLimiter(times=3, hours=12))]
+    "/signup",
+    dependencies=[
+        Depends(RateLimiter(times=3, hours=12)),
+        Depends(check_direct_auth_is_allowed),
+    ],
 )
-async def method_session_signup(
+async def signup(
     req: Request,
     user_agent: str = Header(""),
-    db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
+    user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
     payload: dict = Body(),
 ) -> JSONResponse:
     """API endpoint to signup and create new user."""
@@ -68,43 +78,47 @@ async def method_session_signup(
             "User signup closed (Registration forbidden by server administrator)",
         )
 
-    check_direct_auth_is_allowed(req)
     if "username" not in payload or "email" not in payload or "password" not in payload:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
             "`username`, `email` and `password` fields are required!",
         )
 
-    username, email, password = (
-        payload.get("username"),
-        payload.get("email"),
-        payload.get("password"),
-    )
-    # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
-    email = convert_email_to_standardized(email)
+    username = payload.get("username", "")
+    email = payload.get("email", "")
+    password = payload.get("password", "")
+    phone_number = payload.get("phone_number", "")
 
-    validate_signup_host_allowance(db=db, request=req)
-    validate_signup_fields(db, username, email, password)
-    user = crud.user.create(db=db, email=email, username=username, password=password)
-    if not user:
+    # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
+    email = convert_email_to_standardized(email)  # type: ignore
+
+    validate_signup_host_allowance(db=user_repo.db, request=req)
+    validate_signup_fields(user_repo.db, username, email, password, phone_number)
+    if not (user := user_repo.create(username, email, password, phone_number)):
         return api_error(
             ApiErrorCode.API_TRY_AGAIN_LATER,
             "Unable to create account at this time, please try again later.",
         )
     token, session = publish_new_session_with_token(
-        user=user, user_agent=user_agent, db=db, req=req
+        user=user, user_agent=user_agent, db=user_repo.db, req=req
     )
     return api_success(
         {
             **serialize_user(user),
-            "session_token": token.encode(key=session.token_secret),
+            "session_token": token.encode(key=session.token_secret),  # type: ignore
             "sid": session.id,
         }
     )
 
 
-@router.get("/_session._logout")
-async def method_session_logout(
+@router.get(
+    "/logout",
+    dependencies=[
+        Depends(RateLimiter(times=1, minutes=1)),
+        Depends(check_direct_auth_is_allowed),
+    ],
+)
+async def logout(
     req: Request,
     revoke_all: bool = False,
     sid: int = 0,
@@ -112,12 +126,11 @@ async def method_session_logout(
     auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
 ) -> JSONResponse:
     """Logout user over session (or over all sessions, or specific sessions)."""
-    check_direct_auth_is_allowed(req)
     await RateLimiter(times=1, seconds=15).check(req)
 
     if revoke_all:
         sessions = crud.user_session.get_active_by_owner_id(
-            db, owner_id=auth_data.user.id
+            db, owner_id=auth_data.user.id  # type: ignore
         )
         crud.user_session.deactivate_list(db, sessions)
         return api_success({"sids": [_session.id for _session in sessions]})
@@ -132,8 +145,8 @@ async def method_session_logout(
     return api_success({"sid": session.id})
 
 
-@router.get("/_session._list", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
-async def method_session_list(
+@router.get("/list", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
+async def list_sessions(
     db: Session = Depends(get_db),
     auth_data: AuthData = Depends(
         AuthDataDependency(
@@ -145,7 +158,7 @@ async def method_session_list(
     # This is weird, _session method allowed with only access token,
     # And also seems to expose private session information.
     current_session = auth_data.session
-    sessions = crud.user_session.get_active_by_owner_id(db, current_session.owner_id)
+    sessions = crud.user_session.get_active_by_owner_id(db, current_session.owner_id)  # type: ignore
     return api_success(
         {
             **serialize_sessions(sessions, db=db),
@@ -155,10 +168,13 @@ async def method_session_list(
 
 
 @router.get(
-    "/_session._requestTfaOtp", dependencies=[Depends(RateLimiter(times=1, minutes=1))]
+    "/tfa/otp/request",
+    dependencies=[
+        Depends(RateLimiter(times=1, minutes=1)),
+        Depends(check_direct_auth_is_allowed),
+    ],
 )
-async def method_session_request_tfa_otp(
-    req: Request,
+async def request_tfa_otp(
     login: str,
     password: str,
     background_tasks: BackgroundTasks,
@@ -166,10 +182,9 @@ async def method_session_request_tfa_otp(
 ) -> JSONResponse:
     """Requests 2FA OTP to be send (if configured, or skip if not required)."""
 
-    check_direct_auth_is_allowed(req)
-
-    user = user_repo.get_user_by_login(login)
-    validate_signin_fields(user=user, password=password)
+    user = validate_signin_fields(
+        user=user_repo.get_user_by_login(login), password=password
+    )
 
     if not user.security_tfa_enabled:
         return api_error(
@@ -183,11 +198,11 @@ async def method_session_request_tfa_otp(
         # Email 2FA device.
         # Send 2FA OTP to email address.
 
-        tfa_otp = generate_tfa_otp(user, device_type=tfa_device)
+        tfa_otp: str = generate_tfa_otp(user, device_type=tfa_device)  # type: ignore
 
         # Send OTP.
         email_messages.send_signin_tfa_otp_email(
-            background_tasks, user.email, user.get_mention(), tfa_otp
+            background_tasks, user.email, user.get_mention(), tfa_otp  # type: ignore
         )
         tfa_otp_is_sent = True
     elif tfa_device == "mobile":
@@ -202,9 +217,13 @@ async def method_session_request_tfa_otp(
 
 
 @router.post(
-    "/_session._signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))]
+    "/signin",
+    dependencies=[
+        Depends(RateLimiter(times=3, seconds=5)),
+        Depends(check_direct_auth_is_allowed),
+    ],
 )
-async def method_session_signin(
+async def signin(
     req: Request,
     user_agent: str = Header(""),
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
@@ -212,24 +231,23 @@ async def method_session_signin(
 ) -> JSONResponse:
     """Authenticates user and gives new session token for user."""
 
-    check_direct_auth_is_allowed(req)
     if "login" not in payload or "password" not in payload:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
             "`login` and `password` fields are required!",
         )
-    login, password, tfa_otp = (
-        payload.get("login"),
-        payload.get("password"),
-        payload.get("tfa_otp"),
-    )
+
+    login = payload.get("login", "")
+    tfa_otp = payload.get("tfa_otp", "")
+    password = payload.get("password", "")
 
     user = user_repo.get_user_by_login(login)
     if not user and "@" in login:
         # Used for email where domain like `ya.ru` is same with `yandex.ru` or `yandex.com`
         user = user_repo.get_user_by_login(login=convert_email_to_standardized(login))
 
-    validate_signin_fields(user=user, password=password)
+    user = validate_signin_fields(user=user, password=password)
+
     validate_user_tfa_otp_from_request(tfa_otp, user)
     token, session = publish_new_session_with_token(
         user=user, user_agent=user_agent, db=user_repo.db, req=req
@@ -237,7 +255,7 @@ async def method_session_signin(
     return api_success(
         {
             **serialize_user(user),
-            "session_token": token.encode(key=session.token_secret),
+            "session_token": token.encode(key=session.token_secret),  # type: ignore
             "sid": session.id,
         }
     )

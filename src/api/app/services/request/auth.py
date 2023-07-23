@@ -4,7 +4,7 @@
     Root handler for authentication decode.
 """
 
-from typing import Type
+from typing import Type, NoReturn
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -44,7 +44,7 @@ class AuthDataDependency:
         }
 
     def __call__(self, req: Request, db: Session = Depends(get_db)):
-        return query_auth_data_from_request(req=req, db=db, **self.kwargs)
+        return query_auth_data_from_request(req=req, db=db, **self.kwargs)  # type: ignore
 
 
 def query_auth_data_from_token(
@@ -78,9 +78,8 @@ def query_auth_data_from_token(
         allow_external_clients=allow_external_clients,
         request=request,
     )
-    if only_session_token:
-        if auth_data.token.get_type() != SessionToken.get_type():
-            _raise_integrity_check_error()
+    if only_session_token and auth_data.token.get_type() != SessionToken.get_type():
+        _raise_integrity_check_error()
     return _query_auth_data(
         auth_data,
         db,
@@ -130,7 +129,7 @@ def try_query_auth_data_from_request(
     required_permissions: set[Permission] | None = None,
     allow_deactivated: bool = False,
     allow_external_clients: bool = False,
-) -> tuple[bool, AuthData]:
+) -> AuthData | None:
     """
     Tries query authentication data from request (from request token), and returns tuple with status and auth data.
     :param req: Request itself.
@@ -141,8 +140,7 @@ def try_query_auth_data_from_request(
     """
 
     try:
-        # Try to authenticate, and if does not fall, return OK.
-        auth_data = query_auth_data_from_request(
+        return query_auth_data_from_request(
             req=req,
             db=db,
             only_session_token=only_session_token,
@@ -150,10 +148,9 @@ def try_query_auth_data_from_request(
             allow_deactivated=allow_deactivated,
             allow_external_clients=allow_external_clients,
         )
-        return True, auth_data
     except ApiErrorException:
         # Any exception occurred - unable to authorize.
-        return False, None
+        return None
 
 
 def get_token_from_request(req: Request, only_session_token: bool) -> str:
@@ -209,7 +206,7 @@ def _decode_token(
 
     # Query session, decode with valid signature.
     allow_external_clients = (
-        (Permission.noexpire in permissions) if not allow_external_clients else True
+        True if allow_external_clients else Permission.noexpire in permissions
     )
     session = _query_session_from_sid(
         unsigned_token.get_session_id(),
@@ -217,7 +214,7 @@ def _decode_token(
         request,
         allow_external_clients=allow_external_clients,
     )
-    signed_token = token_type.decode(token, key=session.token_secret)
+    signed_token = token_type.decode(token, key=session.token_secret)  # type: ignore
     if not signed_token.signature_is_valid():
         # If there is invalid signature on the token,
         # means token signed with another user, or old signature...
@@ -248,14 +245,12 @@ def _query_scope_permissions(
     if isinstance(required_permissions, Permission):
         # If specified only one permission,
         # convert it to set as expected.
-        required_permissions = set([required_permissions])
+        required_permissions = {required_permissions}
 
     # Filter scope permissions, and build set with only those permissions that not satisfied.
-    unsatisfied_permissions = set(
+    if unsatisfied_permissions := set(
         filter(lambda permission: permission not in permissions, required_permissions)
-    )
-
-    if unsatisfied_permissions:
+    ):
         # If we have any permission that not satisfied.
 
         # String of scope of required permissions.
@@ -350,7 +345,7 @@ def _query_auth_data(
         # you should know that this is external trigger.
 
         # Do update of the online time for user.
-        user.time_online = datetime.now()
+        user.time_online = datetime.now()  # type: ignore
         db.commit()
 
     # Return modified DTO with user ORM model instance.
@@ -358,7 +353,7 @@ def _query_auth_data(
     return auth_data
 
 
-def _raise_integrity_check_error():
+def _raise_integrity_check_error() -> NoReturn:
     """
     Raises authentication system integrity check error.
     """

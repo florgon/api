@@ -3,13 +3,13 @@
 """
 import re
 
-from app.config import Settings, get_settings
-from app.database import crud
-from app.database.dependencies import Session
-from app.database.models.user import User
-from app.services.api.errors import ApiErrorCode, ApiErrorException
-from app.services.passwords import check_password
 from validate_email import validate_email
+from app.services.passwords import check_password
+from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.models.user import User
+from app.database.dependencies import Session
+from app.database import crud
+from app.config import get_settings, Settings
 
 _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
     "yandex.ru": "ya.ru",
@@ -44,17 +44,16 @@ def convert_email_to_standardized(email: str) -> str:
         # `abc@gmail.com` is same as `a.b.c@gmail.com`
         mail_host_user = email.split("@")
         mail_host_user.pop()
-        mail_host_user = ("".join(mail_host_user)).replace(".", "")
+        mail_host_user = ("".join(mail_host_user)).replace(".", "")  # type: ignore
         email = f"{mail_host_user}@{mail_host_domain}"
 
     if mail_host_domain in _MAPPED_EMAIL_DOMAINS_STANDARDIZED:
         # Something like `yandex.ru` is same as `ya.ru` (mail domains)
         standardized_email = email.split("@")
         standardized_email.pop()
-        standardized_email = "@".join(
+        return "@".join(
             standardized_email + [_MAPPED_EMAIL_DOMAINS_STANDARDIZED[mail_host_domain]]
         )
-        return standardized_email
     return email
 
 
@@ -126,7 +125,11 @@ def validate_username_field(
 
 
 def validate_signup_fields(
-    db: Session, username: str, email: str, password: str
+    db: Session,
+    username: str,
+    email: str,
+    password: str,
+    phone_number: str,
 ) -> None:
     """Validates that all fields passes signup base validation, or raises API error if not."""
 
@@ -134,15 +137,16 @@ def validate_signup_fields(
     validate_username_field(db, settings, username, check_is_taken=True)
     validate_password_field(password)
     validate_email_field(db, settings, email, check_is_taken=True)
+    validate_phone_number_field(db, phone_number=phone_number)
 
 
-def validate_signin_fields(user: User, password: str) -> None:
+def validate_signin_fields(user: User | None = None, password: str = "") -> User:
     """Validates that all fields passes signin base validation, or raises API error if not."""
 
     if not user or not check_password(
         password=password,
-        hashed_password=user.password,
-        hash_method=user.security_hash_method,
+        hashed_password=user.password,  # type: ignore
+        hash_method=user.security_hash_method,  # type: ignore
     ):
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -151,15 +155,17 @@ def validate_signin_fields(user: User, password: str) -> None:
     if not user.is_active:
         raise ApiErrorException(
             ApiErrorCode.USER_DEACTIVATED,
-            "Unable to sign-in as user was frozen (deactivated or blocked).",
+            "Unable to complete request as user was frozen (deactivated or blocked).",
         )
+
+    return user
 
 
 def validate_first_name_field(first_name: str) -> None:
     """
     Validates first_name, raises API error if name is invalid.
     """
-    if len(first_name) == 0 and len(first_name) >= 21:
+    if not first_name and len(first_name) >= 21:
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST,
             "First name should be longer than 0 and shorter than 21!",
@@ -170,7 +176,7 @@ def validate_last_name_field(last_name: str) -> None:
     """
     Validates last_name, raises API error if name is invalid.
     """
-    if len(last_name) == 0 or len(last_name) >= 21:
+    if not last_name or len(last_name) >= 21:
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST,
             "Last name should be longer than 0 and shorter than 21!",
@@ -204,7 +210,7 @@ def validate_profile_website_field(website: str) -> None:
     )
     if not pattern.match(website):
         raise ApiErrorException(
-            ApiErrorCode,
+            ApiErrorCode.API_INVALID_REQUEST,
             "Profile website should be shorter than 251!",
         )
 
@@ -214,7 +220,7 @@ def validate_phone_number_field(db: Session, phone_number: str) -> None:
     Validates phone_number, then normailize it and validates normalized phone_number.
     Raises API error if phone_number is invalid.
     """
-    if len(phone_number) == 0:
+    if not phone_number:
         return
 
     if len(phone_number) <= 10 or len(phone_number) >= 31:
@@ -239,7 +245,7 @@ def validate_profile_social_username_field(social_username: str) -> None:
     """
     Validates github, vk, telegram usernames.
     """
-    if len(social_username) == 0:
+    if not social_username:
         return
 
     if len(social_username) <= 3 or len(social_username) >= 51:
