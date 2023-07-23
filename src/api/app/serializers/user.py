@@ -17,7 +17,7 @@ def serialize(
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
     include_profile_fields: bool = False,
-    include_phone: bool = False
+    include_phone: bool = False,
 ) -> dict[str, Any]:
     """Returns dict object for API response with serialized user data."""
     serialized: dict[str, Any] = {
@@ -73,7 +73,8 @@ def serialize_list(
     include_email: bool = False,
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
-    include_profile_fields: bool = False
+    include_profile_fields: bool = False,
+    include_phone: bool = False,
 ) -> dict[str, Any]:
     """Returns dict object for API response with serialized users list data."""
 
@@ -86,6 +87,7 @@ def serialize_list(
                 include_optional_fields=include_optional_fields,
                 include_private_fields=include_private_fields,
                 include_profile_fields=include_profile_fields,
+                include_phone=include_phone,
             )
             for user in users
         ]
