@@ -16,7 +16,8 @@ def serialize(
     include_email: bool = False,
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
-    include_profile_fields: bool = False
+    include_profile_fields: bool = False,
+    include_phone: bool = False
 ) -> dict[str, Any]:
     """Returns dict object for API response with serialized user data."""
     serialized: dict[str, Any] = {
@@ -44,8 +45,11 @@ def serialize(
             },
         }
 
-    if include_email and include_private_fields:
-        serialized["email"] = user.email
+    if include_private_fields:
+        if include_email:
+            serialized["email"] = user.email
+        if include_phone:
+            serialized["phone"] = user.phone_number
 
     if include_optional_fields:
         time_online = user.time_online

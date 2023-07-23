@@ -91,6 +91,7 @@ async def user_counters(
                     crud.user.get_last(db),
                     in_list=True,
                     include_email=True,
+                    include_phone=True,
                     include_optional_fields=True,
                     include_private_fields=True,
                     include_profile_fields=False,
@@ -112,6 +113,7 @@ async def list_users(
     include_optional_fields: bool = False,
     include_private_fields: bool = False,
     include_profile_fields: bool = False,
+    include_phone: bool = False,
     filter_query: str = "",
     db: Session = Depends(get_db),
 ) -> JSONResponse:
@@ -128,6 +130,7 @@ async def list_users(
             include_optional_fields=include_optional_fields,
             include_private_fields=include_private_fields,
             include_profile_fields=include_profile_fields,
+            include_phone=include_phone,
         )
     )
 
