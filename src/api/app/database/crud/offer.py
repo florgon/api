@@ -3,7 +3,6 @@
 """
 
 from sqlalchemy.orm import Session
-
 from app.database.models.offer import Offer
 
 
@@ -33,7 +32,7 @@ def create(
     return offer
 
 
-def get_list(db: Session) -> list[Offer]:
+def get_all(db: Session) -> list[Offer]:
     """
     Returns a list of all offers.
     """

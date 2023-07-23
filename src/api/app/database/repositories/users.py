@@ -38,6 +38,20 @@ class UsersRepository(BaseRepository):
         """
         return self.db.query(User).filter(User.id == user_id).first()
 
+    def deactivate(self, user: User, reason: str | None = None) -> None:
+        """
+        Deactivates (bans) user.
+        TODO: Improve handling of deactivation reasons and etc.
+        """
+        user.is_active = False  # type: ignore
+        reason = reason  # type: ignore
+
+    def activate(self, user: User) -> None:
+        """
+        Activates (unbans) user.
+        """
+        user.is_active = True  # type: ignore
+
     def create(
         self, username: str, email: str, password: str, phone_number: str | None = None
     ) -> User | None:
