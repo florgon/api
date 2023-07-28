@@ -1,6 +1,7 @@
 """
-    User account API router.
-    Provides API methods (routes) for working with user account.
+    User API router.
+    
+    Provides user get / set info methods, get another user information.
 """
 
 from fastapi.responses import JSONResponse

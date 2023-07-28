@@ -13,9 +13,8 @@
     so, even if you are want to use that methods, you will be rejected and get forbidden error.
 """
 
-from typing import Iterator
+from typing import Iterator, Iterable
 
-from pyparsing import Iterable
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
 from app.services.session import publish_new_session_with_token
