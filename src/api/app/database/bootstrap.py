@@ -8,15 +8,9 @@ from time import sleep
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import select
 from app.database.repositories.users import UsersRepository
-from app.database.repositories.oauth_clients import OAuthClientsRepository, OAuthClient
+from app.database.repositories.oauth_clients import OAuthClientsRepository
 from app.database.dependencies import SessionLocal, Session
-from app.config import get_logger
-
-# TODO: Allow to be configured with config.
-SUPERUSER_USER_ID = 1
-SUPERUSER_USERNAME = "admin"
-SUPERUSER_PASSWORD = "adminadmin"
-SUPERUSER_EMAIL = "admin@admin.com"
+from app.config import get_settings, get_logger
 
 
 def create_start_database_entries() -> None:
@@ -50,8 +44,9 @@ def _create_superuser_if_not_exists(db: Session) -> None:
     Simple INSERT IF NOT EXISTS for super user entry.
     """
 
+    settings = get_settings()
     repo = UsersRepository(db=db)
-    user = repo.get_user_by_username(username=SUPERUSER_USERNAME)
+    user = repo.get_user_by_username(username=settings.superuser_username)
     if user:
         return
 
@@ -62,9 +57,9 @@ def _create_superuser_if_not_exists(db: Session) -> None:
     while user is None:
         # !TODO!: This crutch is temporary, caused by some hashing problems.
         user = repo.create(
-            username=SUPERUSER_USERNAME,
-            email=SUPERUSER_EMAIL,
-            password=SUPERUSER_PASSWORD,
+            username=settings.superuser_username,
+            email=settings.superuser_email,
+            password=settings.superuser_password,
         )
     user.is_admin = True  # type: ignore
     user.is_verified = True  # type: ignore
@@ -74,7 +69,7 @@ def _create_superuser_if_not_exists(db: Session) -> None:
 def _create_initial_oauth_client_if_not_exists(db: Session) -> None:
     """
     Simple INSERT IF NOT EXISTS for initial OAuth client.
-    Linked with user that has `SUPERUSER_USER_ID` (super user, first user).
+    Linked with user that has `superuser_id` (super user, first user).
     """
     repo = OAuthClientsRepository(db=db)
     client = repo.get_client_by_id(client_id=1)
@@ -84,15 +79,15 @@ def _create_initial_oauth_client_if_not_exists(db: Session) -> None:
     get_logger().info(
         "[database_bootstrap] Creating initial OAuth client as not found it in the database..."
     )
-    user = UsersRepository(db=db).get_user_by_id(user_id=SUPERUSER_USER_ID)
+    user = UsersRepository(db=db).get_user_by_id(user_id=get_settings().superuser_id)
     if not user:
         get_logger().warning(
             "[database_bootstrap] Skipped creating initial OAuth client as not found super user with id=1!"
         )
         return
-    client: OAuthClient = repo.create(
-        owner_id=user.id,
+    client = repo.create(
+        owner_id=user.id,  # type: ignore
         display_name="[Initial Client]",
     )
-    client.is_verified = True
+    client.is_verified = True  # type: ignore
     repo.finish(client)

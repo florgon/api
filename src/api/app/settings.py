@@ -49,6 +49,12 @@ class Settings(BaseSettings):
     cors_allow_methods: list[str] = ["GET", "POST", "DELETE", "PUT", "PATCH", "HEAD"]
     cors_allow_headers: list[str] = ["*"]
 
+    # Superuser credentials.
+    superuser_user_id: int = 1
+    superuser_username: str = "admin"
+    superuser_password: str = "adminadmin"
+    superuser_email: str = "admin@admin.com"
+
     # Gatey.
     # TODO: More configuration.
     gatey_is_enabled: bool = False

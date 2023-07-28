@@ -8,9 +8,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy import create_engine, MetaData
-from app.config import get_logger, Settings
+from app.config import get_settings, get_logger
 
-settings = Settings()
+settings = get_settings()
 engine = create_engine(
     url=settings.database_dsn,
     pool_size=settings.database_pool_size,
@@ -21,7 +21,7 @@ engine = create_engine(
     pool_pre_ping=True,
 )
 metadata = MetaData(bind=engine)
-Base = declarative_base(metadata=metadata)
+Base: type = declarative_base(metadata=metadata)
 SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, expire_on_commit=True, bind=engine
 )
