@@ -5,9 +5,9 @@
 
 
 import pytest
-from app.app import app
-from app.database.bootstrap import SUPERUSER_PASSWORD, SUPERUSER_USERNAME
 from fastapi.testclient import TestClient
+from app.config import get_settings
+from app.app import app
 
 
 @pytest.fixture
@@ -30,10 +30,7 @@ def test_read_oauth_implicit_signin_via_session(
         "/user.getInfo",
         params={"access_token": access_token},
     )
-    json = user_get_info_response.json()
-    assert user_get_info_response.status_code == 200
-    assert "success" in json
-
+    json = _parse_success_json_or_assert(user_get_info_response)
     user_set_info_response = client.get(
         "/user.setInfo",
         params={
@@ -46,18 +43,14 @@ def test_read_oauth_implicit_signin_via_session(
             "profile_bio": "Bio from PyTest",
         },
     )
-    json = user_set_info_response.json()
-    assert user_set_info_response.status_code == 200
-    assert "success" in json
+    json = _parse_success_json_or_assert(user_set_info_response)
     assert "updated" in json["success"]
     assert json["success"].get("updated", False)
     user_get_info_response = client.get(
         "/user.getInfo",
         params={"access_token": access_token},
     )
-    json = user_get_info_response.json()
-    assert user_get_info_response.status_code == 200
-    assert "success" in json
+    json = _parse_success_json_or_assert(user_get_info_response)
     assert "user" in json["success"]
     user = json["success"]["user"]
     assert user.get("first_name", "") == "Admin"
@@ -65,6 +58,17 @@ def test_read_oauth_implicit_signin_via_session(
 
     # Logout after all stuff.
     _logout_request(client, session_token)
+
+
+def _parse_success_json_or_assert(response) -> dict:
+    """
+    Returns json from the response or asserts error.
+    """
+    json = response.json()
+    assert response.status_code == 200
+    assert "success" in json
+
+    return json
 
 
 def test_read_oauth_authorization_code_signin_via_session(
@@ -89,18 +93,17 @@ def test_read_oauth_authorization_code_signin_via_session(
 
 def _signin_with_superuser(client) -> str:
     signin_response = client.post(
-        "/_session._signin",
+        "/session.signin",
         json={
-            "login": SUPERUSER_USERNAME,
-            "password": SUPERUSER_PASSWORD,
+            "login": get_settings().superuser_email,
+            "password": get_settings().superuser_password,
         },
     )
     json = signin_response.json()
     assert signin_response.status_code == 200
     assert "success" in json
     assert "session_token" in json["success"]
-    session_token = json["success"]["session_token"]
-    return session_token
+    return json["success"]["session_token"]
 
 
 def _obtain_oauth_code_via_authorization_oauth_flow(client, session_token: str):
@@ -185,7 +188,7 @@ def _obtain_access_token_via_implicit_oauth_flow(client, session_token: str):
 
 def _logout_request(client, session_token: str) -> None:
     logout_response = client.get(
-        "/_session._logout", params={"session_token": session_token, "revoke_all": True}
+        "/session.logout", params={"session_token": session_token, "revoke_all": True}
     )
     json = logout_response.json()
     assert logout_response.status_code == 200

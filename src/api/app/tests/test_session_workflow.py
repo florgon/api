@@ -4,9 +4,9 @@
 
 
 import pytest
-from app.app import app
-from app.database.bootstrap import SUPERUSER_PASSWORD, SUPERUSER_USERNAME
 from fastapi.testclient import TestClient
+from app.config import get_settings
+from app.app import app
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def test_read_session_signup_get_user_info(
     """Complex check for signup, get user info, get profile info."""
     username = "pytestuser"
     signup_response = client.post(
-        "/_session._signup",
+        "/session.signup",
         json={
             "username": username,
             "email": "pytest_user@example.com",
@@ -50,7 +50,7 @@ def test_read_session_signup_get_user_info(
 
     session_token = json["success"]["session_token"]
     get_info_response = client.get(
-        "/_session._getUserInfo", params={"session_token": session_token}
+        "/session.getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
     assert "success" in json
@@ -68,7 +68,7 @@ def test_read_session_signup_get_user_info(
     assert json["success"]["user"]["username"] == username
 
     logout_response = client.get(
-        "/_session._logout",
+        "/session.logout",
         params={"session_token": session_token, "revoke_all": False},
     )
     json = logout_response.json()
@@ -81,10 +81,10 @@ def test_read_session_superuser_signin(
 ):  # pylint: disable=redefined-outer-name
     """Check that super user is created and can be fetched."""
     signin_response = client.post(
-        "/_session._signin",
+        "/session.signin",
         json={
-            "login": SUPERUSER_USERNAME,
-            "password": SUPERUSER_PASSWORD,
+            "login": get_settings().superuser_email,
+            "password": get_settings().superuser_password,
         },
     )
 
@@ -95,25 +95,25 @@ def test_read_session_superuser_signin(
 
     session_token = json["success"]["session_token"]
     get_info_response = client.get(
-        "/_session._getUserInfo", params={"session_token": session_token}
+        "/session.getUserInfo", params={"session_token": session_token}
     )
     json = get_info_response.json()
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
-    assert json["success"]["user"]["username"] == SUPERUSER_USERNAME
+    assert json["success"]["user"]["username"] == get_settings().superuser_username
 
     get_profile_info_response = client.get(
-        "/user.getProfileInfo", params={"username": SUPERUSER_USERNAME}
+        "/user.getProfileInfo", params={"username": get_settings().superuser_username}
     )
     json = get_profile_info_response.json()
     assert "success" in json
     assert "user" in json["success"]
     assert "username" in json["success"]["user"]
-    assert json["success"]["user"]["username"] == SUPERUSER_USERNAME
+    assert json["success"]["user"]["username"] == get_settings().superuser_username
 
     logout_response = client.get(
-        "/_session._logout", params={"session_token": session_token, "revoke_all": True}
+        "/session.logout", params={"session_token": session_token, "revoke_all": True}
     )
     json = logout_response.json()
     assert logout_response.status_code == 200
