@@ -3,12 +3,8 @@
 """
 
 from fastapi.responses import JSONResponse
-
-# Libraries.
 from fastapi import Request
 from app.services.tokens import RefreshToken, AccessToken
-
-# Services.
 from app.services.permissions import (
     permissions_get_ttl,
     parse_permissions_from_scope,

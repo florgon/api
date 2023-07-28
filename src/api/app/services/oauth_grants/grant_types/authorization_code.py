@@ -104,7 +104,7 @@ def _decode_signed_code_token_with_session(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!"
         )
 
-    code_token = OAuthCode.decode(raw_code_token, key=session.token_secret)
+    code_token = OAuthCode.decode(raw_code_token, key=session.token_secret)  # type: ignore
     return code_token, session
 
 
@@ -121,7 +121,7 @@ def _verify_and_expire_oauth_code(db: Session, code_token: OAuthCode) -> None:
         raise ApiErrorException(
             ApiErrorCode.AUTH_EXPIRED_TOKEN, "Code has been expired or already used!"
         )
-    oauth_code.was_used = True
+    oauth_code.was_used = True  # type: ignore
     db.commit()
 
 
@@ -129,7 +129,7 @@ def _query_user_data_from_raw_code_token(
     db: Session,
     raw_code_token: str,
     redirect_uri: str,
-    client_id: str,
+    client_id: int,
     client_secret: str,
 ) -> tuple[OAuthCode, UserSession, User]:
     """
@@ -162,16 +162,20 @@ def encode_tokens_pair(
     access_token = AccessToken(
         settings.security_tokens_issuer,
         access_token_ttl,
-        user.id,
-        session.id,
+        user.id,  # type: ignore
+        session.id,  # type: ignore
         normalize_scope(code_token.get_scope()),  # pylint: disable=no-member
-    ).encode(key=session.token_secret)
+    ).encode(
+        key=session.token_secret  # type: ignore
+    )
     refresh_token = RefreshToken(
         settings.security_tokens_issuer,
         settings.security_refresh_tokens_ttl,
-        user.id,
-        session.id,
-    ).encode(key=session.token_secret)
+        user.id,  # type: ignore
+        session.id,  # type: ignore
+    ).encode(
+        key=session.token_secret  # type: ignore
+    )
 
     return TokensPair(
         access_ttl=access_token_ttl,

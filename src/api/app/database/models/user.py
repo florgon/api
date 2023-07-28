@@ -2,10 +2,10 @@
     User database model.
 """
 
-from app.database.core import Base
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import func
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import Text, String, Integer, DateTime, Column, Boolean
+from app.database.core import Base
 
 
 class User(Base):
@@ -72,9 +72,7 @@ class User(Base):
 
     def get_mention(self) -> str:
         """Returns user mention for email."""
-        if self.first_name:
-            return f"{self.first_name}"
-        return f"@{self.username}"
+        return f"{self.first_name}" if self.first_name else f"@{self.username}"
 
     @hybrid_property
     def full_name(self) -> str:
@@ -82,9 +80,8 @@ class User(Base):
         Returns fullname based on first and last name as property.
         """
         if self.first_name is not None:
-            if self.last_name is not None:
+            if self.last_name is None:
+                return self.first_name
+            else:
                 return f"{self.first_name} {self.last_name}"
-            return self.first_name
-        if self.last_name is not None:
-            return f"{self.last_name}"
-        return ""
+        return f"{self.last_name}" if self.last_name is not None else ""

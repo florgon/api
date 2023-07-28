@@ -21,3 +21,10 @@ def get_country_from_request(request: Request) -> str | None:
     if header_geo_country := request.headers.get("CF-IPCountry"):
         return header_geo_country
     return None
+
+
+def get_user_agent_from_request(request: Request) -> str:
+    """
+    Returns user agent from passed request.
+    """
+    return request.headers.get("User-Agent", "")

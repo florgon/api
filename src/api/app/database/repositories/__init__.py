@@ -6,6 +6,7 @@
 """
 
 from .users import UsersRepository
+from .user_sessions import UserSessionsRepository
 from .oauth_clients import OAuthClientsRepository
 from .gifts import GiftsRepository
 from .base import BaseRepository
@@ -15,4 +16,5 @@ __all__ = [
     "UsersRepository",
     "OAuthClientsRepository",
     "GiftsRepository",
+    "UserSessionsRepository",
 ]

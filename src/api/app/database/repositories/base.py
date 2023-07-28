@@ -31,3 +31,9 @@ class BaseRepository(metaclass=ABCMeta):
         self.db.add(instance)
         self.db.commit()
         self.db.refresh(instance)
+
+    def commit(self) -> None:
+        """
+        Commits database changes.
+        """
+        self.db.commit()

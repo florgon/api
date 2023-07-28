@@ -79,7 +79,7 @@ def parse_permissions_from_scope(scope: str) -> set[Permission]:
     if not isinstance(scope, str):
         raise TypeError("Scope must be a string!")
     if SCOPE_PERMISSION_GRANT_ALL_TAG in scope:
-        return SCOPE_ALL_PERMISSIONS
+        return set(SCOPE_ALL_PERMISSIONS)
     return {
         Permission(permission)
         for permission in scope.split(SCOPE_PERMISSION_SEPARATOR)
@@ -91,9 +91,7 @@ def permissions_get_ttl(permissions: set[Permission], default_ttl: int) -> int:
     """
     Returns TTL for token, based on given permissions list.
     """
-    if Permission.noexpire in permissions:
-        return 0
-    return default_ttl
+    return 0 if Permission.noexpire in permissions else default_ttl
 
 
 # TBD. Not documented and not used.

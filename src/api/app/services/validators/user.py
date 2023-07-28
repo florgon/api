@@ -6,6 +6,7 @@ import re
 from validate_email import validate_email
 from app.services.passwords import check_password
 from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.schemas.session import SignupModel
 from app.database.models.user import User
 from app.database.dependencies import Session
 from app.database import crud
@@ -124,20 +125,14 @@ def validate_username_field(
         )
 
 
-def validate_signup_fields(
-    db: Session,
-    username: str,
-    email: str,
-    password: str,
-    phone_number: str,
-) -> None:
+def validate_signup_fields(db: Session, model: SignupModel) -> None:
     """Validates that all fields passes signup base validation, or raises API error if not."""
 
     settings = get_settings()
-    validate_username_field(db, settings, username, check_is_taken=True)
-    validate_password_field(password)
-    validate_email_field(db, settings, email, check_is_taken=True)
-    validate_phone_number_field(db, phone_number=phone_number)
+    validate_username_field(db, settings, model.username, check_is_taken=True)
+    validate_password_field(model.password)
+    validate_email_field(db, settings, model.email, check_is_taken=True)
+    validate_phone_number_field(db, phone_number=model.phone_number)
 
 
 def validate_signin_fields(user: User | None = None, password: str = "") -> User:

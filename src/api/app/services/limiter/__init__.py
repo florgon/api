@@ -9,25 +9,26 @@
 """
 
 
-from math import ceil
 from typing import Callable
+from math import ceil
 
 import aioredis
-from app.config import get_settings
-from fastapi import HTTPException
-from starlette.requests import Request
-from starlette.responses import Response
 from starlette.status import HTTP_429_TOO_MANY_REQUESTS
+from starlette.responses import Response
+from starlette.requests import Request
+from fastapi import HTTPException
+from app.services.request.get_from_request import get_client_host_from_request
+from app.config import get_settings
 
 
 async def default_identifier(request: Request):
     """Returns default limiter Redis identifier for unique key."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        ip = forwarded.split(",")[0]
-    else:
-        ip = request.client.host
-    return ip + ":" + request.scope["path"]
+    route_path = request.scope["path"]
+    return f"{get_client_host_from_request(request)}:{route_path}"
+
+
+async def extended_default_identifier(request: Request, extended_identifier: str):
+    return f"{await default_identifier(request)}:{extended_identifier}"
 
 
 async def default_callback(

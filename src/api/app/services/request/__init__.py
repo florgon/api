@@ -4,7 +4,11 @@
 """
 
 from .session_check_client import session_check_client_by_request
-from .get_from_request import get_country_from_request, get_client_host_from_request
+from .get_from_request import (
+    get_user_agent_from_request,
+    get_country_from_request,
+    get_client_host_from_request,
+)
 from .auth_data import AuthData
 from .auth import (
     try_query_auth_data_from_request,
@@ -24,4 +28,5 @@ __all__ = [
     "try_query_auth_data_from_request",
     "query_auth_data_from_token",
     "query_auth_data_from_request",
+    "get_user_agent_from_request",
 ]

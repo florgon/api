@@ -2,10 +2,11 @@
     API response wrappers.
 """
 
+from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 
-from .errors import ApiErrorCode
 from .version import API_VERSION
+from .errors import ApiErrorCode
 
 
 def api_error(
@@ -16,23 +17,22 @@ def api_error(
 ) -> JSONResponse:
     """Returns API error response."""
 
-    # Processing arguments.
-    if data is None:
-        data = {}
-    if headers is None:
-        headers = {}
+    data = data or {}
+    headers = data or {}
     code, status = api_code.value
 
     return JSONResponse(
         {
             "v": API_VERSION,
-            "error": {**{"message": message, "code": code, "status": status}, **data},
+            "error": {"message": message, "code": code, "status": status} | data,
         },
         status_code=status,
         headers=headers,
     )
 
 
-def api_success(data: dict) -> JSONResponse:
+def api_success(data: dict | BaseModel) -> JSONResponse:
     """Returns API success response."""
-    return JSONResponse({"v": API_VERSION, "success": {**data}}, status_code=200)
+    if isinstance(data, BaseModel):
+        data = data.dict()
+    return JSONResponse({"v": API_VERSION, "success": data}, status_code=200)

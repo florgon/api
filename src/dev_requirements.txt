@@ -1,4 +1,5 @@
 types-SQLAlchemy==1.4.53.38
+types-redis==4.6.0.3
 mypy==1.4.1
 black==23.7.0
 isort==5.12.0
