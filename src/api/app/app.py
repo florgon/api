@@ -60,7 +60,14 @@ def _construct_app() -> FastAPI:
         openapi_url=settings.openapi_url if settings.openapi_enabled else None,
         openapi_tags=[
             # TODO!: Move or refactor that.
-            {"name": "security", "description": "Requires `security` permission!"},
+            {
+                "name": "session",
+                "description": "Session workflow methods, cannot be access by default user (direct-auth is allowed only for Florgon services)",
+            },
+            {
+                "name": "user",
+                "description": "Methods to get / edit user information or get other user information",
+            },
         ],
         # Other.
         root_path=settings.fastapi_root_path,

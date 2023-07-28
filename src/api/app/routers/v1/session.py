@@ -13,6 +13,9 @@
     so, even if you are want to use that methods, you will be rejected and get forbidden error.
 """
 
+from typing import Iterator
+
+from pyparsing import Iterable
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
 from app.services.session import publish_new_session_with_token
@@ -28,7 +31,7 @@ from app.database.repositories import UserSessionsRepository
 from app.database.dependencies import get_repository, get_db, Session
 
 router = APIRouter(
-    include_in_schema=False,
+    include_in_schema=True,
     tags=["session"],
     prefix="/session",
     default_response_class=JSONResponse,
@@ -36,7 +39,7 @@ router = APIRouter(
 )
 
 
-@router.get("/info", dependencies=[Depends(RateLimiter(times=2, seconds=1))])
+@router.get("/", dependencies=[Depends(RateLimiter(times=2, seconds=1))])
 async def info(
     auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
 ) -> JSONResponse:
@@ -68,7 +71,7 @@ async def logout(
     Logout current session (or specified by ID).
     """
 
-    sessions = [auth_data.session]
+    sessions: Iterable | Iterator = [auth_data.session]
     if model.revoke_all:
         sessions = repo.get_by_owner_id(owner_id=auth_data.user.id)  # type: ignore
         if model.exclude_current:

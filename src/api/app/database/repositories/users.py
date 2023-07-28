@@ -3,6 +3,7 @@
 """
 
 from app.services.passwords import get_hashed_password, HashingError
+from app.schemas.user import UpdateModel
 from app.database.repositories.base import BaseRepository
 from app.database.models.user import User
 
@@ -74,3 +75,15 @@ class UsersRepository(BaseRepository):
 
         self.finish(user)
         return user
+
+    def apply_update_model(self, model: UpdateModel, user: User) -> bool:
+        """
+        Applies the update model onto given user object.
+        """
+        new_fields = model.get_new_fields(user)
+        for name in new_fields.keys():
+            setattr(user, name, getattr(model, name))
+
+        if is_updated := bool(new_fields):
+            self.commit()
+        return is_updated

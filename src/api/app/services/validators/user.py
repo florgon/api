@@ -94,7 +94,7 @@ def validate_email_field(
 
 
 def validate_username_field(
-    db: Session, settings: Settings, username: str, check_is_taken: bool = True
+    db: Session, username: str, check_is_taken: bool = True
 ) -> None:
     """
     Raises API error if username is invalid or is taken.
@@ -113,6 +113,7 @@ def validate_username_field(
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID, "Username should be shorten than 17!"
         )
+    settings = get_settings()
     if settings.signup_username_reject_nonalpha and not username.isalpha():
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_INVALID,
@@ -129,7 +130,7 @@ def validate_signup_fields(db: Session, model: SignupModel) -> None:
     """Validates that all fields passes signup base validation, or raises API error if not."""
 
     settings = get_settings()
-    validate_username_field(db, settings, model.username, check_is_taken=True)
+    validate_username_field(db, model.username, check_is_taken=True)
     validate_password_field(model.password)
     validate_email_field(db, settings, model.email, check_is_taken=True)
     validate_phone_number_field(db, phone_number=model.phone_number)

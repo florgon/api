@@ -92,7 +92,7 @@ async def get_valid_signin_user(
 
 async def get_valid_signup_user(
     req: Request,
-    model: SigninModel,
+    model: SignupModel,
     settings: Settings = Depends(get_settings),
     user_repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> User:

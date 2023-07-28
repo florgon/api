@@ -20,6 +20,7 @@ class Permission(Enum):
     oauth_clients = "oauth_clients"
     email = "email"
     security = "security"
+    phone = "phone"
 
     # Private.
     admin = "admin"
@@ -107,6 +108,7 @@ __CODE_PERMISSIONS_ORDER = [
     Permission.ads,
     Permission.messenger,
     Permission.cc,
+    Permission.phone,
 ]
 
 # String tags, for separator and modificator that gives all permissions.
@@ -126,6 +128,7 @@ SCOPE_ALL_PERMISSIONS = [
     Permission.ads,
     Permission.messenger,
     Permission.cc,
+    Permission.phone,
 ]
 
 # Allowed permission, as string list.
