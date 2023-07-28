@@ -150,4 +150,3 @@ class Settings(BaseSettings):
     # Service.
     # TODO: More configuration.
     service_is_under_maintenance: bool = True
-    is_under_debug_environment: bool = True
