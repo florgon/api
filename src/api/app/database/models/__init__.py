@@ -9,13 +9,13 @@ from . import (
     user_linked_accounts,
     user_agent,
     user,
+    ticket,
     oauth_code,
     oauth_client_user,
     oauth_client_use,
     oauth_client,
     gift_use,
     gift,
-    offer,
 )
 
 __all__ = [
@@ -29,5 +29,5 @@ __all__ = [
     "user_linked_accounts",
     "oauth_client_user",
     "oauth_code",
-    "offer",
+    "ticket",
 ]

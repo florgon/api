@@ -11,8 +11,8 @@ from . import (
     user_security,
     user,
     tokens,
+    tickets,
     session,
-    offers,
     oauth_client,
     oauth,
     mailings,
@@ -40,7 +40,7 @@ def include_v1_routers(app: FastAPI) -> None:
         user_security,
         gift,
         mailings,
-        offers,
+        tickets,
     ]
     for module in modules:
         app.include_router(module.router, prefix="/v1")
