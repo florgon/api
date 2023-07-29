@@ -3,8 +3,7 @@
 """
 
 from sqlalchemy.orm import Session
-
-from api.app.database.models.ticket import Ticket
+from app.database.models.ticket import Ticket
 
 
 def create(
