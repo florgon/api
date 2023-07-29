@@ -22,11 +22,11 @@ from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 
-router = APIRouter()
+router = APIRouter(prefix="/oauth")
 
 
-@router.get("/oauth.authorize", deprecated=True)
-async def method_oauth_authorize(
+@router.get("/authorize", deprecated=True)
+async def oauth_authorize(
     client_id: int,
     state: str,
     redirect_uri: str,
@@ -54,8 +54,8 @@ async def method_oauth_authorize(
     )
 
 
-@router.post("/oauth.accessToken")
-async def method_oauth_access_token_post(
+@router.post("/accessToken")
+async def oauth_access_token(
     req: Request,
     client_id: int = 0,
     client_secret: str | None = None,
@@ -83,8 +83,8 @@ async def method_oauth_access_token_post(
     )
 
 
-@router.get("/oauth.accessToken")
-async def method_oauth_access_token_get(
+@router.get("/accessToken")
+async def oauth_access_token_get(
     req: Request,
     client_id: int,
     client_secret: str,
@@ -104,8 +104,8 @@ async def method_oauth_access_token_get(
     )
 
 
-@router.get("/_oauth._allowClient", include_in_schema=False)
-async def method_oauth_allow_client(
+@router.get("/allowClient")
+async def oauth_allow_client(
     req: Request,
     client_id: int,
     state: str,
@@ -221,29 +221,4 @@ async def method_oauth_allow_client(
     return api_error(
         ApiErrorCode.API_INVALID_REQUEST,
         "Unknown `response_type` value! Allowed: code, token.",
-    )
-
-
-@router.get("/_oauth._clientIsLinked", include_in_schema=False)
-async def method_oauth_client_is_linked(
-    req: Request,
-    client_id: int,
-    scope: str,
-    db: Session = Depends(get_db),
-):
-    """
-    Returns is requested client is linked to user or not.
-    """
-    auth_data = query_auth_data_from_request(req=req, db=db, only_session_token=True)
-    query_oauth_client(db=db, client_id=client_id)
-    oauth_client_user = crud.oauth_client_user.get_by_user_id(
-        db, user_id=auth_data.user.id
-    )
-
-    return api_success(
-        {
-            "is_linked": oauth_client_user is not None
-            and parse_permissions_from_scope(oauth_client_user.requested_scope)
-            == parse_permissions_from_scope(scope),
-        }
     )

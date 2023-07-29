@@ -6,7 +6,7 @@
 
 from fastapi import FastAPI, APIRouter
 
-from . import utils, user, tokens, tickets, session, oauth_client, oauth, email
+from . import utils, user, tokens, tickets, session, oauth
 
 
 def include_v1_routers(_app: FastAPI) -> None:
@@ -15,7 +15,7 @@ def include_v1_routers(_app: FastAPI) -> None:
     """
 
     router = APIRouter(prefix="/v1")
-    for module in [oauth_client, email, session, oauth, utils, tokens, tickets, user]:
+    for module in [session, oauth, utils, tokens, tickets, user]:
         router.include_router(
             module.router,
         )
