@@ -5,7 +5,6 @@
 import time
 
 from sqlalchemy.orm import Session
-from fastapi_cache.decorator import cache
 from fastapi_cache import FastAPICache
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
@@ -13,18 +12,17 @@ from app.services.request import query_auth_data_from_request
 from app.services.permissions import parse_permissions_from_scope, Permission
 from app.services.oauth_client import query_oauth_client
 from app.services.limiter.depends import RateLimiter
-from app.services.cache import plain_cache_key_builder, JSONResponseCoder
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.serializers.oauth_client import serialize_oauth_clients, serialize_oauth_client
 from app.database.dependencies import get_db
 from app.database import crud
 
-router = APIRouter(tags=["oauthClient"])
+router = APIRouter(tags=["client"], prefix="/client")
 
 
-@router.get("/oauthClient.new")
-async def method_oauth_client_new(
+@router.post("/")
+async def create_client(
     display_name: str, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """Creates new OAuth client"""
@@ -44,10 +42,8 @@ async def method_oauth_client_new(
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
-@router.get("/oauthClient.list")
-async def method_oauth_client_list(
-    req: Request, db: Session = Depends(get_db)
-) -> JSONResponse:
+@router.get("/list")
+async def list_clients(req: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """Returns list of user owned OAuth clients."""
     auth_data = query_auth_data_from_request(
         req, db, required_permissions={Permission.oauth_clients}
@@ -58,8 +54,8 @@ async def method_oauth_client_list(
     )
 
 
-@router.get("/oauthClient.getLinked")
-async def method_oauth_client_get_linked(
+@router.get("/linked")
+async def get_linked_clients(
     req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for getting linked oauth clients."""
@@ -95,8 +91,8 @@ async def method_oauth_client_get_linked(
     )
 
 
-@router.get("/oauthClient.unlink")
-async def method_oauth_client_unlink(
+@router.post("/unlink")
+async def unlink_client(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     """OAUTH API endpoint for unlinking linked oauth clients."""
@@ -119,14 +115,8 @@ async def method_oauth_client_unlink(
     return api_success({"unlinked_client_id": oauth_client_user.client_id})
 
 
-@router.get("/oauthClient.get")
-@cache(
-    expire=60,
-    coder=JSONResponseCoder,
-    key_builder=plain_cache_key_builder,
-    namespace="routers_oauth_clients_getter",
-)
-async def method_oauth_client_get(
+@router.get("/")
+async def get_client(
     req: Request,
     client_id: int,
     check_is_linked: bool = False,
@@ -158,7 +148,7 @@ async def method_oauth_client_get(
     return api_success(response)
 
 
-@router.get("/oauthClient.expireSecret")
+@router.post("/secret/refresh")
 async def method_oauth_client_expire_secret(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -173,7 +163,7 @@ async def method_oauth_client_expire_secret(
     return api_success(serialize_oauth_client(oauth_client, display_secret=True))
 
 
-@router.get("/oauthClient.edit")
+@router.get("/patch", deprecated=True)
 async def method_oauth_client_update(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
@@ -207,7 +197,7 @@ async def method_oauth_client_update(
     )
 
 
-@router.get("/oauthClient.stats")
+@router.get("/stats")
 async def method_oauth_client_stats(
     client_id: int, req: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:

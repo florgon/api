@@ -8,6 +8,7 @@ from fastapi.logger import logger as fastapi_logger
 from fastapi import FastAPI
 
 from .routers import include_routers
+from .openapi import get_fastapi_openapi_kwargs
 from .middlewares import add_middlewares
 from .exception_handlers import add_exception_handlers
 from .event_handlers import add_event_handlers
@@ -50,44 +51,11 @@ def _construct_app() -> FastAPI:
         # Event handlers.
         on_shutdown=None,
         on_startup=None,
-        # OpenAPI.
-        title=settings.openapi_title,
-        version=settings.openapi_version,
-        description=settings.openapi_description,
-        docs_url=settings.openapi_docs_url if settings.openapi_enabled else None,
-        redoc_url=settings.openapi_redoc_url if settings.openapi_enabled else None,
-        openapi_prefix=settings.openapi_prefix,
-        openapi_url=settings.openapi_url if settings.openapi_enabled else None,
-        openapi_tags=[
-            # TODO!: Move or refactor that.
-            {
-                "name": "session",
-                "description": "Session workflow methods, cannot be access by default user (direct-auth is allowed only for Florgon services)",
-            },
-            {
-                "name": "user",
-                "description": "Methods to get / edit user information or get other user information",
-            },
-            {
-                "name": "utils",
-                "description": "Some common utility methods like get status, get features, etc",
-            },
-            {
-                "name": "security",
-                "description": "Methods to work with user security information.",
-            },
-            {
-                "name": "tokens",
-                "description": "Methods to work with tokens mostly for external services",
-            },
-            {
-                "name": "tickets",
-                "description": "Methods to work with ticket system",
-            },
-        ],
         # Other.
         root_path=settings.fastapi_root_path,
         root_path_in_servers=True,
+        # OpenAPI.
+        **get_fastapi_openapi_kwargs(settings),
     )
 
     # Register all internal stuff as routers/handlers/middlewares/database etc.

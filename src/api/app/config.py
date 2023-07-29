@@ -72,6 +72,6 @@ def get_gatey_client() -> gatey_sdk.Client | None:
 
 # Static objects.
 # (Order should be same like now!)
-_settings = Settings()
+_settings = Settings()  # type: ignore[call-arg]
 _logger = logging.getLogger(_settings.logging_logger_name or __name__)
 _gatey = _init_gatey_client(_settings)

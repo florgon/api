@@ -1,0 +1,15 @@
+"""
+    Metadata information.
+"""
+
+__title__ = "Florgon API"
+__summary__ = "Core monolithic API for Florgon Ecosystem"
+__description__ = "API for Florgon Services, provides authorization process (including OAuth), user managements, and much more."
+__url__ = "https://github.com/florgon/api"
+__version__ = "0.0.2"
+__author__ = "Florgon Team and Contributors"
+__author_email__ = "support@florgon.com"
+__license__ = "BSL"
+__license_name__ = "Business Source License 1.1"
+__copyright__ = "Copyright 2023 Florgon Solutions"
+__terms__ = "https://florgon.com/legal/terms"

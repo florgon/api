@@ -4,8 +4,8 @@
 
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
+from app.__version__ import __version__
 
-from .version import API_VERSION
 from .errors import ApiErrorCode
 
 
@@ -23,7 +23,7 @@ def api_error(
 
     return JSONResponse(
         {
-            "v": API_VERSION,
+            "v": __version__,
             "error": {"message": message, "code": code, "status": status} | data,
         },
         status_code=status,
@@ -35,4 +35,4 @@ def api_success(data: dict | BaseModel) -> JSONResponse:
     """Returns API success response."""
     if isinstance(data, BaseModel):
         data = data.dict()
-    return JSONResponse({"v": API_VERSION, "success": data}, status_code=200)
+    return JSONResponse({"v": __version__, "success": data}, status_code=200)

@@ -16,13 +16,14 @@ from app.config import get_settings
 # TODO: Allow specify URL for email confirmation.
 
 
-def decode_email_token(token: str, *, secret_key: str | None = None) -> EmailToken:
+def decode_email_token(token: str) -> EmailToken:
     """
     Decodes email token and returns it, or raises API error if failed to decode.
     """
-    secret_key = secret_key or get_settings().security_email_tokens_secret_key
     try:
-        email_token = EmailToken.decode(token, key=secret_key)
+        email_token = EmailToken.decode(
+            token, key=get_settings().security_email_tokens_secret_key
+        )
     except (TokenInvalidError, TokenInvalidSignatureError):
         raise ApiErrorException(
             ApiErrorCode.EMAIL_CONFIRMATION_TOKEN_INVALID,

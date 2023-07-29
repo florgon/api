@@ -7,18 +7,17 @@
     !TODO: Refactor message wrappers (senders) and replace with engine.
 """
 
-from pydantic import EmailStr
 from fastapi_mail.errors import ConnectionErrors
 from fastapi_mail import MessageType, MessageSchema
 from fastapi import BackgroundTasks
+from app.services.verification import generate_confirmation_link
+from app.database.models.user import User
 from app.config import get_logger
 
 from .config import provider
 
 
-async def send_custom_email(
-    recepients: list[EmailStr], subject: str, body: str
-) -> None:
+async def send_custom_email(recepients: list[str], subject: str, body: str) -> None:
     """
     Simple wrapper around provider messaging.
     """
@@ -41,22 +40,18 @@ async def send_custom_email(
         get_logger().error(f"[email] Failed to send message! Error: {e}")
 
 
-def send_verification_email(
-    background_tasks: BackgroundTasks, email: str, mention: str, confirmation_link: str
-):
+def send_verification_email(background_tasks: BackgroundTasks, user: User):
     """Send verification email to user."""
     subject = "Sign-up on Florgon!"
-    message = f"Hello, {mention}! Please confirm your Florgon account email address by clicking link below! Link: {confirmation_link}"
-    background_tasks.add_task(send_custom_email, [email], subject, message)
+    message = f"Hello, {user.get_mention()}! Please confirm your Florgon account email address by clicking link below! Link: {generate_confirmation_link(user.id)}"  # type: ignore
+    background_tasks.add_task(send_custom_email, [user.email], subject, message)  # type: ignore
 
 
-def send_verification_end_email(
-    background_tasks: BackgroundTasks, email: str, mention: str
-):
+def send_verification_end_email(background_tasks: BackgroundTasks, user: User):
     """Send verification end email to the user."""
     subject = "Email verified on Florgon!"
-    message = f"Hello, {mention}! Your Florgon account email address was verified! Welcome to Florgon!"
-    background_tasks.add_task(send_custom_email, [email], subject, message)
+    message = f"Hello, {user.get_mention()}! Your Florgon account email address was verified! Welcome to Florgon!"
+    background_tasks.add_task(send_custom_email, [user.email], subject, message)  # type: ignore
 
 
 def send_password_change_tfa_otp_email(

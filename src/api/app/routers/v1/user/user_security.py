@@ -16,12 +16,7 @@ from app.serializers.session import serialize_sessions
 from app.database.repositories import UserSessionsRepository
 from app.database.dependencies import get_repository
 
-router = APIRouter(
-    include_in_schema=True,
-    tags=["security", "user"],
-    prefix="/user/security",
-    default_response_class=JSONResponse,
-)
+router = APIRouter(tags=["security"], prefix="/security")
 
 
 @router.get("/")
@@ -47,8 +42,8 @@ async def list_sessions(
     Fetch all active sessions and current session ID.
     """
     return api_success(
-        serialize_sessions(repo.get_by_owner_id(auth_data.session.owner_id), db=repo.db)  # type: ignore
-        | {
-            "current_session_id": auth_data.session.id,
-        }
+        {"current_session_id": auth_data.session.id}
+        | serialize_sessions(
+            repo.get_by_owner_id(auth_data.session.owner_id), repo.db  # type: ignore
+        )
     )

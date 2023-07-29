@@ -34,6 +34,7 @@ class AuthDataDependency:
         allow_deactivated: bool = False,
         allow_external_clients: bool = False,
         trigger_online_update: bool = True,
+        allow_not_confirmed: bool | None = None,
     ):
         self.kwargs = {
             "only_session_token": only_session_token,
@@ -41,6 +42,7 @@ class AuthDataDependency:
             "allow_deactivated": allow_deactivated,
             "allow_external_clients": allow_external_clients,
             "trigger_online_update": trigger_online_update,
+            "allow_not_confirmed": allow_not_confirmed,
         }
 
     def __call__(self, req: Request, db: Session = Depends(get_db)):
@@ -57,6 +59,7 @@ def query_auth_data_from_token(
     allow_external_clients: bool = False,
     trigger_online_update: bool = True,
     request: Request | None = None,
+    allow_not_confirmed: bool | None = None,
 ) -> AuthData:
     """
     Queries authentication data from your token.
@@ -83,6 +86,7 @@ def query_auth_data_from_token(
     return _query_auth_data(
         auth_data,
         db,
+        allow_not_confirmed=allow_not_confirmed,
         allow_deactivated=allow_deactivated,
         trigger_online_update=trigger_online_update,
     )
@@ -97,6 +101,7 @@ def query_auth_data_from_request(
     allow_deactivated: bool = False,
     allow_external_clients: bool = False,
     trigger_online_update: bool = True,
+    allow_not_confirmed: bool | None = None,
 ) -> AuthData:
     """
     Queries authentication data from request (from request token).
@@ -118,6 +123,7 @@ def query_auth_data_from_request(
         allow_external_clients=allow_external_clients,
         trigger_online_update=trigger_online_update,
         request=req,
+        allow_not_confirmed=allow_not_confirmed,
     )
 
 
@@ -313,6 +319,7 @@ def _query_auth_data(
     db: Session,
     allow_deactivated: bool = False,
     trigger_online_update: bool = True,
+    allow_not_confirmed: bool | None = None,
 ) -> AuthData:
     """
     Finalizes query of authentication data by query final user object.
@@ -331,13 +338,26 @@ def _query_auth_data(
         # users should never be deleted and this should never happen.
         _raise_integrity_check_error()
 
-    if not user.is_active and not allow_deactivated:
+    if not allow_deactivated and not user.is_active:
         # If user is deactivated (banned), and we are not allowed to return with deactivated users,
         # return API error means deactivated user have no permissions to call requested method.
         raise ApiErrorException(
             ApiErrorCode.USER_DEACTIVATED,
             "User account currently deactivated and this method does not allow deactivated users!",
         )
+
+    if allow_not_confirmed is not None:
+        if allow_not_confirmed:
+            if auth_data.user.is_verified:
+                raise ApiErrorException(
+                    ApiErrorCode.EMAIL_CONFIRMATION_ALREADY_CONFIRMED,
+                    "Email is confirmed and this method does not allow confirmed users!",
+                )
+        elif not auth_data.user.is_verified:
+            raise ApiErrorException(
+                ApiErrorCode.USER_EMAIL_NOT_CONFIRMED,
+                "Email is not confirmed and this method does not allow unconfirmed users!",
+            )
 
     if trigger_online_update:
         # If this flag is true, means that we should do update of the online time for user.

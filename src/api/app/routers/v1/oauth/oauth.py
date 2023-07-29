@@ -22,10 +22,10 @@ from app.database.dependencies import get_db, Session
 from app.database import crud
 from app.config import get_settings, Settings
 
-router = APIRouter(tags=["oauth"])
+router = APIRouter()
 
 
-@router.get("/oauth.authorize")
+@router.get("/oauth.authorize", deprecated=True)
 async def method_oauth_authorize(
     client_id: int,
     state: str,
