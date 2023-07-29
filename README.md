@@ -1,7 +1,8 @@
 # 🚀 Florgon API
 
 🔧 Core API for our Ecosystem (including services, SSO). \
-👨‍💻 Deployed and used in production [here](https://api.florgon.com/v1/utils.getServerTime).
+👨‍💻 Deployed and used in production [here](https://api.florgon.com/v1/utils/status).
+📗 Swagger docs is avaliable [here](https://api.florgon.com/v1/docs).
 
 ### What is next?
 

@@ -6,8 +6,7 @@ from app.services.validators.user import (
     validate_profile_website_field,
     validate_profile_social_username_field,
     validate_profile_bio_field,
-    validate_last_name_field,
-    validate_first_name_field,
+    validate_name_field,
 )
 
 
@@ -37,16 +36,10 @@ class UpdateModel(BaseModel):
             and getattr(user, field_name, None) != field_value
         }
 
-    @validator("first_name")
+    @validator("first_name", "last_name")
     @classmethod
-    def validate_first_name(cls, value) -> str:
-        validate_first_name_field(value)
-        return value
-
-    @validator("last_name")
-    @classmethod
-    def validate_last_name(cls, value) -> str:
-        validate_last_name_field(value)
+    def validate_name(cls, value) -> str:
+        validate_name_field(value)
         return value
 
     @validator("profile_bio")

@@ -16,8 +16,8 @@ from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.services.admin import validate_user_allowed_to_call_admin_methods
 from app.serializers.user import serialize_users, serialize_user
+from app.serializers.ticket import serialize_tickets, serialize_ticket
 from app.serializers.session import serialize_session
-from app.serializers.offer import serialize_offers, serialize_offer
 from app.serializers.oauth_client import serialize_oauth_client
 from app.database.repositories.users import UsersRepository
 from app.database.dependencies import get_db, Session
@@ -197,28 +197,28 @@ async def unban_user(
     )
 
 
-@router.get("/offer/list")
-async def list_offers(
+@router.get("/tickets/list")
+async def list_tickets(
     db: Session = Depends(get_db),
 ) -> JSONResponse:
     """
-    Get list of all offers with information.
+    Get list of all tickets with information.
     ?TODO: Allow filtering.
     """
-    return api_success(serialize_offers(crud.offer.get_all(db)))
+    return api_success(serialize_tickets(crud.ticket.get_all(db)))
 
 
-@router.get("/offer/get")
-async def get_offers(
-    offer_id: int,
+@router.get("/tickets/get")
+async def get_ticket(
+    ticket_id: int,
     db: Session = Depends(get_db),
 ) -> JSONResponse:
-    """Get offer information for a given offer ID"""
-    offer = crud.offer.get_by_id(db, id=offer_id)
-    if offer is None:
+    """Get ticket information for a given ID"""
+    ticket = crud.ticket.get_by_id(db, id=ticket_id)
+    if ticket is None:
         return api_error(
             ApiErrorCode.API_ITEM_NOT_FOUND,
-            "Offer not found!",
+            "Ticket not found!",
         )
 
-    return api_success(serialize_offer(offer))
+    return api_success(serialize_ticket(ticket))

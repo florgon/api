@@ -17,8 +17,8 @@ def api_error(
 ) -> JSONResponse:
     """Returns API error response."""
 
-    data = data or {}
-    headers = headers or {}
+    data = data or dict()
+    headers = headers or dict()
     code, status = api_code.value
 
     return JSONResponse(

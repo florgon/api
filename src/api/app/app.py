@@ -80,6 +80,10 @@ def _construct_app() -> FastAPI:
                 "name": "tokens",
                 "description": "Methods to work with tokens mostly for external services",
             },
+            {
+                "name": "tickets",
+                "description": "Methods to work with ticket system",
+            },
         ],
         # Other.
         root_path=settings.fastapi_root_path,

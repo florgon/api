@@ -10,7 +10,7 @@ from app.schemas.session import SignupModel
 from app.database.models.user import User
 from app.database.dependencies import Session
 from app.database import crud
-from app.config import get_settings, Settings
+from app.config import get_settings
 
 _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
     "yandex.ru": "ya.ru",
@@ -74,22 +74,19 @@ def validate_password_field(password: str) -> None:
 
 
 def validate_email_field(
-    db: Session, settings: Settings, email: str, check_is_taken: bool = True
+    email: str,
+    db: Session | None = None,
 ) -> None:
     """
     Raises API error if email is invalid or taken.
     """
-    # Validate email.
-    if crud.user.email_is_taken(db=db, email=email):
+
+    if db and crud.user.email_is_taken(db=db, email=email):
         raise ApiErrorException(
             ApiErrorCode.AUTH_EMAIL_TAKEN, "Given email is already taken!"
         )
 
-    if (
-        check_is_taken
-        and settings.signup_validate_email
-        and not validate_email(email, verify=False)
-    ):  # TODO.
+    if get_settings().signup_validate_email and not validate_email(email, verify=False):
         raise ApiErrorException(ApiErrorCode.AUTH_EMAIL_INVALID, "Email invalid!")
 
 
@@ -129,10 +126,9 @@ def validate_username_field(
 def validate_signup_fields(db: Session, model: SignupModel) -> None:
     """Validates that all fields passes signup base validation, or raises API error if not."""
 
-    settings = get_settings()
     validate_username_field(db, model.username, check_is_taken=True)
     validate_password_field(model.password)
-    validate_email_field(db, settings, model.email, check_is_taken=True)
+    validate_email_field(model.email, db=db)
     validate_phone_number_field(db=db, phone_number=model.phone_number)
 
 
@@ -157,25 +153,14 @@ def validate_signin_fields(user: User | None = None, password: str = "") -> User
     return user
 
 
-def validate_first_name_field(first_name: str) -> None:
-    """
-    Validates first_name, raises API error if name is invalid.
-    """
-    if not first_name and len(first_name) >= 21:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "First name should be longer than 0 and shorter than 21!",
-        )
-
-
-def validate_last_name_field(last_name: str) -> None:
+def validate_name_field(last_name: str) -> None:
     """
     Validates last_name, raises API error if name is invalid.
     """
     if not last_name or len(last_name) >= 21:
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST,
-            "Last name should be longer than 0 and shorter than 21!",
+            "Name should be longer than 0 and shorter than 21!",
         )
 
 

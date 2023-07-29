@@ -1,21 +1,23 @@
 """
-    Database model for Request.
+    Database model for ticket.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
-
+from sqlalchemy import String, Integer, ForeignKey, DateTime, Column
 from app.database.core import Base
 
 
-class Offer(Base):
-    __tablename__ = 'offers'
+class Ticket(Base):
+    __tablename__ = "tickets"
     id = Column(Integer, primary_key=True, index=True, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     text = Column(String, nullable=False)
     email = Column(String, nullable=False)
     phone_number = Column(String(18), nullable=False)
-    full_name = Column(String, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    middle_name = Column(String, nullable=False)
+    subject = Column(String, nullable=False)
 
     # Time
     time_created = Column(

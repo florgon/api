@@ -64,8 +64,8 @@ async def validation_exception_handler(
         )
 
     return api_error(
-        ApiErrorCode.API_INVALID_REQUEST,
-        f"Invalid request! {description}",
+        api_code=ApiErrorCode.API_INVALID_REQUEST,
+        message=f"Invalid request! {description}",
         data=additional_data,
     )
 
