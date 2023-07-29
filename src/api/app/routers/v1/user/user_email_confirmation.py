@@ -12,8 +12,8 @@ from app.services.limiter.depends import RateLimiter
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
 from app.email import messages
+from app.database.repositories import UsersRepository
 from app.database.dependencies import get_db, Session
-from app.database import crud
 
 router = APIRouter(prefix="/email/confirmation", tags=["email"])
 
@@ -27,14 +27,15 @@ async def finish_confirmation(
     """
     Finish email confirmation process by checking confirmation token from the email.
     """
-    user = crud.user.get_by_id(db, decode_email_token(email_token).get_subject())
+    repo = UsersRepository(db)
+    user = repo.get_user_by_id(decode_email_token(email_token).get_subject())
     if not user or user.is_verified:
         return api_error(
             ApiErrorCode.EMAIL_CONFIRMATION_USER_NOT_FOUND,
             "User is already confirmed or changed email address",
         )
 
-    crud.user.email_confirm(db, user)
+    repo.email_confirm(user)
     messages.send_verification_end_email(background_tasks, user)
 
     return api_success({})

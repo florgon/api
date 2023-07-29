@@ -7,9 +7,9 @@ from validate_email import validate_email
 from app.services.passwords import check_password
 from app.services.api.errors import ApiErrorException, ApiErrorCode
 from app.schemas.session import SignupModel
+from app.database.repositories import UsersRepository
 from app.database.models.user import User
 from app.database.dependencies import Session
-from app.database import crud
 from app.config import get_settings
 
 _MAPPED_EMAIL_DOMAINS_STANDARDIZED = {
@@ -81,7 +81,7 @@ def validate_email_field(
     Raises API error if email is invalid or taken.
     """
 
-    if db and crud.user.email_is_taken(db=db, email=email):
+    if db and UsersRepository(db).email_is_taken(email=email):
         raise ApiErrorException(
             ApiErrorCode.AUTH_EMAIL_TAKEN, "Given email is already taken!"
         )
@@ -97,7 +97,7 @@ def validate_username_field(
     Raises API error if username is invalid or is taken.
     """
     # Check username is not taken.
-    if check_is_taken and crud.user.username_is_taken(db=db, username=username):
+    if check_is_taken and UsersRepository(db).username_is_taken(username=username):
         raise ApiErrorException(
             ApiErrorCode.AUTH_USERNAME_TAKEN, "Given username is already taken!"
         )
@@ -153,49 +153,6 @@ def validate_signin_fields(user: User | None = None, password: str = "") -> User
     return user
 
 
-def validate_name_field(last_name: str) -> None:
-    """
-    Validates last_name, raises API error if name is invalid.
-    """
-    if not last_name or len(last_name) >= 21:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Name should be longer than 0 and shorter than 21!",
-        )
-
-
-def validate_profile_bio_field(bio: str) -> None:
-    """
-    Validates profile_bio, raises API error if bio is invalid.
-    """
-    if len(bio) >= 251:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Profile bio should be shorter than 251!",
-        )
-
-
-def validate_profile_website_field(website: str) -> None:
-    """
-    Validates profile_website, raises API error if url is invalid.
-    """
-    if len(website) >= 251:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Profile website should be shorter than 251!",
-        )
-
-    pattern = re.compile(
-        r"^(https:\/\/|http:\/\/|)([\w_-]+\.){1,3}\w{1,10}(\/.*)?$",
-        flags=re.U,
-    )
-    if not pattern.match(website):
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Profile website should be shorter than 251!",
-        )
-
-
 def validate_phone_number_field(phone_number: str, db: Session | None = None) -> None:
     """
     Validates phone_number, then normailize it and validates normalized phone_number.
@@ -216,24 +173,7 @@ def validate_phone_number_field(phone_number: str, db: Session | None = None) ->
             "Phone number should contain more than 10 digits and less then 14 digits!",
         )
 
-    if db is not None and crud.user.phone_number_is_taken(
-        db=db, phone_number=phone_number
-    ):
+    if db is not None and UsersRepository(db).phone_number_is_taken(phone_number):
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST, "Phone number is already taken!"
-        )
-
-
-def validate_profile_social_username_field(social_username: str) -> None:
-    """
-    Validates github, vk, telegram usernames.
-    """
-    if not social_username:
-        return
-
-    if len(social_username) <= 3 or len(social_username) >= 51:
-        raise ApiErrorException(
-            ApiErrorCode.API_INVALID_REQUEST,
-            "Profile social username should be longer than 3 and"
-            "shorter than 51 or should be empty!",
         )

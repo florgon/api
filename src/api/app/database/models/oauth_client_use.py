@@ -2,12 +2,9 @@
     OAuth client use database model.
 """
 
-# Core model base.
-from app.database.core import Base
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
-
-# ORM.
 from sqlalchemy.sql import func
+from sqlalchemy import Integer, ForeignKey, DateTime, Column
+from app.database.core import Base
 
 
 class OAuthClientUse(Base):
@@ -15,14 +12,9 @@ class OAuthClientUse(Base):
 
     __tablename__ = "oauth_clients_uses"
 
-    # Database.
     id = Column(Integer, primary_key=True, index=True, nullable=False)
-
-    # Use data.
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     client_id = Column(Integer, ForeignKey("oauth_clients.id"), nullable=False)
-
-    # Time.
     time_created = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

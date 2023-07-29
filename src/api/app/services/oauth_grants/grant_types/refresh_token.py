@@ -13,8 +13,12 @@ from app.services.permissions import (
 )
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
+from app.database.repositories import (
+    UsersRepository,
+    UserSessionsRepository,
+    OAuthClientsRepository,
+)
 from app.database.dependencies import Session
-from app.database import crud
 from app.config import Settings
 
 
@@ -32,16 +36,14 @@ def oauth_refresh_token_grant(
     refresh_token_unsigned = RefreshToken.decode_unsigned(refresh_token)
 
     session_id = refresh_token_unsigned.get_session_id()  # pylint: disable=no-member
-    session = (
-        crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
-    )
+    session = UserSessionsRepository(db).get_by_id(session_id) if session_id else None
     if not session:
         return api_error(
             ApiErrorCode.AUTH_INVALID_TOKEN,
             "Refresh token has not linked to any session!",
         )
 
-    refresh_token_signed = RefreshToken.decode(refresh_token, key=session.token_secret)
+    refresh_token_signed = RefreshToken.decode(refresh_token, key=session.token_secret)  # type: ignore
 
     if client_id != refresh_token_signed.get_client_id():  # pylint: disable=no-member
         return api_error(
@@ -50,7 +52,7 @@ def oauth_refresh_token_grant(
         )
 
     # Query OAuth client.
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+    oauth_client = OAuthClientsRepository(db).get_by_id(client_id)
 
     # Verification for OAuth client.
     if not oauth_client or not oauth_client.is_active:
@@ -65,8 +67,9 @@ def oauth_refresh_token_grant(
             "Invalid client_secret! Please review secret, or generate new secret.",
         )
 
-    # Query user.
-    user = crud.user.get_by_id(db=db, user_id=refresh_token_signed.get_subject())
+    user = UsersRepository(db).get_user_by_id(
+        user_id=refresh_token_signed.get_subject()
+    )
     if not user:
         return api_error(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,

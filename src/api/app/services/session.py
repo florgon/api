@@ -9,9 +9,9 @@ from app.services.request import (
     get_country_from_request,
     get_client_host_from_request,
 )
+from app.database.repositories import UserSessionsRepository
 from app.database.models.user import User
 from app.database.dependencies import Session
-from app.database import crud
 from app.config import get_settings
 
 
@@ -33,8 +33,7 @@ def _publish_new_session_or_get_old(owner_id: int, req: Request, db: Session):
     """
     Publishes new session and returns it.
     """
-    return crud.user_session.get_or_create_new(
-        db,
+    return UserSessionsRepository(db).get_or_create_new(
         owner_id,
         client_host=get_client_host_from_request(req),
         client_user_agent=get_user_agent_from_request(req),

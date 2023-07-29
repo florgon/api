@@ -1,7 +1,5 @@
 """
     Database ORM models.
-
-    !TODO!: Refactor and review all the models.
 """
 
 from . import (
@@ -16,12 +14,12 @@ from . import (
 )
 
 __all__ = [
-    "oauth_client",
     "oauth_client_use",
-    "user",
-    "user_agent",
-    "user_session",
     "oauth_client_user",
+    "oauth_client",
     "oauth_code",
     "ticket",
+    "user_agent",
+    "user_session",
+    "user",
 ]

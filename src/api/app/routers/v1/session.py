@@ -13,7 +13,7 @@
     so, even if you are want to use that methods, you will be rejected and get forbidden error.
 """
 
-from typing import Iterator, Iterable
+from typing import Iterator, Iterable, Annotated
 
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter

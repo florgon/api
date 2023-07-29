@@ -1,13 +1,7 @@
 """
     User schemas.
 """
-from pydantic import validator, BaseModel
-from app.services.validators.user import (
-    validate_profile_website_field,
-    validate_profile_social_username_field,
-    validate_profile_bio_field,
-    validate_name_field,
-)
+from pydantic import Field, BaseModel, AnyHttpUrl
 
 
 class UpdateModel(BaseModel):
@@ -19,13 +13,20 @@ class UpdateModel(BaseModel):
     privacy_profile_public: bool | None = None
     privacy_profile_require_auth: bool | None = None
 
-    first_name: str | None = None
-    last_name: str | None = None
-    profile_bio: str | None = None
-    profile_website: str | None = None
-    profile_social_username_vk: str | None = None
-    profile_social_username_tg: str | None = None
-    profile_social_username_gh: str | None = None
+    profile_website: AnyHttpUrl | None = None
+
+    first_name: str | None = Field(default=None, max_length=21)
+    last_name: str | None = Field(default=None, max_length=21)
+    profile_bio: str | None = Field(default=None, max_length=251)
+    profile_social_username_vk: str | None = Field(
+        default=None, max_length=32, min_length=3
+    )
+    profile_social_username_tg: str | None = Field(
+        default=None, max_length=32, min_length=3
+    )
+    profile_social_username_gh: str | None = Field(
+        default=None, max_length=32, min_length=3
+    )
 
     def get_new_fields(self, user: object):
         fields: dict[str, str | bool] = self.dict()
@@ -35,31 +36,3 @@ class UpdateModel(BaseModel):
             if field_value is not None
             and getattr(user, field_name, None) != field_value
         }
-
-    @validator("first_name", "last_name")
-    @classmethod
-    def validate_name(cls, value) -> str:
-        validate_name_field(value)
-        return value
-
-    @validator("profile_bio")
-    @classmethod
-    def validate_profile_bio(cls, value) -> str:
-        validate_profile_bio_field(value)
-        return value
-
-    @validator("profile_website")
-    @classmethod
-    def validate_profile_website(cls, value) -> str:
-        validate_profile_website_field(value)
-        return value
-
-    @validator(
-        "profile_social_username_vk",
-        "profile_social_username_tg",
-        "profile_social_username_gh",
-    )
-    @classmethod
-    def validate_profile_social_usernames(cls, value) -> str:
-        validate_profile_social_username_field(value)
-        return value

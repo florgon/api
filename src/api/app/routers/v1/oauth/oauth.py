@@ -18,8 +18,12 @@ from app.services.oauth_grants import resolve_grant
 from app.services.oauth_client import query_oauth_client
 from app.services.api.response import api_success, api_error
 from app.services.api.errors import ApiErrorCode
+from app.database.repositories import (
+    OAuthCodesRepository,
+    OAuthClientUserRepository,
+    OAuthClientUseRepository,
+)
 from app.database.dependencies import get_db, Session
-from app.database import crud
 from app.config import get_settings, Settings
 
 router = APIRouter(prefix="/oauth")
@@ -144,18 +148,19 @@ async def oauth_allow_client(
         # as it should be resolved to access token with default TTL immediately at server.
         scope = normalize_scope(scope)
         time_to_live = settings.security_oauth_code_tokens_ttl
+        stored_code = OAuthCodesRepository(db).create(user.id, client_id, session.id)  # type: ignore
         code = OAuthCode(
             settings.security_tokens_issuer,
             time_to_live,
-            user.id,
-            session.id,
+            user.id,  # type: ignore
+            session.id,  # type: ignore
             scope,
             redirect_uri,
             client_id,
-            code_id=crud.oauth_code.create(
-                db=db, user_id=user.id, session_id=session.id, client_id=client_id
-            ).id,
-        ).encode(key=session.token_secret)
+            code_id=stored_code.id,  # type: ignore
+        ).encode(
+            key=session.token_secret  # type: ignore
+        )
 
         # Constructing redirect URL with GET query parameters.
         redirect_to = f"{redirect_uri}?code={code}&state={state}"
@@ -182,10 +187,12 @@ async def oauth_allow_client(
         access_token = AccessToken(
             settings.security_tokens_issuer,
             access_token_ttl,
-            user.id,
-            session.id,
+            user.id,  # type: ignore
+            session.id,  # type: ignore
             normalize_scope(scope),
-        ).encode(key=session.token_secret)
+        ).encode(
+            key=session.token_secret  # type: ignore
+        )
 
         # Constructing redirect URL with hash-link parameters.
         # Email field should be passed only if OAuth client requested given scope permission.
@@ -211,9 +218,9 @@ async def oauth_allow_client(
 
     if response:
         # Log statistics and save oauth user.
-        crud.oauth_client_use.create(db, user_id=user.id, client_id=oauth_client.id)
-        crud.oauth_client_user.create_if_not_exists(
-            db, user_id=user.id, client_id=oauth_client.id, scope=normalize_scope(scope)
+        OAuthClientUseRepository(db).create(user.id, oauth_client.id)  # type: ignore
+        OAuthClientUserRepository(db).create_if_not_exists(
+            user_id=user.id, client_id=oauth_client.id, scope=normalize_scope(scope)  # type: ignore
         )
         return api_success(response)
 

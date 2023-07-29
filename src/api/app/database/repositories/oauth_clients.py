@@ -36,3 +36,16 @@ class OAuthClientsRepository(BaseRepository):
 
         self.finish(oauth_client)
         return oauth_client
+
+    def get_by_owner_id(self, owner_id: int) -> list[OAuthClient]:
+        """Returns clients by it`s owner ID."""
+        return self.db.query(OAuthClient).filter(OAuthClient.owner_id == owner_id).all()
+
+    def expire(self, client: OAuthClient):
+        """Re-generates client secret."""
+        client.secret = self.generate_secret()  # type: ignore
+        self.finish(client)
+
+    def get_by_id(self, client_id: int) -> OAuthClient | None:
+        """Returns client by it ID."""
+        return self.db.query(OAuthClient).filter(OAuthClient.id == client_id).first()

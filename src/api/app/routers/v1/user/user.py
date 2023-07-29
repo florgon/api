@@ -12,7 +12,7 @@ from app.services.limiter.depends import RateLimiter
 from app.services.api.response import api_success
 from app.serializers.user import serialize_user
 from app.schemas.user import UpdateModel
-from app.database.repositories.users import UsersRepository
+from app.database.repositories import UsersRepository
 from app.database.dependencies import get_repository
 
 router = APIRouter()

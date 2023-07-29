@@ -15,9 +15,9 @@ from app.services.request.session_check_client import session_check_client_by_re
 from app.services.request.auth_data import AuthData
 from app.services.permissions import parse_permissions_from_scope, Permission
 from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.repositories import UsersRepository, UserSessionsRepository
 from app.database.models.user_session import UserSession
 from app.database.dependencies import get_db
-from app.database import crud
 from app.config import get_logger
 
 
@@ -291,7 +291,7 @@ def _query_session_from_sid(
         # Internal authentication system integrity check.
         _raise_integrity_check_error()
 
-    session = crud.user_session.get_by_id(db, session_id=session_id)
+    session = UserSessionsRepository(db).get_by_id(session_id)
     if not session:
         # Internal authentication system integrity check.
         # users should never be deleted and this should never happen.
@@ -331,7 +331,7 @@ def _query_auth_data(
 
     # Query database for our user to feed into auth data DTO.
     user_id = auth_data.token.get_subject()
-    user = crud.user.get_by_id(db=db, user_id=user_id)
+    user = UsersRepository(db).get_user_by_id(user_id=user_id)
 
     if not user or auth_data.session.owner_id != user.id:
         # Internal authentication system integrity check.

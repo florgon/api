@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from fastapi import Request
 from app.services.request.get_from_request import get_client_host_from_request
 from app.services.api.errors import ApiErrorException, ApiErrorCode
-from app.database import crud
+from app.database.repositories import UserSessionsRepository
 from app.config import get_settings
 
 
@@ -19,7 +19,7 @@ def validate_signup_host_allowance(db: Session, request: Request) -> None:
     settings = get_settings()
 
     client_host = get_client_host_from_request(request=request)
-    sessions = crud.user_session.get_by_ip_address(db=db, ip_address=client_host)
+    sessions = UserSessionsRepository(db).get_by_ip_address(client_host)
 
     if not settings.signup_multiaccounting_dissalowed:
         return

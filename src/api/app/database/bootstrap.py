@@ -79,7 +79,7 @@ def _create_initial_oauth_client_if_not_exists(db: Session) -> None:
     get_logger().info(
         "[database_bootstrap] Creating initial OAuth client as not found it in the database..."
     )
-    user = UsersRepository(db=db).get_user_by_id(user_id=get_settings().superuser_id)
+    user = UsersRepository(db).get_user_by_id(user_id=get_settings().superuser_user_id)
     if not user:
         get_logger().warning(
             "[database_bootstrap] Skipped creating initial OAuth client as not found super user with id=1!"

@@ -9,8 +9,8 @@ from app.services.limiter.depends import RateLimiter
 from app.services.api.response import api_success
 from app.serializers.ticket import serialize_ticket
 from app.schemas.tickets import TicketModel
-from app.database.dependencies import get_db, Session
-from app.database import crud
+from app.database.repositories import TicketsRepository
+from app.database.dependencies import get_repository
 
 router = APIRouter(
     include_in_schema=True,
@@ -22,9 +22,9 @@ router = APIRouter(
 
 @router.post("/", dependencies=[Depends(RateLimiter(times=2, minutes=5))])
 async def create(
-    model: TicketModel,
     request: Request,
-    db: Session = Depends(get_db),
+    model: TicketModel,
+    repo: TicketsRepository = Depends(get_repository(TicketsRepository)),
 ) -> JSONResponse:
     """
     Create new ticket, if authentication is passed, links with your account.
@@ -32,14 +32,13 @@ async def create(
 
     user_id: int = (
         auth_data.user.id  # type: ignore
-        if (auth_data := try_query_auth_data_from_request(request, db))
+        if (auth_data := try_query_auth_data_from_request(request, repo.db))
         else None
     )
 
     return api_success(
         serialize_ticket(
-            crud.ticket.create(
-                db=db,
+            repo.create(
                 text=model.text,
                 subject=model.subject,
                 first_name=model.first_name,

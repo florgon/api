@@ -2,10 +2,14 @@
     Users repository.
 """
 
+from datetime import datetime
+
+from pyotp import random_base32
 from app.services.passwords import get_hashed_password, HashingError
 from app.schemas.user import UpdateModel
 from app.database.repositories.base import BaseRepository
 from app.database.models.user import User
+from app.config import get_settings
 
 
 class UsersRepository(BaseRepository):
@@ -76,6 +80,17 @@ class UsersRepository(BaseRepository):
         self.finish(user)
         return user
 
+    def email_confirm(self, user: User) -> None:
+        """Confirms given user email."""
+
+        user.is_verified = True  # type: ignore
+        user.time_verified = datetime.now()  # type: ignore
+
+        if get_settings().auth_enable_tfa_on_email_verification:
+            user.security_tfa_enabled = True  # type: ignore
+            user.security_tfa_secret_key = random_base32()  # type: ignore
+        self.db.commit()
+
     def apply_update_model(self, model: UpdateModel, user: User) -> bool:
         """
         Applies the update model onto given user object.
@@ -87,3 +102,18 @@ class UsersRepository(BaseRepository):
         if is_updated := bool(new_fields):
             self.commit()
         return is_updated
+
+    def email_is_taken(self, email: str) -> bool:
+        """Returns is given email is taken or not."""
+        return self.db.query(User).filter(User.email == email).first() is not None
+
+    def username_is_taken(self, username: str) -> bool:
+        """Returns is given username is taken or not."""
+        return self.db.query(User).filter(User.username == username).first() is not None
+
+    def phone_number_is_taken(self, phone_number: str) -> bool:
+        """Return is given phone number is already taken or not."""
+        return (
+            self.db.query(User).filter(User.phone_number == phone_number).first()
+            is not None
+        )

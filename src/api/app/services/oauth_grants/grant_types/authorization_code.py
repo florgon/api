@@ -15,10 +15,15 @@ from app.services.permissions import (
 )
 from app.services.api.response import api_success
 from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.database.repositories import (
+    UsersRepository,
+    UserSessionsRepository,
+    OAuthCodesRepository,
+    OAuthClientsRepository,
+)
 from app.database.models.user_session import UserSession
 from app.database.models.user import User
 from app.database.dependencies import Session
-from app.database import crud
 from app.config import Settings
 
 
@@ -38,7 +43,7 @@ def _verify_oauth_client_secret(
     """
     Checks that oauth client is valid for that client secret.
     """
-    oauth_client = crud.oauth_client.get_by_id(db=db, client_id=client_id)
+    oauth_client = OAuthClientsRepository(db).get_by_id(client_id)
 
     if not oauth_client or not oauth_client.is_active:
         raise ApiErrorException(
@@ -57,7 +62,7 @@ def _query_user_by_user_id(db: Session, session: UserSession, user_id: int) -> U
     """
     Returns user by ID and verify it by session.
     """
-    user = crud.user.get_by_id(db=db, user_id=user_id)
+    user = UsersRepository(db).get_user_by_id(user_id=user_id)
     if not user:
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_CREDENTIALS,
@@ -96,9 +101,7 @@ def _decode_signed_code_token_with_session(
     code_token_unsigned = OAuthCode.decode_unsigned(raw_code_token)
 
     session_id = code_token_unsigned.get_session_id()  # pylint: disable=no-member
-    session = (
-        crud.user_session.get_by_id(db, session_id=session_id) if session_id else None
-    )
+    session = UserSessionsRepository(db).get_by_id(session_id) if session_id else None
     if not session:
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_TOKEN, "Code has not linked to any session!"
@@ -112,7 +115,7 @@ def _verify_and_expire_oauth_code(db: Session, code_token: OAuthCode) -> None:
     """
     Verifies and expires oauth code by query database code.
     """
-    oauth_code = crud.oauth_code.get_by_id(db, code_id=code_token.get_code_id())
+    oauth_code = OAuthCodesRepository(db).get_by_id(code_token.get_code_id())
     if not oauth_code:
         raise ApiErrorException(
             ApiErrorCode.AUTH_INVALID_TOKEN, "No additional information."
