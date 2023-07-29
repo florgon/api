@@ -7,8 +7,8 @@ from fastapi import FastAPI
 from .v1 import include_v1_routers
 
 
-def include_routers(app: FastAPI) -> None:
+def include_routers(_app: FastAPI) -> None:
     """
-    Registers (Including) FastAPI routers for FastAPI app.
+    Includes FastAPI routers onto the app.
     """
-    include_v1_routers(app=app)
+    include_v1_routers(app=_app)

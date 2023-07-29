@@ -1,7 +1,7 @@
 """
     FastAPI v1 routers.
     
-    Provides routers (API methods) for version 1.
+    Provides routers for API version 1.
 """
 
 from fastapi import FastAPI
@@ -15,19 +15,15 @@ from . import (
     session,
     oauth_client,
     oauth,
-    mailings,
-    gift,
-    ext_oauth,
     email,
-    admin,
 )
 
 
-def include_v1_routers(app: FastAPI) -> None:
+def include_v1_routers(_app: FastAPI) -> None:
     """
-    Registers (including) FastAPI routers for FastAPI app.
+    Includes FastAPI routers onto the app.
     """
-    modules = [
+    for module in [
         oauth_client,
         email,
         session,
@@ -35,12 +31,7 @@ def include_v1_routers(app: FastAPI) -> None:
         user,
         utils,
         tokens,
-        ext_oauth,
-        admin,
         user_security,
-        gift,
-        mailings,
         tickets,
-    ]
-    for module in modules:
-        app.include_router(module.router, prefix="/v1")
+    ]:
+        _app.include_router(module.router, prefix="/v1")

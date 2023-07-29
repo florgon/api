@@ -19,7 +19,7 @@ from app.database.dependencies import get_repository
 router = APIRouter(
     include_in_schema=True,
     tags=["security", "user"],
-    prefix="/user/secuity",
+    prefix="/user/security",
     default_response_class=JSONResponse,
 )
 

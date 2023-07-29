@@ -14,10 +14,9 @@ from app.database import crud
 
 router = APIRouter(
     include_in_schema=True,
-    tags=["ticket"],
+    tags=["tickets"],
     prefix="/tickets",
     default_response_class=JSONResponse,
-    dependencies=[],
 )
 
 

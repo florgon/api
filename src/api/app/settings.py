@@ -111,19 +111,6 @@ class Settings(BaseSettings):
     auth_oauth_screen_provider_url: str = "https://florgon.com/oauth/authorize"
     # If true will enable 2FA with email when user verifies email.
     auth_enable_tfa_on_email_verification: bool = True
-    # External OAuth.
-    auth_ext_oauth_vk_enabled: bool = False
-    auth_ext_oauth_vk_client_id: str = ""
-    auth_ext_oauth_vk_client_secret: str = ""
-    auth_ext_oauth_vk_redirect_uri: str = "/oauth/ext/vk/callback"
-    auth_ext_oauth_github_enabled: bool = False
-    auth_ext_oauth_github_client_id: str = ""
-    auth_ext_oauth_github_client_secret: str = ""
-    auth_ext_oauth_github_redirect_uri: str = "/oauth/ext/github/callback"
-    auth_ext_oauth_yandex_enabled: bool = False
-    auth_ext_oauth_yandex_client_id: str = ""
-    auth_ext_oauth_yandex_client_secret: str = ""
-    auth_ext_oauth_yandex_redirect_uri: str = "/oauth/ext/yandex/callback"
 
     # Admin.
     admin_methods_disabled: bool = False
