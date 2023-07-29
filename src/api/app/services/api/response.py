@@ -18,7 +18,7 @@ def api_error(
     """Returns API error response."""
 
     data = data or {}
-    headers = data or {}
+    headers = headers or {}
     code, status = api_code.value
 
     return JSONResponse(
