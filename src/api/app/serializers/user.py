@@ -67,6 +67,16 @@ def serialize(
     return serialized if in_list else {"user": serialized}
 
 
+def serialize_user_security(user: User) -> dict[str, Any]:
+    return {
+        "tfa": {
+            "enabled": user.security_tfa_enabled,
+            "can_enabled": user.is_verified,
+            "device_type": "email" if user.security_tfa_enabled else None,
+        }
+    }
+
+
 def serialize_list(
     users: list[User],
     *,

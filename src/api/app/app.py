@@ -68,6 +68,18 @@ def _construct_app() -> FastAPI:
                 "name": "user",
                 "description": "Methods to get / edit user information or get other user information",
             },
+            {
+                "name": "utils",
+                "description": "Some common utility methods like get status, get features, etc",
+            },
+            {
+                "name": "security",
+                "description": "Methods to work with user security information.",
+            },
+            {
+                "name": "tokens",
+                "description": "Methods to work with tokens mostly for external services",
+            },
         ],
         # Other.
         root_path=settings.fastapi_root_path,

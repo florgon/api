@@ -8,10 +8,11 @@ from fastapi import FastAPI
 
 from . import (
     utils,
+    user_security,
     user,
+    tokens,
     session,
-    security,
-    secure,
+    offers,
     oauth_client,
     oauth,
     mailings,
@@ -19,7 +20,6 @@ from . import (
     ext_oauth,
     email,
     admin,
-    offers,
 )
 
 
@@ -34,10 +34,10 @@ def include_v1_routers(app: FastAPI) -> None:
         oauth,
         user,
         utils,
-        secure,
+        tokens,
         ext_oauth,
         admin,
-        security,
+        user_security,
         gift,
         mailings,
         offers,

@@ -24,7 +24,6 @@ router = APIRouter(
 )
 
 
-# TODO: Return back cache or rate limiter.
 @router.get("/")
 async def info(
     auth_data: AuthData = Depends(AuthDataDependency()),
@@ -34,6 +33,7 @@ async def info(
 
     Email and phone will be only returned if there is email or phone permission for token.
     """
+    # TODO: Return back cache or rate limiter.
     has_access_to_email = Permission.email in auth_data.permissions
     has_access_to_phone = Permission.phone in auth_data.permissions
     return api_success(
@@ -48,7 +48,6 @@ async def info(
     )
 
 
-# TODO: Return back cache.
 @router.get("/profile", dependencies=[Depends(RateLimiter(times=3, seconds=1))])
 async def profile(
     profile: User = Depends(get_profile_with_access),
@@ -57,6 +56,7 @@ async def profile(
     Returns public information about the user (their profile) by username
     if their privacy settings allows access for you.
     """
+    # TODO: Return back cache.
     return api_success(
         serialize_user(
             profile,

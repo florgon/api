@@ -133,7 +133,7 @@ def validate_signup_fields(db: Session, model: SignupModel) -> None:
     validate_username_field(db, model.username, check_is_taken=True)
     validate_password_field(model.password)
     validate_email_field(db, settings, model.email, check_is_taken=True)
-    validate_phone_number_field(db, phone_number=model.phone_number)
+    validate_phone_number_field(db=db, phone_number=model.phone_number)
 
 
 def validate_signin_fields(user: User | None = None, password: str = "") -> User:
@@ -211,7 +211,7 @@ def validate_profile_website_field(website: str) -> None:
         )
 
 
-def validate_phone_number_field(db: Session, phone_number: str) -> None:
+def validate_phone_number_field(phone_number: str, db: Session | None = None) -> None:
     """
     Validates phone_number, then normailize it and validates normalized phone_number.
     Raises API error if phone_number is invalid.
@@ -231,7 +231,9 @@ def validate_phone_number_field(db: Session, phone_number: str) -> None:
             "Phone number should contain more than 10 digits and less then 14 digits!",
         )
 
-    if crud.user.phone_number_is_taken(db=db, phone_number=phone_number):
+    if db is not None and crud.user.phone_number_is_taken(
+        db=db, phone_number=phone_number
+    ):
         raise ApiErrorException(
             ApiErrorCode.API_INVALID_REQUEST, "Phone number is already taken!"
         )

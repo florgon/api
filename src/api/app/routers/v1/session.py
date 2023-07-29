@@ -46,8 +46,8 @@ async def info(
     Fetch information about session token alongside with user associated to the session.
 
     Should be only used for checking out that session token is valid one or get basic information about user (for re-authentication after).
-    ?TODO: Checkout / migrate on the check session token method?
     """
+    # ?TODO: Checkout / migrate on the check session token method?
     return api_success(
         {
             **serialize_user(auth_data.user),
