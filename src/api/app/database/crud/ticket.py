@@ -45,7 +45,7 @@ def get_all(db: Session) -> list[Ticket]:
     return db.query(Ticket).all()
 
 
-def get_by_id(db: Session, id: int) -> OffTicketer | None:
+def get_by_id(db: Session, id: int) -> Ticket | None:
     """
     Returns single ticket by id or None if ticket is not found.
     """
