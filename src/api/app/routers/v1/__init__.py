@@ -19,3 +19,4 @@ def include_v1_routers(_app: FastAPI) -> None:
         router.include_router(
             module.router,
         )
+    _app.include_router(router)
