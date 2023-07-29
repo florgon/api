@@ -11,4 +11,4 @@ def include_routers(_app: FastAPI) -> None:
     """
     Includes FastAPI routers onto the app.
     """
-    include_v1_routers(app=_app)
+    include_v1_routers(_app=_app)
