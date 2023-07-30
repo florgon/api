@@ -8,16 +8,12 @@ from fastapi import FastAPI
 from app.services import limiter
 
 from .prometheus import prometheus_metrics_on_startup
-from .cache import fastapi_cache_on_startup
 
 
 def add_event_handlers(_app: FastAPI) -> None:
     """
     Registers all custom event handlers to the FastAPI application.
     """
-
-    # Cache.
-    _app.add_event_handler("startup", fastapi_cache_on_startup)
 
     # Limiter.
     _app.add_event_handler("startup", limiter.on_startup)

@@ -5,7 +5,6 @@
 import time
 
 from sqlalchemy.orm import Session
-from fastapi_cache import FastAPICache
 from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
 from app.services.request.auth import AuthDataDependency, AuthData
@@ -194,7 +193,6 @@ async def method_oauth_client_update(
 
     if is_updated:
         db.commit()
-        await FastAPICache.clear("routers_oauth_clients_getter")
 
     return api_success(
         {
