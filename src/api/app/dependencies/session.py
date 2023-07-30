@@ -12,7 +12,7 @@ from app.services.tfa import validate_user_tfa_otp_from_request, generate_tfa_ot
 from app.services.request.signup_host_allowance import validate_signup_host_allowance
 from app.services.limiter.depends import RateLimiter
 from app.services.limiter import extended_default_identifier
-from app.services import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.schemas.session import SignupModel, SigninModel
 from app.email import messages as email_messages
 from app.database.repositories.users import UsersRepository, User
