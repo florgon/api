@@ -12,14 +12,12 @@ from app.services.tokens.exceptions import (
     TokenInvalidError,
     TokenExpiredError,
 )
-from app.services.api.errors import ApiErrorException
+from app.services.api import ApiErrorException
 
 from . import handlers
 
 # Binds exception or status code to the handler.
-EXCEPTION_MAPPING: dict[
-    int | BaseException, Callable[..., Response]
-] = {  # Status codes.
+EXCEPTION_MAPPING: dict[Any, Callable[[Any, Any], Response]] = {  # Status codes.
     404: handlers.not_found_handler,
     405: handlers.method_not_allowed,
     429: handlers.too_many_requests_handler,
@@ -30,9 +28,9 @@ EXCEPTION_MAPPING: dict[
     TokenWrongTypeError: handlers.token_wrong_type_error_handler,
     TokenExpiredError: handlers.token_expired_error_handler,
     # FastAPI handlers.
-    RequestValidationError: handlers.validation_exception_handler,
+    RequestValidationError: handlers.validation_exception_handler,  # type: ignore
     # Service utils.
-    ApiErrorException: handlers.api_error_exception_handler,
+    ApiErrorException: handlers.api_error_exception_handler,  # type: ignore
 }
 
 

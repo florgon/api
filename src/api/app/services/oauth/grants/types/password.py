@@ -3,16 +3,13 @@
     Resolves password grant.
 """
 
-from app.config import Settings
+from app.services.api import api_error, ApiErrorCode
+from app.schemas.oauth import ResolveGrantModel
 from app.database.dependencies import Session
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
-from fastapi import Request
+from app.config import Settings
 
 
-def oauth_password_grant(
-    req: Request, client_id: int, client_secret: str, db: Session, settings: Settings
-):
+def oauth_password_grant(model: ResolveGrantModel, db: Session, settings: Settings):
     """Resolves password grant."""
     return api_error(
         ApiErrorCode.API_NOT_IMPLEMENTED,

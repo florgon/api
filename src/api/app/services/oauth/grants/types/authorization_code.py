@@ -7,14 +7,14 @@ from dataclasses import dataclass
 
 from fastapi.responses import JSONResponse
 from app.services.tokens import RefreshToken, OAuthCode, AccessToken
-from app.services.permissions import (
+from app.services.oauth.permissions import (
     permissions_get_ttl,
     parse_permissions_from_scope,
     normalize_scope,
     Permission,
 )
-from app.services.api.response import api_success
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import api_success, ApiErrorException, ApiErrorCode
+from app.schemas.oauth import ResolveGrantModel
 from app.database.repositories import (
     UsersRepository,
     UserSessionsRepository,
@@ -43,9 +43,9 @@ def _verify_oauth_client_secret(
     """
     Checks that oauth client is valid for that client secret.
     """
-    oauth_client = OAuthClientsRepository(db).get_by_id(client_id)
+    oauth_client = OAuthClientsRepository(db).get_by_id(client_id, is_active=True)
 
-    if not oauth_client or not oauth_client.is_active:
+    if not oauth_client:
         raise ApiErrorException(
             ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
             "OAuth client not found or deactivated!",
@@ -189,20 +189,27 @@ def encode_tokens_pair(
 
 
 def oauth_authorization_code_grant(
-    raw_code_token: str,
-    redirect_uri: str,
-    client_id: int,
-    client_secret: str,
+    model: ResolveGrantModel,
     db: Session,
     settings: Settings,
 ) -> JSONResponse:
     """OAuth authorization code grant type."""
+    if not model.code:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`code` required for `authorization_code` grant type!",
+        )
+    if not model.redirect_uri:
+        raise ApiErrorException(
+            ApiErrorCode.API_INVALID_REQUEST,
+            "`redirect_uri` required for `authorization_code` grant type!",
+        )
     code_token, session, user = _query_user_data_from_raw_code_token(
         db=db,
-        raw_code_token=raw_code_token,
-        redirect_uri=redirect_uri,
-        client_id=client_id,
-        client_secret=client_secret,
+        raw_code_token=model.code,
+        redirect_uri=model.redirect_uri,
+        client_id=model.client_id,
+        client_secret=model.client_secret,
     )
 
     tokens_pair = encode_tokens_pair(code_token, session, user, settings)

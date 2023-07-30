@@ -3,16 +3,15 @@
 """
 
 from fastapi.responses import JSONResponse
-from fastapi import Request
 from app.services.tokens import RefreshToken, AccessToken
-from app.services.permissions import (
+from app.services.oauth.permissions import (
     permissions_get_ttl,
     parse_permissions_from_scope,
     normalize_scope,
     Permission,
 )
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode
+from app.services.api import api_success, api_error, ApiErrorCode
+from app.schemas.oauth import ResolveGrantModel
 from app.database.repositories import (
     UsersRepository,
     UserSessionsRepository,
@@ -23,10 +22,10 @@ from app.config import Settings
 
 
 def oauth_refresh_token_grant(
-    req: Request, client_id: int, client_secret: str, db: Session, settings: Settings
+    model: ResolveGrantModel, db: Session, settings: Settings
 ) -> JSONResponse:
     """OAuth refresh token grant type."""
-    refresh_token = req.query_params.get("refresh_token", None)
+    refresh_token = model.refresh_token
     if not refresh_token:
         return api_error(
             ApiErrorCode.API_INVALID_REQUEST,
@@ -35,7 +34,7 @@ def oauth_refresh_token_grant(
 
     refresh_token_unsigned = RefreshToken.decode_unsigned(refresh_token)
 
-    session_id = refresh_token_unsigned.get_session_id()  # pylint: disable=no-member
+    session_id = refresh_token_unsigned.get_session_id()
     session = UserSessionsRepository(db).get_by_id(session_id) if session_id else None
     if not session:
         return api_error(
@@ -45,23 +44,21 @@ def oauth_refresh_token_grant(
 
     refresh_token_signed = RefreshToken.decode(refresh_token, key=session.token_secret)  # type: ignore
 
-    if client_id != refresh_token_signed.get_client_id():  # pylint: disable=no-member
+    if model.client_id != refresh_token_signed.get_client_id():
         return api_error(
             ApiErrorCode.OAUTH_CLIENT_ID_MISMATCH,
             "Given refresh token was obtained with different client!",
         )
 
-    # Query OAuth client.
-    oauth_client = OAuthClientsRepository(db).get_by_id(client_id)
+    oauth_client = OAuthClientsRepository(db).get_by_id(model.client_id, is_active=True)
 
-    # Verification for OAuth client.
-    if not oauth_client or not oauth_client.is_active:
+    if not oauth_client:
         return api_error(
             ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
-            "OAuth client not found or deactivated!",
+            "OAuth client not found, deactivated!",
         )
 
-    if oauth_client.secret != client_secret:
+    if oauth_client.secret != model.client_secret:
         return api_error(
             ApiErrorCode.OAUTH_CLIENT_SECRET_MISMATCH,
             "Invalid client_secret! Please review secret, or generate new secret.",

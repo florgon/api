@@ -13,8 +13,8 @@ from fastapi import Depends
 from app.services.tokens import SessionToken, BaseToken, AccessToken
 from app.services.request.session_check_client import session_check_client_by_request
 from app.services.request.auth_data import AuthData
-from app.services.permissions import parse_permissions_from_scope, Permission
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.oauth.permissions import parse_permissions_from_scope, Permission
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.database.repositories import UsersRepository, UserSessionsRepository
 from app.database.models.user_session import UserSession
 from app.database.dependencies import get_db

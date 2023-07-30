@@ -10,7 +10,7 @@ from app.services.tokens.exceptions import (
     TokenExpiredError,
 )
 from app.services.tokens import EmailToken
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.config import get_settings
 
 # TODO: Allow specify URL for email confirmation.

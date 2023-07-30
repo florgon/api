@@ -7,10 +7,9 @@ from fastapi.responses import JSONResponse
 from fastapi import Depends, BackgroundTasks, APIRouter
 from app.services.verification import decode_email_token
 from app.services.request import AuthDataDependency, AuthData
-from app.services.permissions import Permission
+from app.services.oauth.permissions import Permission
 from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode
+from app.services.api import api_success, api_error, ApiErrorCode
 from app.email import messages
 from app.database.repositories import UsersRepository
 from app.database.dependencies import get_db, Session

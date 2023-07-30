@@ -6,7 +6,7 @@
 from sqlalchemy.orm import Session
 from fastapi import Request
 from app.services.request.get_from_request import get_client_host_from_request
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.database.repositories import UserSessionsRepository
 from app.config import get_settings
 

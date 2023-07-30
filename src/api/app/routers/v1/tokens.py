@@ -11,7 +11,7 @@ from app.services.request.auth import (
     parse_permissions_from_scope,
     AccessToken,
 )
-from app.services.api.response import api_success
+from app.services.api import api_success
 from app.database.dependencies import get_db, Session
 
 router = APIRouter(

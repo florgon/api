@@ -1,6 +1,6 @@
 from fastapi import Request, Depends
 from app.services.request.auth import try_query_auth_data_from_request
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.database.repositories.users import UsersRepository, User
 from app.database.dependencies import get_repository
 

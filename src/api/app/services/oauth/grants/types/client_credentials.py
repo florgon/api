@@ -3,15 +3,14 @@
     Resolves client credentials grant.
 """
 
-from app.config import Settings
+from app.services.api import api_error, ApiErrorCode
+from app.schemas.oauth import ResolveGrantModel
 from app.database.dependencies import Session
-from app.services.api.errors import ApiErrorCode
-from app.services.api.response import api_error
-from fastapi import Request
+from app.config import Settings
 
 
 def oauth_client_credentials_grant(
-    req: Request, client_id: int, client_secret: str, db: Session, settings: Settings
+    model: ResolveGrantModel, db: Session, settings: Settings
 ):
     """Resolves client credentials grant."""
     return api_error(

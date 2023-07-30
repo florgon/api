@@ -9,7 +9,7 @@ from app.services.request.get_from_request import (
     get_user_agent_from_request,
     get_client_host_from_request,
 )
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.database.repositories import UserAgentsRepository
 from app.database.models.user_session import UserSession
 from app.config import get_settings

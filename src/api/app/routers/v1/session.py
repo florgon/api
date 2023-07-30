@@ -21,8 +21,7 @@ from app.services.session import publish_new_session_with_token
 from app.services.request.direct_auth import check_direct_auth_is_allowed
 from app.services.request import AuthDataDependency, AuthData
 from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode
+from app.services.api import api_success, api_error, ApiErrorCode
 from app.serializers.user import serialize_user
 from app.schemas.session import LogoutModel, AuthModel
 from app.dependencies.session import get_valid_signup_user, get_valid_signin_user, User

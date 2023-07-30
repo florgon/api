@@ -3,10 +3,10 @@
     See more OAuth specifications about.
 """
 
-from .grant_types.authorization_code import oauth_authorization_code_grant
-from .grant_types.client_credentials import oauth_client_credentials_grant
-from .grant_types.password import oauth_password_grant
-from .grant_types.refresh_token import oauth_refresh_token_grant
+from .types.refresh_token import oauth_refresh_token_grant
+from .types.password import oauth_password_grant
+from .types.client_credentials import oauth_client_credentials_grant
+from .types.authorization_code import oauth_authorization_code_grant
 from .resolve_grant import resolve_grant
 
 __all__ = [

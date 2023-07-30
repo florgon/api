@@ -7,7 +7,7 @@ from time import time
 
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
-from app.services.api.response import api_success
+from app.services.api import api_success
 from app.schemas.features import FeaturesModel
 
 router = APIRouter(

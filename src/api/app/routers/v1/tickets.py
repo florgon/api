@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
 from app.services.request.auth import try_query_auth_data_from_request
 from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success
+from app.services.api import api_success
 from app.serializers.ticket import serialize_ticket
 from app.schemas.tickets import TicketModel
 from app.database.repositories import TicketsRepository

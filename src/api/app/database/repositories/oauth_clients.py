@@ -46,6 +46,15 @@ class OAuthClientsRepository(BaseRepository):
         client.secret = self.generate_secret()  # type: ignore
         self.finish(client)
 
-    def get_by_id(self, client_id: int) -> OAuthClient | None:
+    def get_by_id(
+        self, client_id: int, *, is_active: bool | None = None
+    ) -> OAuthClient | None:
         """Returns client by it ID."""
-        return self.db.query(OAuthClient).filter(OAuthClient.id == client_id).first()
+        query = self.db.query(OAuthClient)
+        query = query.filter(OAuthClient.id == client_id)
+        query = (
+            query.filter(OAuthClient.is_active == is_active)
+            if is_active is not None
+            else query
+        )
+        return query.first()

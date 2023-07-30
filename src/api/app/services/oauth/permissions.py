@@ -32,34 +32,11 @@ class Permission(Enum):
     ads = "ads"
 
 
-def __scope_to_permission_code(scope: str):
+def scopes_is_same(a: str, b: str) -> bool:
     """
-    TBD. Not documented and not used.
+    Checks that two scopes is same by parsing them.
     """
-    if not isinstance(scope, str):
-        raise TypeError("Scope must be a string!")
-    permissions = parse_permissions_from_scope(scope)
-    return "".join(
-        [
-            "1" if permission in permissions else "0"
-            for permission in __CODE_PERMISSIONS_ORDER
-        ]
-    )
-
-
-def __parse_permissions_from_code(code: str) -> set[Permission]:
-    """
-    TBD. Not documented and not used.
-    """
-    if not isinstance(code, str):
-        raise TypeError("Code must be a string!")
-    permissions = []
-    for code_bit_index, code_bit in enumerate(code):
-        if code_bit != "1":
-            continue
-        code_bit_permission = __CODE_PERMISSIONS_ORDER[code_bit_index]
-        permissions.append(code_bit_permission)
-    return set(permissions)
+    return parse_permissions_from_scope(a) == parse_permissions_from_scope(b)
 
 
 def normalize_scope(scope: str) -> str:
@@ -94,22 +71,6 @@ def permissions_get_ttl(permissions: set[Permission], default_ttl: int) -> int:
     """
     return 0 if Permission.noexpire in permissions else default_ttl
 
-
-# TBD. Not documented and not used.
-__CODE_PERMISSIONS_ORDER = [
-    Permission.email,
-    Permission.edit,
-    Permission.sessions,
-    Permission.noexpire,
-    Permission.oauth_clients,
-    Permission.admin,
-    Permission.security,
-    Permission.gatey,
-    Permission.ads,
-    Permission.messenger,
-    Permission.cc,
-    Permission.phone,
-]
 
 # String tags, for separator and modificator that gives all permissions.
 SCOPE_PERMISSION_GRANT_ALL_TAG = "*"

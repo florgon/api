@@ -5,7 +5,7 @@ import re
 
 from validate_email import validate_email
 from app.services.passwords import check_password
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 from app.schemas.session import SignupModel
 from app.database.repositories import UsersRepository
 from app.database.models.user import User

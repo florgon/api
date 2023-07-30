@@ -3,7 +3,7 @@
 """
 
 from app.services.tokens import BaseToken, AccessToken
-from app.services.permissions import parse_permissions_from_scope, Permission
+from app.services.oauth.permissions import parse_permissions_from_scope, Permission
 from app.database.models.user_session import UserSession
 from app.database.models.user import User
 

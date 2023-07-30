@@ -7,7 +7,7 @@
 from fastapi.responses import JSONResponse
 from fastapi import Depends, APIRouter
 from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success
+from app.services.api import api_success
 from app.serializers.user import serialize_user
 from app.dependencies.user import get_profile_with_access, User
 

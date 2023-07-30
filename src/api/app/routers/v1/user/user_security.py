@@ -8,9 +8,9 @@
 from fastapi.responses import JSONResponse
 from fastapi import Depends, APIRouter
 from app.services.request import AuthDataDependency, AuthData
-from app.services.permissions import Permission
+from app.services.oauth.permissions import Permission
 from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success
+from app.services.api import api_success
 from app.serializers.user import serialize_user_security
 from app.serializers.session import serialize_sessions
 from app.database.repositories import UserSessionsRepository

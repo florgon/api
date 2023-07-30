@@ -10,11 +10,10 @@ from fastapi.responses import JSONResponse
 from fastapi import Request, Depends, APIRouter
 from app.services.request.auth import AuthDataDependency, AuthData
 from app.services.request import query_auth_data_from_request
-from app.services.permissions import parse_permissions_from_scope, Permission
-from app.services.oauth_client import query_oauth_client
+from app.services.oauth.permissions import scopes_is_same, Permission
+from app.services.oauth import query_oauth_client
 from app.services.limiter.depends import RateLimiter
-from app.services.api.response import api_success, api_error
-from app.services.api.errors import ApiErrorCode
+from app.services.api import api_success, api_error, ApiErrorCode
 from app.serializers.oauth_client import serialize_oauth_clients, serialize_oauth_client
 from app.database.repositories import (
     OAuthClientUserRepository,
@@ -128,8 +127,8 @@ async def get_client(
     auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client data."""
-    oauth_client = repo.get_by_id(client_id)
-    if not oauth_client or not oauth_client.is_active:
+    oauth_client = repo.get_by_id(client_id, is_active=True)
+    if not oauth_client:
         return api_error(
             ApiErrorCode.OAUTH_CLIENT_NOT_FOUND,
             "OAuth client not found or deactivated!",
@@ -147,8 +146,7 @@ async def get_client(
         )  # type: ignore
         response |= {
             "is_linked": oauth_client_user is not None
-            and parse_permissions_from_scope(oauth_client_user.requested_scope)  # type: ignore
-            == parse_permissions_from_scope(scope),
+            and scopes_is_same(scope, oauth_client_user.requested_scope)
         }
 
     return api_success(response)
@@ -157,8 +155,6 @@ async def get_client(
 @router.post("/secret/refresh")
 async def method_oauth_client_expire_secret(
     client_id: int,
-    req: Request,
-    db: Session = Depends(get_db),
     repo: OAuthClientsRepository = Depends(get_repository(OAuthClientsRepository)),
     auth_data: AuthData = Depends(
         AuthDataDependency(

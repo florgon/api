@@ -3,7 +3,7 @@
 """
 
 from fastapi import Request
-from app.services.api.errors import ApiErrorException, ApiErrorCode
+from app.services.api import ApiErrorException, ApiErrorCode
 
 
 def check_direct_auth_is_allowed(request: Request) -> None:
