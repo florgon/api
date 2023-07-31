@@ -123,7 +123,6 @@ async def get_client(
     scope: str = "",
     db: Session = Depends(get_db),
     repo: OAuthClientsRepository = Depends(get_repository(OAuthClientsRepository)),
-    auth_data: AuthData = Depends(AuthDataDependency()),
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client data."""
     oauth_client = repo.get_by_id(client_id, is_active=True)
