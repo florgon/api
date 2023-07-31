@@ -22,7 +22,7 @@ from app.database.repositories import (
 from app.database.dependencies import get_db, Session
 from app.config import get_settings, Settings
 
-router = APIRouter(prefix="/oauth")
+router = APIRouter()
 
 
 @router.get("/authorize", deprecated=True)
