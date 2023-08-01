@@ -1,7 +1,9 @@
 """
     User schemas.
 """
-from pydantic import Field, BaseModel, AnyHttpUrl
+from pydantic import Field, BaseModel
+
+from .urls import ProhibitedUploadHttpUrl
 
 
 class UpdateModel(BaseModel):
@@ -13,7 +15,7 @@ class UpdateModel(BaseModel):
     privacy_profile_public: bool | None = None
     privacy_profile_require_auth: bool | None = None
 
-    profile_website: AnyHttpUrl | None = None
+    profile_website: ProhibitedUploadHttpUrl | None = None
 
     first_name: str | None = Field(default=None, max_length=21)
     last_name: str | None = Field(default=None, max_length=21)
