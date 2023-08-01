@@ -25,10 +25,6 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         return self.environment == Environment.development
 
-    # Prometheus.
-    # TODO: More configuration.
-    prometheus_metrics_exposed: bool = False
-
     # CORS.
     cors_enabled: bool = True
     cors_allow_credentials: bool = True
