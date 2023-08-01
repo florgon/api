@@ -1,12 +1,23 @@
 """
-    Base core class for settings from the environment.
+    Provides base core settings from the environment.
 """
 
 from functools import lru_cache
+from enum import Enum
 
 from pydantic import RedisDsn, BaseSettings
 
-from .environment import Environment
+
+class Environment(Enum):
+    """
+    Switches behaviour of the application according to the environment.
+
+    Development -> Usable for development process where you are not supposed to do significant internal checks.
+    Production -> Usable for real deployed version, should not be used inside development environment.
+    """
+
+    development = "development"
+    production = "production"
 
 
 class Settings(BaseSettings):
@@ -16,9 +27,9 @@ class Settings(BaseSettings):
 
     Information about the configuration is not provided here,
     please see the documentation for more configuration information.
+    TODO: Refactor with split settings.
     """
 
-    # TODO: refactor
     environment: Environment = Environment.production
 
     @property

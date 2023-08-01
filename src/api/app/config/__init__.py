@@ -1,31 +1,39 @@
 """
-    Configuration stuff (Environment settings, etc).
-    
-    For more information read configuration documentation.
-    (CONFIGURATION.md)
+    Configuration stuff (Environment settings, hooks).
 """
 
-# Weird stuff, but order here is important (and isort will not take into account your wishes)
-from .settings import get_settings, Settings  # isort:skip
-from .database import get_database_settings, DatabaseSettings  # isort:skip
-from .mail import get_mail_settings, MailSettings, get_mail  # isort:skip
-from .logging import get_logging_settings, get_logger, LoggingSettings  # isort:skip
-from .gatey import get_gatey_client, get_gatey_settings, GateySettings  # isort:skip
-from .openapi import get_openapi_kwargs  # isort:skip
+
+from .environment import *
+from .dependency_overrides import DEPENDENCY_OVERRIDES
+
+
+def get_app_kwargs() -> dict:
+    """
+    Returns FastAPI kwargs.
+    """
+    from .exceptions import EXCEPTION_HANDLERS
+    from .event_handlers import STARTUP_HANDLERS, SHUTDOWN_HANDLERS
+
+    return {
+        "debug": get_settings().is_development,
+        "on_startup": STARTUP_HANDLERS,
+        "on_shutdown": SHUTDOWN_HANDLERS,
+        "exception_handlers": EXCEPTION_HANDLERS,
+        **get_openapi_kwargs(),
+    }
+
 
 __all__ = [
-    "DatabaseSettings",
     "get_database_settings",
-    "MailSettings",
     "get_mail_settings",
     "get_mail",
     "Settings",
     "get_settings",
-    "LoggingSettings",
     "get_logging_settings",
     "get_logger",
-    "GateySettings",
     "get_gatey_client",
     "get_gatey_settings",
     "get_openapi_kwargs",
+    "get_app_kwargs",
+    "DEPENDENCY_OVERRIDES",
 ]

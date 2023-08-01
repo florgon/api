@@ -5,7 +5,7 @@
 from gatey_sdk.integrations.starlette import GateyStarletteMiddleware
 from fastapi import FastAPI
 from app.config.logging import get_logger
-from app.config.gatey import get_gatey_settings, get_gatey_client
+from app.config import get_gatey_settings, get_gatey_client
 
 
 def add_gatey_middleware(_app: FastAPI) -> None:

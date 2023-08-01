@@ -43,7 +43,6 @@ def get_openapi_kwargs() -> dict[str, Any]:
         "docs_url": settings.docs_url if settings.expose_public else None,
         "redoc_url": settings.redoc_url if settings.expose_public else None,
         "openapi_url": settings.url if settings.expose_public else None,
-        "openapi_prefix": settings.prefix,
         "title": __title__,
         "version": __version__,
         "description": __description__,

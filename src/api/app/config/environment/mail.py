@@ -13,8 +13,7 @@ from aiosmtplib.smtp import (
     DEFAULT_TIMEOUT,
 )
 
-from .settings import get_settings
-from .environment import Environment
+from .settings import get_settings, Environment
 
 
 class MailSettings(BaseSettings):

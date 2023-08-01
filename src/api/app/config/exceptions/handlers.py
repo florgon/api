@@ -1,9 +1,5 @@
 """
     Exception handlers as functions.
-    
-    Handler is a function 
-    that called when there as an exception 
-    and should return response.
 """
 
 from fastapi.exceptions import RequestValidationError
@@ -23,7 +19,7 @@ async def validation_exception_handler(
     missing_fields = []
     type_error_fields = []
     unhandled_errors = []
-    additional_data = {}
+    additional_data: dict[str, list] = {}
     for error in exception.errors():
         match error["type"]:
             case "value_error.missing":

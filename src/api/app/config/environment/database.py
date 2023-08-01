@@ -13,6 +13,7 @@ from pydantic import BaseSettings
 class DatabaseSettings(BaseSettings):
     """
     Configuration for the database (PostgreSQL).
+    ?TODO?: Introduce more settings over database.
     """
 
     name: str = "database"
