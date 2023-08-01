@@ -27,7 +27,7 @@ router = APIRouter()
 
 @router.get("/authorize", deprecated=True)
 async def oauth_authorize(
-    model: AuthorizeModel,
+    model: AuthorizeModel = Depends(),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse | RedirectResponse:
@@ -46,11 +46,13 @@ async def oauth_authorize(
 
 @router.get("/accessToken", name="resolve_grant")
 async def resolve_grant_from_request(
-    model: ResolveGrantModel,
+    model: ResolveGrantModel = Depends(),
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """Resolves grant to access token."""
+    """
+    Resolves grant to access token.
+    """
 
     return await resolve_grant(
         model=model,
@@ -61,7 +63,7 @@ async def resolve_grant_from_request(
 
 @router.get("/allowClient")
 async def oauth_allow_client(
-    model: AllowClientModel,
+    model: AllowClientModel = Depends(),
     auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
     db: Session = Depends(get_db),
 ) -> JSONResponse:

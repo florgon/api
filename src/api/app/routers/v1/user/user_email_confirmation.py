@@ -12,7 +12,7 @@ from app.services.limiter.depends import RateLimiter
 from app.services.api import api_success, api_error, ApiErrorCode
 from app.email import messages
 from app.database.repositories import UsersRepository
-from app.database.dependencies import get_db, Session
+from app.database.dependencies import get_repository
 
 router = APIRouter(prefix="/email/confirmation", tags=["email"])
 
@@ -21,12 +21,12 @@ router = APIRouter(prefix="/email/confirmation", tags=["email"])
 async def finish_confirmation(
     email_token: str,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
+    repo: UsersRepository = Depends(get_repository(UsersRepository)),
 ) -> JSONResponse:
     """
     Finish email confirmation process by checking confirmation token from the email.
     """
-    repo = UsersRepository(db)
+
     user = repo.get_user_by_id(decode_email_token(email_token).get_subject())
     if not user or user.is_verified:
         return api_error(
