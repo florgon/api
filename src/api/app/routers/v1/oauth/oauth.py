@@ -19,7 +19,7 @@ from app.database.repositories import (
     OAuthClientUserRepository,
     OAuthClientUseRepository,
 )
-from app.database.dependencies import get_db, Session
+from app.database.dependencies import Session
 from app.config import get_settings, Settings
 
 router = APIRouter()
@@ -28,7 +28,7 @@ router = APIRouter()
 @router.get("/authorize", deprecated=True)
 async def oauth_authorize(
     model: AuthorizeModel = Depends(),
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse | RedirectResponse:
     """Redirects to authorization screen."""
@@ -47,7 +47,7 @@ async def oauth_authorize(
 @router.get("/accessToken", name="resolve_grant")
 async def resolve_grant_from_request(
     model: ResolveGrantModel = Depends(),
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """
@@ -65,7 +65,7 @@ async def resolve_grant_from_request(
 async def oauth_allow_client(
     model: AllowClientModel = Depends(),
     auth_data: AuthData = Depends(AuthDataDependency(only_session_token=True)),
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
 ) -> JSONResponse:
     """
     Allows access for specified client,

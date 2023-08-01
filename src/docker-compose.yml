@@ -91,7 +91,7 @@ services:
     build:
       context: ./
       dockerfile: $PWD/Dockerfile
-    command: gunicorn app.app:app -c gunicorn.conf.py
+    command: "gunicorn 'app.app:create_application()' -c gunicorn.conf.py"
 
 networks:
   florgon-api:

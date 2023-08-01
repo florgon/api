@@ -1,8 +1,5 @@
 """
     Database models CRUD repositores.
-    
-    !TODO!: This architecture of CRUD repositores is pretty weird, complicated and bad:
-    There is some way of reordering that.
 """
 
 from .users import UsersRepository

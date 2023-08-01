@@ -26,7 +26,7 @@ from app.serializers.user import serialize_user
 from app.schemas.session import LogoutModel, AuthModel
 from app.dependencies.session import get_valid_signup_user, get_valid_signin_user, User
 from app.database.repositories import UserSessionsRepository
-from app.database.dependencies import get_repository, get_db, Session
+from app.database.dependencies import get_repository, Session
 
 router = APIRouter(
     include_in_schema=True,
@@ -87,7 +87,7 @@ async def logout(
 @router.post("/signup", dependencies=[Depends(RateLimiter(times=3, hours=12))])
 async def signup(
     req: Request,
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
     user: User = Depends(get_valid_signup_user),
 ) -> JSONResponse:
     """
@@ -101,7 +101,7 @@ async def signup(
 @router.post("/signin", dependencies=[Depends(RateLimiter(times=3, seconds=5))])
 async def signin(
     req: Request,
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
     user: User = Depends(get_valid_signin_user),
 ) -> JSONResponse:
     """

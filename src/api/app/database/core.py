@@ -8,17 +8,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy import create_engine, MetaData
-from app.config import get_settings, get_logger
+from app.config import get_logger, get_database_settings
 
-settings = get_settings()
 engine = create_engine(
-    url=settings.database_dsn,
-    pool_size=settings.database_pool_size,
-    max_overflow=settings.database_max_overflow,
-    pool_timeout=settings.database_pool_timeout,
-    pool_recycle=settings.database_pool_recycle,
+    **get_database_settings().orm_engine_kwargs,
     poolclass=QueuePool,
-    pool_pre_ping=True,
 )
 metadata = MetaData(bind=engine)
 Base: type = declarative_base(metadata=metadata)
@@ -33,6 +27,8 @@ def create_all() -> None:
     Currently there is only ORM metadata builder.
     !TODO: Migrations with alembic.
     """
+    if not get_database_settings().orm_create_all:
+        return
     try:
         metadata.create_all(bind=engine)
     except (IntegrityError, OperationalError) as e:

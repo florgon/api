@@ -12,17 +12,13 @@ from fastapi_mail import MessageType, MessageSchema
 from fastapi import BackgroundTasks
 from app.services.verification import generate_confirmation_link
 from app.database.models.user import User
-from app.config import get_logger
-
-from .config import provider
+from app.config import get_mail, get_logger
 
 
 async def send_custom_email(recepients: list[str], subject: str, body: str) -> None:
     """
     Simple wrapper around provider messaging.
     """
-    if not provider:
-        return
 
     recepients_count = len(recepients)
     get_logger().info(
@@ -35,7 +31,7 @@ async def send_custom_email(recepients: list[str], subject: str, body: str) -> N
         subject=subject, recipients=recepients, body=body, subtype=MessageType.plain
     )
     try:
-        await provider.send_message(schema)
+        await get_mail().send_message(schema)
     except ConnectionErrors as e:
         get_logger().error(f"[email] Failed to send message! Error: {e}")
 

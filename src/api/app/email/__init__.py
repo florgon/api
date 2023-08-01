@@ -2,6 +2,6 @@
     Stuff for working with mail.
 """
 
-from . import messages, config
+from . import messages
 
-__all__ = ["config", "messages"]
+__all__ = ["messages"]

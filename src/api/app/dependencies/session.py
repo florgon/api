@@ -2,7 +2,6 @@ from math import ceil
 from functools import partial
 
 from fastapi import Request, Depends, BackgroundTasks
-from app.settings import Settings
 from app.services.validators.user import (
     validate_signup_fields,
     validate_signin_fields,
@@ -17,7 +16,7 @@ from app.schemas.session import SignupModel, SigninModel
 from app.email import messages as email_messages
 from app.database.repositories.users import UsersRepository, User
 from app.database.dependencies import get_repository
-from app.config import get_settings
+from app.config import get_settings, Settings
 
 
 def _tfa_limiter_callback(request, response, pexpire):

@@ -1,7 +1,12 @@
 """
     Base core class for settings from the environment.
 """
-from pydantic import conint, RedisDsn, PostgresDsn, EmailStr, BaseSettings
+
+from functools import lru_cache
+
+from pydantic import RedisDsn, BaseSettings
+
+from .environment import Environment
 
 
 class Settings(BaseSettings):
@@ -13,33 +18,16 @@ class Settings(BaseSettings):
     please see the documentation for more configuration information.
     """
 
-    # Database.
-    # TODO: More configuration.
-    # ?TODO?: Allow to expose database connection as separate fields.
-    database_dsn: PostgresDsn
-    database_create_all: bool = True
-    database_pool_recycle: int = 3600
-    database_pool_timeout: int = 10
-    database_max_overflow: int = 0
-    database_pool_size: int = 20
+    # TODO: refactor
+    environment: Environment = Environment.production
+
+    @property
+    def is_development(self) -> bool:
+        return self.environment == Environment.development
 
     # Prometheus.
     # TODO: More configuration.
     prometheus_metrics_exposed: bool = False
-
-    # Mail.
-    mail_enabled: bool = False
-    mail_from_name: str | None = None
-    mail_from: EmailStr = "noreply@florgon.com"  # type: ignore
-    mail_server: str = ""
-    mail_password: str = ""
-    mail_username: str = ""
-    mail_port: int = 587
-    mail_starttls: bool = False
-    mail_ssl_tls: bool = True
-    mail_use_credentials: bool = True
-    mail_validate_certs: bool = True
-    mail_debug: conint(gt=-1, lt=2) = 0  # type: ignore
 
     # CORS.
     cors_enabled: bool = True
@@ -55,14 +43,6 @@ class Settings(BaseSettings):
     superuser_password: str = "adminadmin"
     superuser_email: str = "admin@admin.com"
 
-    # Gatey.
-    # TODO: More configuration.
-    gatey_is_enabled: bool = False
-    gatey_project_id: int | None = None
-    gatey_client_secret: str | None = None
-    gatey_server_secret: str | None = None
-    gatey_capture_requests_info: bool = False
-
     # Cache backend (Redis).
     # TODO: More configuration.
     cache_dsn: RedisDsn
@@ -77,19 +57,8 @@ class Settings(BaseSettings):
     fastapi_cache_enable: bool = True
     fastapi_cache_use_inmemory_backend: bool = False
 
-    # OpenAPI.
-    openapi_enabled: bool = False
-    openapi_url: str = "/openapi.json"
-    openapi_docs_url: str = "/docs"
-    openapi_redoc_url: str = "/redoc"
-    openapi_prefix: str = ""
-    openapi_title: str = "Florgon API"
-    openapi_version: str = "0.0.2"
-    openapi_description: str = "Florgon API"
-
     # FastAPI.
     fastapi_debug: bool = False
-    fastapi_root_path: str = ""
 
     # Users.
     # Signup.
@@ -130,10 +99,11 @@ class Settings(BaseSettings):
     security_tfa_totp_interval_email: int = 3600
     security_tfa_totp_interval_mobile: int = 30
 
-    # Logging.
-    # TODO: More configuration.
-    logging_logger_name: str = "gunicorn.error"
-
     # Service.
     # TODO: More configuration.
     service_is_under_maintenance: bool = True
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()  # type: ignore

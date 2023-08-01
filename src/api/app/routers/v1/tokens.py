@@ -12,7 +12,7 @@ from app.services.request.auth import (
     AccessToken,
 )
 from app.services.api import api_success
-from app.database.dependencies import get_db, Session
+from app.database.dependencies import Session
 
 router = APIRouter(
     include_in_schema=True,
@@ -26,7 +26,7 @@ router = APIRouter(
 async def check_access_token(
     access_token: str,
     required_scope: str = "",
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
 ) -> JSONResponse:
     """
     Returns information about given token and requirements from the request.

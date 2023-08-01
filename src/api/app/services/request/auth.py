@@ -17,7 +17,6 @@ from app.services.oauth.permissions import parse_permissions_from_scope, Permiss
 from app.services.api import ApiErrorException, ApiErrorCode
 from app.database.repositories import UsersRepository, UserSessionsRepository
 from app.database.models.user_session import UserSession
-from app.database.dependencies import get_db
 from app.config import get_logger
 
 
@@ -45,7 +44,7 @@ class AuthDataDependency:
             "allow_not_confirmed": allow_not_confirmed,
         }
 
-    def __call__(self, req: Request, db: Session = Depends(get_db)):
+    def __call__(self, req: Request, db: Session = Depends()):
         return query_auth_data_from_request(req=req, db=db, **self.kwargs)  # type: ignore
 
 

@@ -27,11 +27,6 @@ worker.conf.beat_schedule = {
         "schedule": crontab(minute=0, hour=0),
         "args": (),
     },
-    "refresh_subscriptions": {
-        "task": "truncate_oauth_codes",
-        "schedule": crontab(minute=0, hour=0),
-        "args": (),
-    },
 }
 
 
@@ -40,7 +35,7 @@ def truncate_oauth_codes():
     """
     Task that will be executed periodically
     and truncate the oauth_codes table that is not required to store long history.
-    TODO: Remove this task and researh better solution?
+    TODO: Use redis.
     """
     logger.info("[truncate_oauth_codes] Truncating oauth codes database table...")
     with SessionLocal() as db:
@@ -48,13 +43,4 @@ def truncate_oauth_codes():
     logger.info(
         "[truncate_oauth_codes] Finished truncating oauth codes database table!"
     )
-    return True
-
-
-@worker.task(name="refresh_subscriptions")
-def refresh_subscriptions():
-    """
-    Task that will be executed periodically and refresh (validate and work with) subscriptions.
-    !TODO: Rework subscriptions system with refreshing.
-    """
     return True

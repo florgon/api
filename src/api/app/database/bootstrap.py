@@ -10,13 +10,28 @@ from sqlalchemy import select
 from app.database.repositories.users import UsersRepository
 from app.database.repositories.oauth_clients import OAuthClientsRepository
 from app.database.dependencies import SessionLocal, Session
-from app.config import get_settings, get_logger
+from app.database.core import engine, create_all
+from app.config import get_settings, get_logger, get_database_settings
+
+
+def bootstrap_database() -> None:
+    wait_for_database_startup()
+    create_all()
+    create_start_database_entries()
+
+
+def dispose_database() -> None:
+    if not engine:
+        return
+    engine.dispose()
 
 
 def create_start_database_entries() -> None:
     """
     Creates initial OAuth client and super user for first time.
     """
+    if not get_database_settings().orm_create_all:
+        return
     db = SessionLocal()
     _create_superuser_if_not_exists(db=db)
     _create_initial_oauth_client_if_not_exists(db=db)
@@ -29,13 +44,13 @@ def wait_for_database_startup() -> None:
     """
     try:
         db = SessionLocal()
-        db.execute(select(1))
+        db.execute(select(1))  # type: ignore[arg-type]
         db.close()
     except OperationalError:
         get_logger().warning(
-            "[database] Database is starting up! Waiting next 1 second."
+            "[database] Database is starting up! Waiting next 3 second."
         )
-        sleep(1)
+        sleep(3)
         wait_for_database_startup()
 
 

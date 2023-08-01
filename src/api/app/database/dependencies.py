@@ -12,7 +12,7 @@ from .core import sessionmaker, SessionLocal
 T = TypeVar("T")
 
 
-def get_db() -> sessionmaker:
+def get_db() -> sessionmaker:  # type: ignore[misc]
     """
     Returns database session for making plain database requests.
     Notice: Should be slowly moved inside abstraction layer (like, repositories)
@@ -30,7 +30,7 @@ def get_repository(repo_type: type[T]) -> Callable[[Session], T]:
     (Returns function that instantiates repository with given type)
     """
 
-    def wrapper(db: Session = Depends(get_db)) -> T:
-        return repo_type(db)
+    def wrapper(db: Session = Depends()) -> T:
+        return repo_type(db)  # type: ignore[call-arg]
 
     return wrapper

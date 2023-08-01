@@ -19,7 +19,7 @@ from app.database.repositories import (
     OAuthClientUseRepository,
     OAuthClientsRepository,
 )
-from app.database.dependencies import get_repository, get_db
+from app.database.dependencies import get_repository
 
 router = APIRouter(tags=["client"], prefix="/client")
 
@@ -121,7 +121,7 @@ async def get_client(
     client_id: int,
     check_is_linked: bool = False,
     scope: str = "",
-    db: Session = Depends(get_db),
+    db: Session = Depends(),
     repo: OAuthClientsRepository = Depends(get_repository(OAuthClientsRepository)),
 ) -> JSONResponse:
     """OAUTH API endpoint for getting oauth authorization client data."""
@@ -170,7 +170,7 @@ async def method_oauth_client_expire_secret(
 
 @router.get("/patch", deprecated=True)
 async def method_oauth_client_update(
-    client_id: int, req: Request, db: Session = Depends(get_db)
+    client_id: int, req: Request, db: Session = Depends()
 ) -> JSONResponse:
     """OAUTH API endpoint for updating client information."""
     auth_data = query_auth_data_from_request(
