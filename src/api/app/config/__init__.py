@@ -4,7 +4,6 @@
 
 
 from .environment import *
-from .dependency_overrides import DEPENDENCY_OVERRIDES
 
 
 def get_app_kwargs() -> dict:
@@ -35,5 +34,4 @@ __all__ = [
     "get_gatey_settings",
     "get_openapi_kwargs",
     "get_app_kwargs",
-    "DEPENDENCY_OVERRIDES",
 ]
