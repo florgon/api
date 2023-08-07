@@ -23,7 +23,7 @@ def oauth_authorization_code_flow(
     # as it should be resolved to access token with default TTL immediately at server.
     scope = normalize_scope(model.scope)
     time_to_live = settings.security_oauth_code_tokens_ttl
-    stored_code = OAuthCodesRepository(db).create(user.id, client_id, session.id)  # type: ignore
+    stored_code = OAuthCodesRepository(db).create(user.id, model.client_id, session.id)  # type: ignore
     code = OAuthCode(
         settings.security_tokens_issuer,
         time_to_live,
